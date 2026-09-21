@@ -1,3 +1,5 @@
+package Core.Entities;
+
 public abstract class Book {
     protected String bookId;
     protected String title;
@@ -6,7 +8,7 @@ public abstract class Book {
 
     public Book(String bookId, String title, double price, int quantity) {
         setBookId(bookId);
-        this.title = title;
+        setTitle(title);
         setPrice(price);
         setQuantity(quantity);
     }
@@ -19,7 +21,7 @@ public abstract class Book {
         if (bookId == null || bookId.trim().isEmpty()) {
             throw new IllegalArgumentException("Lỗi: Mã sách không được để trống!");
         }
-        this.bookId = bookId;
+        this.bookId = bookId.trim();
     }
 
     public String getTitle() {
@@ -27,7 +29,10 @@ public abstract class Book {
     }
 
     public void setTitle(String title) {
-        this.title = title;
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("Lỗi: Tên sách không được để trống!");
+        }
+        this.title = title.trim();
     }
 
     public double getPrice() {
@@ -53,4 +58,9 @@ public abstract class Book {
     }
 
     public abstract double calculateTotalValue();
+
+    @Override
+    public String toString() {
+        return String.format("Mã: %-6s | Tên: %-25s | Giá: %-8.2f | SL: %-3d", bookId, title, price, quantity);
+    }
 }

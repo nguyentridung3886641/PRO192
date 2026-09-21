@@ -1,9 +1,11 @@
+package Core.Entities;
+
 public class TextBook extends Book {
     private String genre;
 
     public TextBook(String bookId, String title, double price, int quantity, String genre) {
         super(bookId, title, price, quantity);
-        this.genre = genre;
+        setGenre(genre);
     }
 
     public String getGenre() {
@@ -11,7 +13,7 @@ public class TextBook extends Book {
     }
 
     public void setGenre(String genre) {
-        this.genre = genre;
+        this.genre = (genre != null && !genre.trim().isEmpty()) ? genre.trim() : "Tổng hợp";
     }
 
     @Override
@@ -21,7 +23,7 @@ public class TextBook extends Book {
 
     @Override
     public String toString() {
-        return "TextBook [Mã: " + getBookId() + " | Tên: " + title + " | Thể loại: " + genre
-                + " | Giá: $" + getPrice() + " | Số Lượng: " + getQuantity() + "]";
+        return String.format("TextBook      [%s | Thể loại: %-12s | Tổng trị giá: %.2f]", 
+                super.toString(), genre, calculateTotalValue());
     }
 }

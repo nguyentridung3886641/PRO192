@@ -1,20 +1,14 @@
+package Core.Entities;
+
 import java.time.LocalDate;
 
 public class Member extends User {
-
     private LocalDate registrationDate;
     private boolean active;
 
-    public Member(
-            String userId,
-            String fullName,
-            String phone,
-            LocalDate dateOfBirth,
-            LocalDate registrationDate) {
-
+    public Member(String userId, String fullName, String phone, LocalDate dateOfBirth, LocalDate registrationDate) {
         super(userId, fullName, phone, dateOfBirth);
-
-        this.registrationDate = registrationDate;
+        setRegistrationDate(registrationDate);
         this.active = true;
     }
 
@@ -22,23 +16,29 @@ public class Member extends User {
         return registrationDate;
     }
 
-    public String getActive() {
-        if (active) {
-            return "active";
-        } else {
-            return "inactive";
-        }
+    public void setRegistrationDate(LocalDate registrationDate) {
+        this.registrationDate = (registrationDate != null) ? registrationDate : LocalDate.now();
     }
 
-    public void setRegistrationDate(LocalDate newRegistrationDate) {
-        this.registrationDate = newRegistrationDate;
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public String getStatusText() {
+        return active ? "Đang hoạt động" : "Bị khóa";
     }
 
     public void toggleStatus() {
-        this.active = !active;
+        this.active = !this.active;
     }
 
-    public void setActive(boolean newStatus) {
-        this.active = newStatus;
+    @Override
+    public String toString() {
+        String regDate = (registrationDate != null) ? registrationDate.format(DATE_FORMAT) : "N/A";
+        return String.format("%s | Ngày ĐK: %-10s | Trạng thái: %s", super.toString(), regDate, getStatusText());
     }
 }
