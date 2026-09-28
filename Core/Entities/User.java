@@ -4,10 +4,10 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public abstract class User {
-    protected String userId;
-    protected String fullName;
-    protected String phone;
-    protected LocalDate dateOfBirth;
+    private String userId;
+    private String fullName;
+    private String phone;
+    private LocalDate dateOfBirth;
     protected static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public User(String userId, String fullName, String phone, LocalDate dateOfBirth) {
