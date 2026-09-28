@@ -6,7 +6,8 @@ public class Member extends User {
     private LocalDate registrationDate;
     private boolean active;
 
-    public Member(String userId, String fullName, String phone, LocalDate dateOfBirth, LocalDate registrationDate) {
+    public Member(String userId, String fullName, String phone,
+                  LocalDate dateOfBirth, LocalDate registrationDate) {
         super(userId, fullName, phone, dateOfBirth);
         setRegistrationDate(registrationDate);
         this.active = true;
@@ -39,6 +40,7 @@ public class Member extends User {
     @Override
     public String toString() {
         String regDate = (registrationDate != null) ? registrationDate.format(DATE_FORMAT) : "N/A";
-        return String.format("%s | Ngày ĐK: %-10s | Trạng thái: %s", super.toString(), regDate, getStatusText());
+        return String.format("%s | Ngày ĐK: %-10s | Trạng thái: %s",
+                super.toString(), regDate, getStatusText());
     }
 }
