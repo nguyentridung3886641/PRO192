@@ -1,0 +1,16 @@
+import java.util.List;
+
+public interface IMemberDAO {
+
+    boolean add(Member member);
+
+    boolean update(Member member);
+
+    boolean delete(String userId);
+
+    Member findById(String userId);
+
+    List<Member> getAll();
+
+    List<Member> searchByName(String keyword);
+}
