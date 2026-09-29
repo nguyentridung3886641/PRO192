@@ -13,11 +13,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * Giao diện điều khiển và quản trị phân hệ Sách (Book Management UI).
- * Hiển thị bảng biểu chi tiết, thẩm mỹ và hỗ trợ đầy đủ các thao tác CRUD.
- * Milestone 2 - PRO192 (Member 2: Book & Publication Module)
- */
+
 public class BookManagement {
 
     private final IBookDAO bookDAO;
@@ -30,9 +26,6 @@ public class BookManagement {
         this.bookDAO = (bookDAO != null) ? bookDAO : new BookDAO();
     }
 
-    /**
-     * Vòng lặp Menu chính cho phân hệ Quản lý Sách.
-     */
     public void processMenuForBook() {
         boolean running = true;
         while (running) {
@@ -96,9 +89,6 @@ public class BookManagement {
         System.out.println("==========================================================================================");
     }
 
-    /**
-     * In danh sách sách dưới dạng bảng biểu chuyên nghiệp.
-     */
     public void printBookTable(List<Book> books, String tableTitle) {
         String sep = "+----------+----------------------------------+-----------------+------------------------+----------+----------------+----------------+";
         int totalWidth = sep.length();
@@ -161,17 +151,11 @@ public class BookManagement {
         System.out.println(makeLine('=', totalWidth));
     }
 
-    /**
-     * 1. Hiển thị toàn bộ danh sách sách.
-     */
     public void printAllBooks() {
         List<Book> list = bookDAO.getBookList();
         printBookTable(list, "DANH SÁCH TOÀN BỘ SÁCH TRONG KHO");
     }
 
-    /**
-     * 2. Thêm sách mới vào kho.
-     */
     public void addNewBook() {
         System.out.println("\n--- [ THÊM SÁCH MỚI VÀO KHO ] ---");
         System.out.println("Chọn loại sách cần thêm:");
@@ -213,9 +197,6 @@ public class BookManagement {
         }
     }
 
-    /**
-     * 3. Cập nhật thông tin sách theo mã sách.
-     */
     public void updateBook() {
         System.out.println("\n--- [ CẬP NHẬT THÔNG TIN SÁCH ] ---");
         String bookId = DataInput.getNonEmptyString("Nhập Mã sách cần cập nhật: ");
@@ -232,13 +213,10 @@ public class BookManagement {
 
         System.out.println(">> Hướng dẫn: Nhập thông tin mới hoặc nhấn Enter để giữ nguyên giá trị cũ.");
 
-        // Cập nhật tên
         String newTitle = DataInput.getString(String.format("Tên mới [Hiện tại: '%s']: ", current.getTitle()));
         if (!newTitle.trim().isEmpty()) {
             current.setTitle(newTitle.trim());
         }
-
-        // Cập nhật giá
         String priceStr = DataInput.getString(String.format("Đơn giá mới [Hiện tại: %,.2f VNĐ]: ", current.getPrice()));
         if (!priceStr.trim().isEmpty()) {
             try {
@@ -252,8 +230,6 @@ public class BookManagement {
                 System.out.println(">> Định dạng số không hợp lệ, giữ nguyên giá cũ.");
             }
         }
-
-        // Cập nhật số lượng
         String qtyStr = DataInput.getString(String.format("Số lượng mới [Hiện tại: %d]: ", current.getQuantity()));
         if (!qtyStr.trim().isEmpty()) {
             try {
@@ -267,8 +243,6 @@ public class BookManagement {
                 System.out.println(">> Định dạng số không hợp lệ, giữ nguyên số lượng cũ.");
             }
         }
-
-        // Cập nhật trường riêng
         if (current instanceof TextBook) {
             TextBook tb = (TextBook) current;
             String newGenre = DataInput.getString(String.format("Thể loại mới [Hiện tại: '%s']: ", tb.getGenre()));
@@ -292,9 +266,6 @@ public class BookManagement {
         }
     }
 
-    /**
-     * 4. Xóa sách khỏi kho lưu trữ.
-     */
     public void deleteBook() {
         System.out.println("\n--- [ XÓA SÁCH KHỎI HỆ THỐNG ] ---");
         String bookId = DataInput.getNonEmptyString("Nhập Mã sách cần xóa: ");
@@ -321,10 +292,6 @@ public class BookManagement {
             System.out.println(">> Đã hủy thao tác xóa sách.");
         }
     }
-
-    /**
-     * 5. Tìm kiếm sách theo Mã sách (Book ID).
-     */
     public void findBookById() {
         System.out.println("\n--- [ TÌM KIẾM SÁCH THEO MÃ ] ---");
         String bookId = DataInput.getNonEmptyString("Nhập Mã sách cần tìm: ");
@@ -338,10 +305,6 @@ public class BookManagement {
             System.out.println(">> Không tìm thấy sách nào có mã: " + bookId);
         }
     }
-
-    /**
-     * 6. Tìm kiếm sách theo Tên sách (Title).
-     */
     public void searchBooksByTitle() {
         System.out.println("\n--- [ TÌM KIẾM SÁCH THEO TÊN ] ---");
         String keyword = DataInput.getNonEmptyString("Nhập từ khóa tên sách cần tìm: ");
@@ -354,9 +317,6 @@ public class BookManagement {
         }
     }
 
-    /**
-     * 7. Submenu sắp xếp danh sách sách.
-     */
     public void sortBooksSubMenu() {
         System.out.println("\n--- [ SẮP XẾP DANH SÁCH SÁCH ] ---");
         System.out.println("  1. Sắp xếp theo Tên sách (A -> Z)");
@@ -402,10 +362,6 @@ public class BookManagement {
 
         printBookTable(list, title);
     }
-
-    /**
-     * 8. Báo cáo thống kê tổng quan kho sách.
-     */
     public void displayInventoryReport() {
         List<Book> all = bookDAO.getBookList();
         int totalTitles = all.size();
@@ -509,9 +465,6 @@ public class BookManagement {
         return text.substring(0, maxLength - 3) + "...";
     }
 
-    /**
-     * Phương thức main cho phép chạy trực tiếp và kiểm thử độc lập module BookManagement.
-     */
     public static void main(String[] args) {
         IBookDAO bookDAO = new BookDAO();
         BookManagement management = new BookManagement(bookDAO);
