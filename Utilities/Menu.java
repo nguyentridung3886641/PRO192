@@ -26,10 +26,19 @@ public class Menu {
 
     public static void printHeader(String title) {
         int width = 60;
-        String border = "=".repeat(width);
+        String border = repeat("=", width);
         System.out.println("\n" + border);
         int padding = (width - title.length()) / 2;
-        System.out.println(" ".repeat(Math.max(0, padding)) + title.toUpperCase());
+        System.out.println(repeat(" ", Math.max(0, padding)) + title.toUpperCase());
         System.out.println(border);
+    }
+
+    private static String repeat(String str, int count) {
+        if (count <= 0) return "";
+        StringBuilder sb = new StringBuilder(count * str.length());
+        for (int i = 0; i < count; i++) {
+            sb.append(str);
+        }
+        return sb.toString();
     }
 }
