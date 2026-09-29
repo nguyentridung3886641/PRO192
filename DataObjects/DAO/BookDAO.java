@@ -9,10 +9,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-/**
- * Implementation of IBookDAO managing an ArrayList of Book objects.
- * Milestone 2 - PRO192 (Member 2: Book & Publication Module)
- */
+
 public class BookDAO implements IBookDAO {
 
     private final List<Book> bookList = new ArrayList<>();
@@ -27,9 +24,6 @@ public class BookDAO implements IBookDAO {
         }
     }
 
-    /**
-     * Initializes initial sample mock data for testing and demonstration.
-     */
     public void initSampleData() {
         bookList.clear();
         addBook(new TextBook("B001", "Lập trình Hướng đối tượng Java", 125000, 30, "CNTT"));
@@ -45,7 +39,7 @@ public class BookDAO implements IBookDAO {
             return false;
         }
         if (findBookById(book.getBookId()) != null) {
-            return false; // Book ID already exists
+            return false;
         }
         return bookList.add(book);
     }
