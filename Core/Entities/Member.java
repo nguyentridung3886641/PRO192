@@ -1,5 +1,3 @@
-package Core.Entities;
-
 import java.time.LocalDate;
 
 public class Member extends User {
