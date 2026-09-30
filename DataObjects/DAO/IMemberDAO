@@ -1,12 +1,16 @@
+import java.time.LocalDate;
 import java.util.List;
 
 public interface IMemberDAO {
 
     boolean add(Member member);
 
-    boolean update(Member member);
+    boolean update(Member member,
+                   String fullName,
+                   String phone,
+                   LocalDate dateOfBirth);
 
-    boolean delete(String userId);
+    boolean delete(Member member);
 
     Member findById(String userId);
 
