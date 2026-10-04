@@ -76,7 +76,7 @@ public class DataInput {
             try {
                 return LocalDate.parse(input, DATE_FORMATTER);
             } catch (DateTimeParseException e) {
-                System.out.println(">> Lỗi: Ngày tháng không đúng định dạng dd/MM/yyyy (VD: 25/12/2005)!");
+                System.out.println(">> Lỗi: Ngày tháng không đúng định dạng dd/MM/yyyy!");
             }
         }
     }
