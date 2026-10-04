@@ -6,7 +6,7 @@ import java.util.List;
 public class Menu {
 
     private Menu() {
-        // Utility class, không khởi tạo đối tượng
+
     }
 
     public static void print(String menuString) {
