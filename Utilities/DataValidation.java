@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 public final class DataValidation {
 
     private DataValidation() {
-        // Utility class, không khởi tạo đối tượng
+        
     }
 
     public static boolean checkStringEmpty(String value) {
@@ -36,7 +36,6 @@ public final class DataValidation {
     }
 
     public static boolean isValidPhone(String phone) {
-        // Số điện thoại Việt Nam: 10 chữ số, bắt đầu bằng số 0
         return checkStringWithFormat(phone, "0\\d{9}");
     }
 
@@ -45,7 +44,6 @@ public final class DataValidation {
     }
 
     public static boolean isValidId(String id, String prefix) {
-        // Định dạng mã: Tiền tố + ít nhất 3 chữ số (VD: B001, M001, BR001)
         return checkStringWithFormat(id, "^" + prefix + "\\d{3,}$");
     }
 }
