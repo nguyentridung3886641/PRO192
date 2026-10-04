@@ -15,7 +15,7 @@ public class BorrowRecord {
     private LocalDate returnDate;
     private boolean returned;
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    public static final double FINE_PER_DAY = 5000.0; // 5.000 VNĐ mỗi ngày trễ hạn
+    public static final double FINE_PER_DAY = 5000.0; // 5.000 VNĐ mỗi ngày trễ hạ
 
     public BorrowRecord(String recordId, Member member, LocalDate borrowDate, int borrowPeriodDays) {
         setRecordId(recordId);
