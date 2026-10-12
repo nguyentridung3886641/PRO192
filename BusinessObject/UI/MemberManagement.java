@@ -1,216 +1,321 @@
-import java.time.LocalDate;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Locale;
-import java.util.Scanner;
+package BusinessObject.UI;
 
-public class MemberManager {
+import Core.Entities.Member;
+import Core.Entities.User;
+import DataObjects.DAO.IMemberDAO;
+import DataObjects.DAO.MemberDAO;
+import Utilities.DataInput;
+import Utilities.DataValidation;
+import Utilities.Menu;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Giao diện điều khiển phân hệ Quản lý Độc giả & Người dùng (Member Management UI).
+ * Tích hợp Tính năng 1 (Hạng thẻ & Điểm uy tín) và Tính năng 8 (Biểu đồ ASCII).
+ * 
+ * PRO192 - Phân hệ Độc giả & Người dùng (Member 1)
+ */
+public class MemberManagement {
 
     private final IMemberDAO memberDAO;
-    private final Scanner scanner;
 
-    MemberManager(IMemberDAO memberDAO, Scanner scanner){
-        this.memberDAO = memberDAO;
-        this.scanner = scanner;
+    public MemberManagement() {
+        this.memberDAO = new MemberDAO();
     }
 
-    public void menu(){
+    public MemberManagement(IMemberDAO memberDAO) {
+        this.memberDAO = (memberDAO != null) ? memberDAO : new MemberDAO();
+    }
 
-        System.out.println("========== MEMBER MANAGEMENT ==========");
-        System.out.println("1. Add Member");
-        System.out.println("2. Display Member");
-        System.out.println("3. Search Member");
-        System.out.println("4. Update Member");
-        System.out.println("5. Delete Member");
-        System.out.println("6. Exit");
-        System.out.print("Enter your choice: ");
-
-        try{
-            int choice = scanner.nextInt();
-
+    public void processMenuForMember() {
+        boolean running = true;
+        while (running) {
+            printMenuHeader();
+            int choice = DataInput.getIntegerNumber(">> Nhập lựa chọn của bạn [0-9]: ");
+            System.out.println();
             switch (choice) {
-                case 1 -> addMember();
-                case 2 -> displayMember();
-                case 3 -> searchMember();
-                case 4 -> updateMember();
-                case 5 -> deleteMember();
-                case 6 -> {
-                    System.out.println("Exiting...");
-                    return;
-                }
-                default -> System.out.println("Invalid choice! Please enter 1-6.");
+                case 1:
+                    displayMembers(memberDAO.getAll(), "DANH SÁCH TOÀN BỘ ĐỘC GIẢ THƯ VIỆN");
+                    break;
+                case 2:
+                    addMember();
+                    break;
+                case 3:
+                    updateMember();
+                    break;
+                case 4:
+                    deleteMember();
+                    break;
+                case 5:
+                    searchMemberSubMenu();
+                    break;
+                case 6:
+                    toggleMemberStatus();
+                    break;
+                case 7:
+                    sortMemberSubMenu();
+                    break;
+                case 8:
+                    displayMembershipTierAnalytics();
+                    break;
+                case 9:
+                    if (memberDAO.saveToFile()) {
+                        System.out.println(">> Đã lưu danh sách độc giả ra file Members.txt thành công!");
+                    }
+                    break;
+                case 0:
+                    memberDAO.saveToFile();
+                    System.out.println(">> Đã lưu dữ liệu độc giả và quay lại Menu chính!");
+                    running = false;
+                    break;
+                default:
+                    System.out.println(">> Lựa chọn không hợp lệ! Vui lòng chọn từ 0 đến 9.");
+                    break;
             }
-        }
-        catch (InputMismatchException e){
-            System.out.println("Invalid input! Please enter a number.");
+            if (running) {
+                System.out.println("\nNhấn Enter để tiếp tục...");
+                DataInput.getString("");
+            }
         }
     }
-    private void addMember(){
+
+    private void printMenuHeader() {
+        System.out.println("\n==========================================================================================================");
+        System.out.println("                       PHÂN HỆ QUẢN LÝ ĐỘC GIẢ & HẠNG THẺ (MEMBER MANAGEMENT)                             ");
+        System.out.println("==========================================================================================================");
+        System.out.println("  1. Hiển thị danh sách toàn bộ độc giả (Kèm Hạng thẻ, Điểm uy tín & Mức ưu đãi)");
+        System.out.println("  2. Thêm mới độc giả");
+        System.out.println("  3. Cập nhật thông tin độc giả");
+        System.out.println("  4. Xóa độc giả theo mã ID");
+        System.out.println("  5. Tìm kiếm & Lọc độc giả (Theo Mã / Họ Tên / SĐT / Hạng Thẻ VIP-GOLD-SILVER)");
+        System.out.println("  6. Khóa / Mở khóa thẻ độc giả (Active / Locked)");
+        System.out.println("  7. Sắp xếp danh sách độc giả (Theo Điểm Uy Tín / Họ Tên / Mã ID)");
+        System.out.println("  8. Biểu đồ thống kê phân bố Hạng Thẻ Độc Giả (ASCII Bar Chart)");
+        System.out.println("  9. Lưu danh sách độc giả ra file (Members.txt)");
+        System.out.println("  0. Lưu & Quay lại Menu chính");
+        System.out.println("==========================================================================================================");
+    }
+
+    public void displayMembers(List<Member> members, String title) {
+        System.out.println("--------------------------------------------------------------------------------------------------------------------");
+        System.out.println("  " + title + " (Tổng số: " + members.size() + " độc giả)");
+        System.out.println("--------------------------------------------------------------------------------------------------------------------");
+        if (members.isEmpty()) {
+            System.out.println("  >> Không tìm thấy độc giả nào trong danh sách!");
+            System.out.println("--------------------------------------------------------------------------------------------------------------------");
+            return;
+        }
+        System.out.printf("| %-6s | %-22s | %-11s | %-10s | %-7s | %-8s | %-8s | %-8s | %-15s |\n",
+                "Mã ĐG", "Họ và Tên", "Số ĐT", "Ngày Sinh", "Điểm UT", "Hạng Thẻ", "Ưu Đãi", "Hạn Mức", "Trạng Thái");
+        System.out.println("--------------------------------------------------------------------------------------------------------------------");
+        for (int i = 0; i < members.size(); i++) {
+            Member m = members.get(i);
+            String dob = (m.getDateOfBirth() != null) ? m.getDateOfBirth().format(User.DATE_FORMAT) : "N/A";
+            String discountStr = String.format("-%.0f%%", m.getDiscountRate() * 100);
+            String limitStr = m.getMaxBorrowLimit() + " cuốn";
+            System.out.printf("| %-6s | %-22s | %-11s | %-10s | %5d đ | %-8s | %-8s | %-8s | %-15s |\n",
+                    m.getUserId(), m.getFullName(), m.getPhone(), dob,
+                    m.getReputationPoints(), m.getMembershipTier(), discountStr, limitStr, m.getStatusText());
+        }
+        System.out.println("--------------------------------------------------------------------------------------------------------------------");
+    }
+
+    private void addMember() {
+        System.out.println("--- THÊM ĐỘC GIẢ MỚI ---");
         String userId;
-        String fullName;
-        String phone;
-        LocalDate dateOfBirth;
-        LocalDate registrationDate;
-
-        while(true){
-            System.out.println("Enter user ID: ");
-            userId = scanner.nextLine();
-
-            if (memberDAO.findById(userId) != null) {
-                System.out.println("ID already existed! Try another one");
+        while (true) {
+            userId = DataInput.getNonEmptyString("Nhập mã độc giả (VD: M006): ").toUpperCase();
+            if (!DataValidation.isValidId(userId, "M")) {
+                System.out.println(">> Lỗi: Mã độc giả phải bắt đầu bằng 'M' theo sau ít nhất 3 chữ số (VD: M001)!");
+                continue;
             }
-            else{
+            if (memberDAO.findById(userId) != null) {
+                System.out.println(">> Lỗi: Mã độc giả " + userId + " đã tồn tại! Vui lòng nhập mã khác.");
+            } else {
                 break;
             }
         }
 
-        System.out.println("Enter full name: ");
-        fullName = scanner.nextLine().trim();
-
-        System.out.println("Enter phone number: ");
-        phone = scanner.nextLine().trim();
-
-        System.out.println("Enter dateOfBirth: ");
-        String strDateOfBirth = scanner.nextLine().trim();
-        dateOfBirth = LocalDate.parse(strDateOfBirth, User.DATE_FORMAT);
-
-        registrationDate = LocalDate.now();
-
-        Member member = new Member(userId, fullName, phone, dateOfBirth, registrationDate);
-
-        if(memberDAO.add(member)){
-            System.out.println("Member added successfully");
-        }
-        else{
-            System.out.println("Failed to add member");
-        }
-    }
-
-    private void displayMember(){
-
-        List<Member> members = memberDAO.getAll();
-
-        if(members.isEmpty()){
-            System.out.println("No members found");
-        }
-
-        for(Member member : members){
-            System.out.println(member);
-        }
-    }
-
-    private void searchMember(){
-        int choice;
-
-        do{
-            System.out.println("\n===== SEARCH MEMBER =====");
-            System.out.println("1. Search by ID");
-            System.out.println("2. Search by Name");
-            System.out.println("3. Back");
-            System.out.println("Enter your choice: ");
-
-            choice = scanner.nextInt();
-            scanner.nextLine();
-
-            switch (choice){
-                case 1 -> searchMemberById();
-                case 2 -> searchMemberByName();
-                case 3 -> System.out.println("Back to main menu");
-                default -> System.out.println("Invalid choice");
+        String fullName = DataInput.getNonEmptyString("Nhập họ và tên: ");
+        String phone;
+        while (true) {
+            phone = DataInput.getNonEmptyString("Nhập số điện thoại (9-11 chữ số): ");
+            if (phone.matches("\\d{9,11}")) {
+                break;
             }
+            System.out.println(">> Lỗi: Số điện thoại phải từ 9 đến 11 chữ số!");
+        }
 
-        }while(choice != 3);
+        LocalDate dob;
+        while (true) {
+            dob = DataInput.getDate("Nhập ngày sinh");
+            if (dob != null && !dob.isAfter(LocalDate.now())) {
+                break;
+            }
+            System.out.println(">> Lỗi: Vui lòng nhập ngày sinh hợp lệ (không ở tương lai)!");
+        }
+
+        int initialPoints = DataInput.getIntegerNumber("Nhập điểm uy tín ban đầu [0-150] (Mặc định 50): ", 0, 150);
+        LocalDate registrationDate = LocalDate.now();
+        try {
+            Member member = new Member(userId, fullName, phone, dob, registrationDate, true, initialPoints);
+            if (memberDAO.add(member)) {
+                memberDAO.saveToFile();
+                System.out.println(">> Thêm độc giả mới thành công! Hạng thẻ: " + member.getMembershipTier()
+                        + " (Hạn mức mượn: " + member.getMaxBorrowLimit() + " cuốn)");
+            } else {
+                System.out.println(">> Không thể thêm độc giả!");
+            }
+        } catch (Exception e) {
+            System.out.println(">> Lỗi: " + e.getMessage());
+        }
     }
 
-    private void searchMemberById(){
-        System.out.println("Enter user ID: ");
-        String userId = scanner.nextLine();
-
+    private void updateMember() {
+        System.out.println("--- CẬP NHẬT THÔNG TIN ĐỘC GIẢ ---");
+        String userId = DataInput.getNonEmptyString("Nhập mã độc giả cần cập nhật: ");
         Member member = memberDAO.findById(userId);
-
-        if(member == null){
-            System.out.println("Member not found");
-        }
-        else{
-            System.out.println(member);
-        }
-
-    }
-
-    private void searchMemberByName(){
-        System.out.println("Enter keyword: ");
-        String keyword = scanner.nextLine();
-
-        List<Member> result = memberDAO.searchByName(keyword);
-
-        if(result.isEmpty()){
-            System.out.println("No member found.");
+        if (member == null) {
+            System.out.println(">> Không tìm thấy độc giả có mã: " + userId);
             return;
         }
+        System.out.println("Thông tin hiện tại: " + member);
+        System.out.println("(Nhấn Enter để giữ nguyên giá trị cũ)");
 
-        for(Member member : result){
-            System.out.println(member);
+        String newName = DataInput.getString("Họ tên mới [" + member.getFullName() + "]: ");
+        String newPhone = DataInput.getString("Số điện thoại mới [" + member.getPhone() + "]: ");
+        if (!newPhone.isEmpty() && !newPhone.matches("\\d{9,11}")) {
+            System.out.println(">> Số điện thoại không hợp lệ, giữ nguyên số điện thoại cũ.");
+            newPhone = "";
+        }
+        LocalDate newDob = DataInput.getDate("Ngày sinh mới");
+
+        try {
+            if (memberDAO.update(member, newName, newPhone, newDob)) {
+                memberDAO.saveToFile();
+                System.out.println(">> Cập nhật thông tin độc giả thành công!");
+            }
+        } catch (Exception e) {
+            System.out.println(">> Lỗi cập nhật: " + e.getMessage());
         }
     }
 
-    private void updateMember(){
-        System.out.println("Enter member's ID to update: ");
-        String userId = scanner.nextLine();
-
+    private void deleteMember() {
+        System.out.println("--- XÓA ĐỘC GIẢ ---");
+        String userId = DataInput.getNonEmptyString("Nhập mã độc giả cần xóa: ");
         Member member = memberDAO.findById(userId);
-
-        if(member == null){
-            System.out.println("Member not found");
+        if (member == null) {
+            System.out.println(">> Không tìm thấy độc giả có mã: " + userId);
             return;
         }
-
-        System.out.println(member);
-        System.out.println("==========NEW INFO==========");
-        System.out.print("New Name: ");
-        String name = scanner.nextLine();
-        System.out.print("New Phone number: ");
-        String phone = scanner.nextLine();
-        System.out.print("New date of Birth: ");
-        String strDOB = scanner.nextLine();
-        LocalDate DOB = LocalDate.parse(strDOB, User.DATE_FORMAT);
-
-        if(memberDAO.update(member, name, phone, DOB)){
-            System.out.println("Member updated successfully");
-        }
-        else{
-            System.out.println("Update failed");
-        }
-    }
-
-    private void deleteMember(){
-        System.out.println("Enter userId: ");
-        String userId = scanner.nextLine();
-
-        Member member = memberDAO.findById(userId);
-
-        if(member == null){
-            System.out.println("Member not found");
-            return;
-        }
-
-        System.out.println("Member info: ");
-        System.out.println(member);
-        System.out.println("Are you sure want to delete this member (Y/N)? ");
-        String choice = scanner.nextLine();
-
-        if (choice.trim().equalsIgnoreCase("Y")) {
+        System.out.println("Thông tin độc giả: " + member);
+        if (DataInput.getBoolean("Bạn có chắc chắn muốn xóa độc giả này không?")) {
             if (memberDAO.delete(member)) {
-                System.out.println("Member deleted successfully.");
+                memberDAO.saveToFile();
+                System.out.println(">> Đã xóa độc giả thành công!");
             }
-            else {
-                System.out.println("Delete failed.");
-            }
-        }
-        else if (choice.trim().equalsIgnoreCase("N")) {
-            System.out.println("Delete cancelled.");
         } else {
-            System.out.println("Invalid input.");
+            System.out.println(">> Đã hủy thao tác xóa.");
         }
     }
 
+    private void toggleMemberStatus() {
+        System.out.println("--- KHÓA / MỞ KHÓA THẺ ĐỘC GIẢ ---");
+        String userId = DataInput.getNonEmptyString("Nhập mã độc giả: ");
+        Member member = memberDAO.findById(userId);
+        if (member == null) {
+            System.out.println(">> Không tìm thấy độc giả có mã: " + userId);
+            return;
+        }
+        member.toggleStatus();
+        if (member.isActive() && member.getReputationPoints() < 0) {
+            member.setReputationPoints(50); // Khôi phục điểm mặc định khi mở khóa thẻ
+        }
+        memberDAO.saveToFile();
+        System.out.println(">> Đã chuyển trạng thái của độc giả " + member.getFullName() + " sang: " + member.getStatusText());
+    }
+
+    private void searchMemberSubMenu() {
+        System.out.println("1. Tìm theo Mã Độc Giả | 2. Tìm theo Họ Tên | 3. Tìm theo SĐT | 4. Lọc theo Hạng Thẻ (VIP/GOLD/SILVER)");
+        int choice = DataInput.getIntegerNumber("Chọn tiêu chí tìm kiếm [1-4]: ");
+        switch (choice) {
+            case 1:
+                String id = DataInput.getNonEmptyString("Nhập mã độc giả: ");
+                Member m = memberDAO.findById(id);
+                if (m != null) {
+                    System.out.println(">> Kết quả: " + m);
+                } else {
+                    System.out.println(">> Không tìm thấy độc giả có mã: " + id);
+                }
+                break;
+            case 2:
+                String kw = DataInput.getNonEmptyString("Nhập từ khóa họ tên: ");
+                displayMembers(memberDAO.searchByName(kw), "KẾT QUẢ TÌM KIẾM THEO TÊN: " + kw);
+                break;
+            case 3:
+                String phone = DataInput.getNonEmptyString("Nhập số điện thoại cần tìm: ");
+                displayMembers(memberDAO.searchByPhone(phone), "KẾT QUẢ TÌM KIẾM THEO SĐT: " + phone);
+                break;
+            case 4:
+                String tier = DataInput.getNonEmptyString("Nhập hạng thẻ cần lọc (VIP / GOLD / SILVER): ").toUpperCase();
+                displayMembers(memberDAO.filterByTier(tier), "DANH SÁCH ĐỘC GIẢ HẠNG THẺ: " + tier);
+                break;
+            default:
+                System.out.println(">> Lựa chọn không hợp lệ!");
+                break;
+        }
+    }
+
+    private void sortMemberSubMenu() {
+        System.out.println("1. Sắp xếp theo Điểm Uy Tín (Cao -> Thấp) | 2. Sắp xếp theo Họ Tên (A -> Z) | 3. Sắp xếp theo Mã ID");
+        int choice = DataInput.getIntegerNumber("Chọn kiểu sắp xếp [1-3]: ");
+        if (choice == 1) {
+            displayMembers(memberDAO.sortByReputationDescending(), "BẢNG XẾP HẠNG ĐỘC GIẢ THEO ĐIỂM UY TÍN (CAO -> THẤP)");
+        } else if (choice == 2) {
+            displayMembers(memberDAO.sortByNameAscending(), "DANH SÁCH ĐỘC GIẢ SẮP XẾP THEO TÊN (A-Z)");
+        } else if (choice == 3) {
+            displayMembers(memberDAO.sortByIdAscending(), "DANH SÁCH ĐỘC GIẢ SẮP XẾP THEO MÃ ID");
+        } else {
+            System.out.println(">> Lựa chọn không hợp lệ!");
+        }
+    }
+
+    private void displayMembershipTierAnalytics() {
+        List<Member> all = memberDAO.getAll();
+        int vipCount = 0;
+        int goldCount = 0;
+        int silverCount = 0;
+        int lockedCount = 0;
+
+        for (int i = 0; i < all.size(); i++) {
+            Member m = all.get(i);
+            String tier = m.getMembershipTier();
+            if (tier.equals("VIP")) {
+                vipCount++;
+            } else if (tier.equals("GOLD")) {
+                goldCount++;
+            } else {
+                silverCount++;
+            }
+            if (!m.isActive()) {
+                lockedCount++;
+            }
+        }
+
+        List<String> labels = new ArrayList<>();
+        labels.add("Hạng VIP (>=100đ, -25%)");
+        labels.add("Hạng GOLD (60-99đ, -10%)");
+        labels.add("Hạng SILVER (<60đ, 0%)");
+        labels.add("Thẻ Đang Bị Khóa");
+
+        List<Integer> values = new ArrayList<>();
+        values.add(vipCount);
+        values.add(goldCount);
+        values.add(silverCount);
+        values.add(lockedCount);
+
+        Menu.printAsciiBarChart("PHÂN BỐ HẠNG THẺ ĐỘC GIẢ THƯ VIỆN", labels, values, "độc giả");
+    }
 }

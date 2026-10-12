@@ -37,7 +37,7 @@ public class BookManagement {
         boolean running = true;
         while (running) {
             printMenuHeader();
-            int choice = DataInput.getIntegerNumber(">> Nhập lựa chọn của bạn [0-9]: ");
+            int choice = DataInput.getIntegerNumber(">> Nhập lựa chọn của bạn [0-12]: ");
             System.out.println();
             switch (choice) {
                 case 1:
@@ -67,13 +67,22 @@ public class BookManagement {
                 case 9:
                     displayInventoryReport();
                     break;
+                case 10:
+                    rateAndRecommendSubMenu();
+                    break;
+                case 11:
+                    reservationQueueSubMenu();
+                    break;
+                case 12:
+                    displayBookInventoryChart();
+                    break;
                 case 0:
                     System.out.println(">> Đang lưu dữ liệu và thoát khỏi phân hệ Quản lý Sách. Hẹn gặp lại!");
                     bookDAO.saveToFile();
                     running = false;
                     break;
                 default:
-                    System.out.println(">> Lựa chọn không hợp lệ! Vui lòng chọn số từ 0 đến 9.");
+                    System.out.println(">> Lựa chọn không hợp lệ! Vui lòng chọn số từ 0 đến 12.");
                     break;
             }
             if (running) {
@@ -98,6 +107,9 @@ public class BookManagement {
         System.out.println("  7. Mô phỏng tính phí mượn theo Đa hình (Polymorphic Borrow Fee Simulator)                             ");
         System.out.println("  8. Quản lý lưu trữ file Books.txt (Lưu file / Tải lại file)                                           ");
         System.out.println("  9. Báo cáo thống kê & Tổng quan giá trị kho sách                                                      ");
+        System.out.println(" 10. Đánh giá Sao (1-5 ⭐) & Gợi ý Sách Thông minh (Smart Book Recommendation)                          ");
+        System.out.println(" 11. Hàng đợi Đặt trước Sách khi hết hàng (Book Reservation Queue)                                      ");
+        System.out.println(" 12. Biểu đồ Trực quan Tồn kho theo Đầu sách (Console ASCII Bar Chart)                                  ");
         System.out.println("  0. Quay lại Menu chính / Thoát                                                                        ");
         System.out.println("========================================================================================================");
     }
@@ -692,6 +704,120 @@ public class BookManagement {
         if (text == null) return "";
         if (text.length() <= maxLength) return text;
         return text.substring(0, maxLength - 3) + "...";
+    }
+
+    // ========================================================
+    // Tính năng 3, 7, 8: Đánh giá Sao & Gợi ý Sách, Hàng đợi Đặt trước, Biểu đồ ASCII
+    // ========================================================
+
+    private void rateAndRecommendSubMenu() {
+        System.out.println("==========================================================================================");
+        System.out.println("              ĐÁNH GIÁ SAO (1-5 ⭐) & GỢI Ý SÁCH THÔNG MINH (FEATURE 3)                    ");
+        System.out.println("==========================================================================================");
+        System.out.println("  1. Chấm điểm Sao (1-5 ⭐) cho cuốn sách bạn đã đọc");
+        System.out.println("  2. Gợi ý Top 3 cuốn sách liên quan có điểm đánh giá cao nhất");
+        System.out.println("  3. Xem bảng xếp hạng Sách theo số Sao đánh giá");
+        int subChoice = DataInput.getIntegerNumber(">> Chọn chức năng [1-3]: ");
+
+        if (subChoice == 1) {
+            String bookId = DataInput.getNonEmptyString("Nhập mã sách muốn đánh giá (VD: B001): ").toUpperCase();
+            Book book = bookDAO.findBookById(bookId);
+            if (book == null) {
+                System.out.println(">> Không tìm thấy sách có mã: " + bookId);
+                return;
+            }
+            System.out.println("Sách đang chọn: " + book.getTitle() + " | Điểm hiện tại: " + book.getStarDisplay());
+            int stars = DataInput.getIntegerNumber("Nhập số sao đánh giá [1-5]: ", 1, 5);
+            if (bookDAO.rateBook(bookId, stars)) {
+                System.out.println(">> Cảm ơn bạn đã đánh giá! Điểm mới của sách '" + book.getTitle() + "' là: " + book.getStarDisplay());
+            }
+        } else if (subChoice == 2) {
+            String bookId = DataInput.getNonEmptyString("Nhập mã cuốn sách bạn đang quan tâm (VD: B001): ").toUpperCase();
+            Book target = bookDAO.findBookById(bookId);
+            if (target == null) {
+                System.out.println(">> Không tìm thấy sách có mã: " + bookId);
+                return;
+            }
+            System.out.println("\n>> Dựa trên cuốn '" + target.getTitle() + "', hệ thống gợi ý Top 3 cuốn sách cùng nhóm có đánh giá cao nhất:");
+            List<Book> recommended = bookDAO.getRecommendedBooks(bookId, 3);
+            for (int i = 0; i < recommended.size(); i++) {
+                Book rec = recommended.get(i);
+                System.out.printf("   %d. [%s] %-35s | Tác giả: %-18s | Đánh giá: %s | Còn: %d cuốn\n",
+                        i + 1, rec.getBookId(), rec.getTitle(), rec.getAuthor(), rec.getStarDisplay(), rec.getQuantity());
+            }
+        } else if (subChoice == 3) {
+            List<Book> list = bookDAO.getBookList();
+            Collections.sort(list, new Comparator<Book>() {
+                @Override
+                public int compare(Book b1, Book b2) {
+                    if (b1.getRating() < b2.getRating()) {
+                        return 1;
+                    } else if (b1.getRating() > b2.getRating()) {
+                        return -1;
+                    } else {
+                        return Integer.compare(b2.getRatingCount(), b1.getRatingCount());
+                    }
+                }
+            });
+            System.out.println("\n--- BẢNG XẾP HẠNG SÁCH ĐƯỢC YÊU THÍCH NHẤT ---");
+            for (int i = 0; i < list.size(); i++) {
+                Book b = list.get(i);
+                System.out.printf("  Hạng %d: [%s] %-36s | ⭐ %s | Giá: %,.0f VNĐ\n",
+                        i + 1, b.getBookId(), b.getTitle(), b.getStarDisplay(), b.getPrice());
+            }
+        }
+    }
+
+    private void reservationQueueSubMenu() {
+        System.out.println("==========================================================================================");
+        System.out.println("              HÀNG ĐỢI ĐẶT TRƯỚC SÁCH KHI HẾT HÀNG (RESERVATION QUEUE - FEATURE 7)       ");
+        System.out.println("==========================================================================================");
+        System.out.println("  1. Đăng ký Đặt trước sách cho Độc giả");
+        System.out.println("  2. Xem danh sách các đầu sách đang có người chờ Đặt trước");
+        int subChoice = DataInput.getIntegerNumber(">> Chọn chức năng [1-2]: ");
+
+        if (subChoice == 1) {
+            String bookId = DataInput.getNonEmptyString("Nhập mã sách muốn đặt trước (VD: B005): ").toUpperCase();
+            Book book = bookDAO.findBookById(bookId);
+            if (book == null) {
+                System.out.println(">> Không tìm thấy sách có mã: " + bookId);
+                return;
+            }
+            String memberId = DataInput.getNonEmptyString("Nhập mã độc giả đăng ký chờ (VD: M001): ").toUpperCase();
+            if (bookDAO.reserveBook(bookId, memberId)) {
+                System.out.println(">> Đã thêm độc giả " + memberId + " vào hàng đợi đặt trước của sách '" + book.getTitle() + "'!");
+                System.out.println(">> Vị trí trong hàng đợi: #" + book.getReservationQueue().size()
+                        + " (Khi có người trả sách, hệ thống sẽ tự động thông báo ưu tiên!)");
+            } else {
+                System.out.println(">> Độc giả " + memberId + " đã có trong danh sách chờ của cuốn sách này rồi!");
+            }
+        } else if (subChoice == 2) {
+            List<Book> reservedBooks = bookDAO.getBooksWithReservations();
+            if (reservedBooks.isEmpty()) {
+                System.out.println(">> Hiện tại chưa có cuốn sách nào trong danh sách chờ đặt trước.");
+                return;
+            }
+            System.out.println("\n--- DANH SÁCH SÁCH ĐANG CÓ ĐỘC GIẢ ĐẶT TRƯỚC ---");
+            for (int i = 0; i < reservedBooks.size(); i++) {
+                Book b = reservedBooks.get(i);
+                System.out.printf("  %d. [%s] %-35s (Tồn kho: %d) -> Hàng đợi (%d người): %s\n",
+                        i + 1, b.getBookId(), b.getTitle(), b.getQuantity(),
+                        b.getReservationQueue().size(), b.getReservationQueue().toString());
+            }
+        }
+    }
+
+    private void displayBookInventoryChart() {
+        List<Book> books = bookDAO.getBookList();
+        List<String> labels = new ArrayList<>();
+        List<Integer> values = new ArrayList<>();
+
+        for (int i = 0; i < books.size(); i++) {
+            Book b = books.get(i);
+            labels.add("[" + b.getBookId() + "] " + b.getTitle());
+            values.add(b.getQuantity());
+        }
+        Menu.printAsciiBarChart("SỐ LƯỢNG TỒN KHO THEO TỪNG ĐẦU SÁCH", labels, values, "cuốn");
     }
 
     public static void main(String[] args) {

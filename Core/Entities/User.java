@@ -1,12 +1,14 @@
+package Core.Entities;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public abstract class User {
-    private String userId;
-    private String fullName;
-    private String phone;
-    private LocalDate dateOfBirth;
-    protected static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    protected String userId;
+    protected String fullName;
+    protected String phone;
+    protected LocalDate dateOfBirth;
+    public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public User(String userId, String fullName, String phone, LocalDate dateOfBirth) {
         setUserId(userId);
@@ -42,7 +44,7 @@ public abstract class User {
     }
 
     public void setPhone(String phone) {
-        if (phone == null || !phone.matches("\\d{9,11}")) {
+        if (phone == null || !phone.trim().matches("\\d{9,11}")) {
             throw new IllegalArgumentException("Lỗi: Số điện thoại phải gồm 9 - 11 chữ số!");
         }
         this.phone = phone.trim();
@@ -59,9 +61,11 @@ public abstract class User {
         this.dateOfBirth = dateOfBirth;
     }
 
+    public abstract String getRole();
+
     @Override
     public String toString() {
         String dob = (dateOfBirth != null) ? dateOfBirth.format(DATE_FORMAT) : "N/A";
-        return String.format("ID: %-8s | Tên: %-18s | SĐT: %-11s | Ngày sinh: %s", userId, fullName, phone, dob);
+        return String.format("ID: %-8s | Tên: %-20s | SĐT: %-11s | Ngày sinh: %s", userId, fullName, phone, dob);
     }
 }

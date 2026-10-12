@@ -98,4 +98,16 @@ public interface IBookDAO {
     default List<Book> searchByName(String keyword) {
         return findBookByTitle(keyword);
     }
+
+    // ==========================================
+    // 6. Tính năng mở rộng: Đánh giá Sao, Gợi ý Sách & Đặt trước
+    // ==========================================
+
+    boolean rateBook(String bookId, int stars);
+
+    List<Book> getRecommendedBooks(String bookId, int topN);
+
+    boolean reserveBook(String bookId, String memberId);
+
+    List<Book> getBooksWithReservations();
 }

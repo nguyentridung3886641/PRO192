@@ -1,9 +1,13 @@
 package Core.Entities;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Lớp trừu tượng Book đại diện cho thông tin chung của sách trong thư viện.
- * Hiện thực hóa tính Đa hình (Polymorphism) qua các hàm trừu tượng tính giá trị,
- * giá bán ưu đãi/sau thuế và phí mượn riêng biệt cho từng loại sách.
+ * Bổ sung:
+ * - Tính năng 3: Đánh giá Sao (Rating 1-5 ⭐) phục vụ gợi ý sách thông minh.
+ * - Tính năng 7: Hàng đợi Đặt trước sách (Reservation Queue) khi sách hết hàng.
  * 
  * PRO192 - Phân hệ Sách & Đa hình (Member 2: Nguyen Thien Tue)
  */
@@ -13,6 +17,9 @@ public abstract class Book {
     protected String author;
     protected double price;
     protected int quantity;
+    protected double rating;
+    protected int ratingCount;
+    protected List<String> reservationQueue;
 
     public Book(String bookId, String title, String author, double price, int quantity) {
         setBookId(bookId);
@@ -20,6 +27,9 @@ public abstract class Book {
         setAuthor(author);
         setPrice(price);
         setQuantity(quantity);
+        this.rating = 4.5;
+        this.ratingCount = 1;
+        this.reservationQueue = new ArrayList<>();
     }
 
     public Book(String bookId, String title, double price, int quantity) {
@@ -53,7 +63,11 @@ public abstract class Book {
     }
 
     public void setAuthor(String author) {
-        this.author = (author != null && !author.trim().isEmpty()) ? author.trim() : "Nhiều tác giả";
+        if (author != null && !author.trim().isEmpty()) {
+            this.author = author.trim();
+        } else {
+            this.author = "Nhiều tác giả";
+        }
     }
 
     public double getPrice() {
@@ -78,31 +92,91 @@ public abstract class Book {
         this.quantity = quantity;
     }
 
+    // ========================================================
+    // Tính năng 3: Đánh giá Sao (Rating 1 - 5 ⭐)
+    // ========================================================
+
+    public double getRating() {
+        return rating;
+    }
+
+    public void setRating(double rating) {
+        if (rating >= 1.0 && rating <= 5.0) {
+            this.rating = rating;
+        }
+    }
+
+    public int getRatingCount() {
+        return ratingCount;
+    }
+
+    public void setRatingCount(int ratingCount) {
+        if (ratingCount >= 0) {
+            this.ratingCount = ratingCount;
+        }
+    }
+
+    public void addRating(int stars) {
+        if (stars < 1 || stars > 5) {
+            throw new IllegalArgumentException("Số sao đánh giá phải từ 1 đến 5!");
+        }
+        double totalScore = this.rating * this.ratingCount + stars;
+        this.ratingCount = this.ratingCount + 1;
+        this.rating = totalScore / this.ratingCount;
+    }
+
+    public String getStarDisplay() {
+        return String.format("%.1f★ (%d)", rating, ratingCount);
+    }
+
+    // ========================================================
+    // Tính năng 7: Hàng đợi Đặt trước sách (Reservation Queue)
+    // ========================================================
+
+    public List<String> getReservationQueue() {
+        return reservationQueue;
+    }
+
     /**
-     * Phương thức trừu tượng tính tổng giá trị lưu kho của đầu sách.
-     * Áp dụng tính Đa hình (Polymorphism).
-     * @return tổng trị giá lưu kho
+     * Đăng ký đặt trước sách bằng vòng lặp kiểm tra trùng truyền thống.
      */
+    public boolean addReservation(String memberId) {
+        if (memberId == null || memberId.trim().isEmpty()) {
+            return false;
+        }
+        String cleanId = memberId.trim().toUpperCase();
+        for (int i = 0; i < reservationQueue.size(); i++) {
+            if (reservationQueue.get(i).equalsIgnoreCase(cleanId)) {
+                return false; // Độc giả đã có tên trong hàng đợi
+            }
+        }
+        reservationQueue.add(cleanId);
+        return true;
+    }
+
+    /**
+     * Lấy mã độc giả đầu tiên trong hàng đợi (FIFO - vào trước phục vụ trước).
+     */
+    public String popNextReservation() {
+        if (reservationQueue.isEmpty()) {
+            return null;
+        }
+        return reservationQueue.remove(0);
+    }
+
+    // ========================================================
+    // Các phương thức Đa hình (Polymorphism)
+    // ========================================================
+
     public abstract double calculateTotalValue();
 
-    /**
-     * Phương thức trừu tượng tính giá bán / giá thanh toán thực tế sau ưu đãi hoặc thuế.
-     * Milestone 3: Hiện thực hóa Đa hình qua hàm calculatePrice().
-     * @return đơn giá thực tế sau khi tính toán theo từng loại sách
-     */
     public abstract double calculatePrice();
 
-    /**
-     * Phương thức trừu tượng tính phí mượn riêng cho từng loại sách theo số ngày mượn.
-     * Milestone 3: Hiện thực hóa tính phí mượn riêng cho từng loại sách.
-     * @param days số ngày mượn sách
-     * @return tổng phí mượn sách
-     */
     public abstract double calculateBorrowFee(int days);
 
     @Override
     public String toString() {
-        return String.format("Mã: %-6s | Tên: %-25s | Tác giả: %-18s | Giá: %-8.2f | SL: %-3d", 
-                bookId, title, author, price, quantity);
+        return String.format("Mã: %-6s | Tên: %-25s | Tác giả: %-16s | Giá: %-8.0f | SL: %-3d | Đánh giá: %s",
+                bookId, title, author, price, quantity, getStarDisplay());
     }
 }

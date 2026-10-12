@@ -1,0 +1,23 @@
+==========================================================================
+          BÁO CÁO TỔNG KẾT HOẠT ĐỘNG HỆ THỐNG QUẢN LÝ THƯ VIỆN            
+          Ngày xuất báo cáo: 12/10/2026
+==========================================================================
+1. THỐNG KÊ KHO SÁCH:
+   - Tổng số đầu sách           : 10 đầu sách
+   - Tổng số bản sách tồn kho   : 217 cuốn
+   - Tổng giá trị tài sản kho   : 36,649,000 VNĐ
+--------------------------------------------------------------------------
+2. THỐNG KÊ ĐỘC GIẢ & HẠNG THẺ:
+   - Tổng số độc giả            : 5 độc giả
+   - Hạng VIP (-25% phí mượn)   : 1 độc giả
+   - Hạng GOLD (-10% phí mượn)  : 2 độc giả
+   - Hạng SILVER (0% ưu đãi)    : 2 độc giả
+--------------------------------------------------------------------------
+3. THỐNG KÊ GIAO DỊCH MƯỢN - TRẢ & TÀI CHÍNH:
+   - Tổng số phiếu mượn         : 3 phiếu
+   - Số phiếu đang mượn         : 2 phiếu
+   - Số phiếu quá hạn (Overdue) : 2 phiếu
+   - Doanh thu phí mượn sách    : 130,200 VNĐ
+   - Tổng tiền phạt trễ hạn     : 45,000 VNĐ
+   - Tiền đền bù sách mất/hỏng  : 0 VNĐ
+==========================================================================

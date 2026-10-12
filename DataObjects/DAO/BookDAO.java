@@ -408,14 +408,16 @@ public class BookDAO implements IBookDAO {
                     extraInfo = "Chung";
                 }
 
-                String line = String.format("%s|%s|%s|%s|%.2f|%d|%s",
+                String line = String.format("%s|%s|%s|%s|%.2f|%d|%s|%.2f|%d",
                         typeStr,
                         b.getBookId(),
                         b.getTitle(),
                         b.getAuthor(),
                         b.getPrice(),
                         b.getQuantity(),
-                        extraInfo);
+                        extraInfo,
+                        b.getRating(),
+                        b.getRatingCount());
                 writer.write(line);
                 writer.newLine();
             }
@@ -428,7 +430,7 @@ public class BookDAO implements IBookDAO {
 
     /**
      * Đọc và parse dữ liệu sách từ file Books.txt chuẩn UTF-8.
-     * Hỗ trợ tự động phân tích cả định dạng 6 trường (không tác giả) và 7 trường (có tác giả).
+     * Hỗ trợ tự động phân tích cả định dạng 6 trường, 7 trường và 9 trường (có điểm đánh giá sao).
      */
     @Override
     public boolean loadFromFile(String filePath) {
@@ -448,7 +450,7 @@ public class BookDAO implements IBookDAO {
             while ((line = reader.readLine()) != null) {
                 line = line.trim();
                 if (line.isEmpty() || line.startsWith("#")) {
-                    continue; // Bỏ qua dòng trống hoặc comment
+                    continue;
                 }
 
                 String[] parts = line.split("\\|");
@@ -480,6 +482,12 @@ public class BookDAO implements IBookDAO {
                         } else {
                             book = new ReferenceBook(id, title, author, price, quantity, extra);
                         }
+
+                        if (parts.length >= 9) {
+                            book.setRating(Double.parseDouble(parts[7].trim()));
+                            book.setRatingCount(Integer.parseInt(parts[8].trim()));
+                        }
+
                         loadedList.add(book);
                     } catch (Exception ex) {
                         System.err.println(">> Cảnh báo: Bỏ qua dòng dữ liệu không hợp lệ: " + line);
@@ -497,5 +505,98 @@ public class BookDAO implements IBookDAO {
             System.err.println(">> Lỗi khi đọc file: " + e.getMessage());
             return false;
         }
+    }
+
+    // ========================================================
+    // 6. Tính năng 3 & 7: Đánh giá Sao, Gợi ý Sách & Đặt trước
+    //    (Viết bằng vòng lặp for và Comparator truyền thống)
+    // ========================================================
+
+    @Override
+    public boolean rateBook(String bookId, int stars) {
+        Book book = findBookById(bookId);
+        if (book == null || stars < 1 || stars > 5) {
+            return false;
+        }
+        book.addRating(stars);
+        saveToFile();
+        return true;
+    }
+
+    /**
+     * Tính năng 3: Gợi ý Top N cuốn sách liên quan có điểm đánh giá cao nhất và còn tồn kho.
+     * Sử dụng vòng lặp for truyền thống và Comparator ẩn danh.
+     */
+    @Override
+    public List<Book> getRecommendedBooks(String bookId, int topN) {
+        Book target = findBookById(bookId);
+        List<Book> candidates = new ArrayList<>();
+
+        // Bước 1: Lọc các sách còn hàng và không trùng với cuốn đang xem bằng vòng lặp for
+        for (int i = 0; i < bookList.size(); i++) {
+            Book b = bookList.get(i);
+            if (target != null && b.getBookId().equalsIgnoreCase(target.getBookId())) {
+                continue;
+            }
+            if (b.getQuantity() > 0) {
+                candidates.add(b);
+            }
+        }
+
+        // Bước 2: Sắp xếp ưu tiên sách cùng loại (TextBook / ReferenceBook) và có điểm Sao cao nhất
+        Collections.sort(candidates, new Comparator<Book>() {
+            @Override
+            public int compare(Book b1, Book b2) {
+                if (target != null) {
+                    boolean b1SameType = b1.getClass().equals(target.getClass());
+                    boolean b2SameType = b2.getClass().equals(target.getClass());
+                    if (b1SameType && !b2SameType) {
+                        return -1; // b1 cùng loại -> ưu tiên lên trước
+                    } else if (!b1SameType && b2SameType) {
+                        return 1;
+                    }
+                }
+                // So sánh theo điểm đánh giá giảm dần (Cao -> Thấp)
+                if (b1.getRating() < b2.getRating()) {
+                    return 1;
+                } else if (b1.getRating() > b2.getRating()) {
+                    return -1;
+                } else {
+                    return b1.getTitle().compareToIgnoreCase(b2.getTitle());
+                }
+            }
+        });
+
+        // Bước 3: Lấy tối đa topN cuốn đầu tiên bằng vòng lặp for
+        List<Book> result = new ArrayList<>();
+        int limit = Math.min(topN, candidates.size());
+        for (int i = 0; i < limit; i++) {
+            result.add(candidates.get(i));
+        }
+        return result;
+    }
+
+    /**
+     * Tính năng 7: Đặt trước sách khi sách hết hàng (hoặc đăng ký vào hàng đợi).
+     */
+    @Override
+    public boolean reserveBook(String bookId, String memberId) {
+        Book book = findBookById(bookId);
+        if (book == null) {
+            return false;
+        }
+        return book.addReservation(memberId);
+    }
+
+    @Override
+    public List<Book> getBooksWithReservations() {
+        List<Book> result = new ArrayList<>();
+        for (int i = 0; i < bookList.size(); i++) {
+            Book b = bookList.get(i);
+            if (!b.getReservationQueue().isEmpty()) {
+                result.add(b);
+            }
+        }
+        return result;
     }
 }
