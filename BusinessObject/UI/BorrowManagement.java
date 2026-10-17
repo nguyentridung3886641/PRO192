@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Giao diện điều khiển phân hệ Quản lý Giao dịch Mượn - Trả sách (Borrow Management UI).
@@ -175,7 +176,8 @@ public class BorrowManagement {
         int numBooks = DataInput.getIntegerNumber("Nhập số lượng đầu sách muốn mượn [1-" + remainingQuota + "]: ", 1, remainingQuota);
         List<Book> selectedBooks = new ArrayList<>();
 
-        for (int i = 1; i <= numBooks; i++) {
+        // [LAMBDA & STREAM API]: Duyệt từng lượt nhập sách bằng IntStream.rangeClosed
+        IntStream.rangeClosed(1, numBooks).forEach(i -> {
             while (true) {
                 String bookId = DataInput.getNonEmptyString("  Nhập mã cuốn sách thứ " + i + " (VD: B001): ").toUpperCase();
                 Book book = bookDAO.findBookById(bookId);
@@ -206,7 +208,7 @@ public class BorrowManagement {
                 System.out.println("  >> Đã chọn: " + book.getTitle() + " (Tồn kho còn: " + book.getQuantity() + ")");
                 break;
             }
-        }
+        });
 
         int borrowDays = DataInput.getIntegerNumber("Nhập số ngày mượn [1-30] (Mặc định 14 ngày): ", 1, 30);
         LocalDate borrowDate = LocalDate.now();
@@ -254,15 +256,13 @@ public class BorrowManagement {
         // Tính năng 6: Kiểm tra xem có cuốn sách nào bị làm mất hoặc hư hỏng không
         List<String> damagedBookIds = new ArrayList<>();
         if (DataInput.getBoolean("Có cuốn sách nào bị LÀM MẤT hoặc HƯ HỎNG nặng không?")) {
-            List<Book> books = record.getBorrowedBooks();
-            for (int i = 0; i < books.size(); i++) {
-                Book b = books.get(i);
+            record.getBorrowedBooks().forEach(b -> {
                 boolean isLost = DataInput.getBoolean("  - Sách [" + b.getBookId() + "] '" + b.getTitle() + "' có bị mất/hỏng không?");
                 if (isLost) {
                     damagedBookIds.add(b.getBookId());
                     System.out.printf("    -> Phạt đền bù 150%% giá trị thực: %,.0f VNĐ\n", b.calculatePrice() * 1.5);
                 }
-            }
+            });
         }
 
         if (borrowDAO.returnBooksWithDamageCheck(recordId, returnDate, damagedBookIds)) {

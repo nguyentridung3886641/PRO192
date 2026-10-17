@@ -6,7 +6,9 @@ import Core.Entities.Member;
 import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -264,12 +266,15 @@ public class BorrowDAO implements IBorrowDAO {
         lines.add("  Trạng thái phiếu : " + r.getStatusText());
         lines.add("----------------------------------------------------------------------");
         lines.add("  DANH SÁCH SÁCH TRONG PHIẾU (" + r.getBorrowedBooks().size() + " cuốn):");
-        for (int i = 0; i < r.getBorrowedBooks().size(); i++) {
+        // [LAMBDA & STREAM API]: Duyệt in danh sách sách trong phiếu bằng IntStream.range
+        IntStream.range(0, r.getBorrowedBooks().size()).forEach(i -> {
             Book b = r.getBorrowedBooks().get(i);
-            lines.add(String.format("    %d. [%s] %-32s | Phí mượn (%d ngày): %,.0f VNĐ",
-                    i + 1, b.getBookId(), b.getTitle(), r.getBorrowDurationDays(),
-                    b.calculateBorrowFee(r.getBorrowDurationDays())));
-        }
+            if (b != null) {
+                lines.add(String.format("    %d. [%s] %-32s | Phí mượn (%d ngày): %,.0f VNĐ",
+                        i + 1, b.getBookId(), b.getTitle(), r.getBorrowDurationDays(),
+                        b.calculateBorrowFee(r.getBorrowDurationDays())));
+            }
+        });
         lines.add("----------------------------------------------------------------------");
         double rawFee = r.calculateTotalBorrowFee();
         double discountRate = r.getMember().getDiscountRate();
@@ -390,51 +395,72 @@ public class BorrowDAO implements IBorrowDAO {
         return loadFromFile(DEFAULT_FILE_PATH);
     }
 
+    /**
+     * [LAMBDA & STREAM API]: Parse một dòng từ file BorrowRecords.txt thành đối tượng BorrowRecord.
+     * Tận dụng Stream API để phân tích danh sách mã sách (bookIds) một cách khai báo và an toàn.
+     */
+    private BorrowRecord parseBorrowRecord(String line) {
+        if (line == null || line.trim().isEmpty() || line.trim().startsWith("#")) {
+            return null;
+        }
+        String[] parts = line.split("\\|");
+        if (parts.length < 7) {
+            return null;
+        }
+        try {
+            String recordId = parts[0].trim();
+            String memberId = parts[1].trim();
+            String[] bookIds = parts[2].trim().split(",");
+            LocalDate borrowDate = LocalDate.parse(parts[3].trim(), BorrowRecord.DATE_FORMAT);
+            LocalDate dueDate = LocalDate.parse(parts[4].trim(), BorrowRecord.DATE_FORMAT);
+            String returnStr = parts[5].trim();
+            boolean returned = parts[6].trim().equalsIgnoreCase("RETURNED");
+
+            Member member = memberDAO.findById(memberId);
+            if (member == null) {
+                return null;
+            }
+
+            // Áp dụng Stream API chuyển đổi chuỗi mã sách sang danh sách đối tượng Book
+            List<Book> books = Arrays.stream(bookIds)
+                    .map(String::trim)
+                    .map(bookDAO::findBookById)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+            if (books.isEmpty()) {
+                return null;
+            }
+
+            BorrowRecord record = new BorrowRecord(recordId, member, books, borrowDate, dueDate);
+            if (!returnStr.equalsIgnoreCase("NONE") && !returnStr.isEmpty()) {
+                record.setReturnDate(LocalDate.parse(returnStr, BorrowRecord.DATE_FORMAT));
+            }
+            record.setReturned(returned);
+            if (parts.length >= 8) {
+                record.setExtensionCount(Integer.parseInt(parts[7].trim()));
+            }
+            if (parts.length >= 9) {
+                record.setCompensationFee(Double.parseDouble(parts[8].trim()));
+            }
+            return record;
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    /**
+     * [LAMBDA & STREAM API]: Nạp dữ liệu phiếu mượn từ file với Stream API.
+     * Sử dụng FileManager.readLines và Stream.map(this::parseBorrowRecord).
+     */
     @Override
     public boolean loadFromFile(String filePath) {
         try {
             List<String> lines = FileManager.readLines(filePath);
-            List<BorrowRecord> loaded = new ArrayList<>();
-            for (int i = 0; i < lines.size(); i++) {
-                String line = lines.get(i);
-                String[] parts = line.split("\\|");
-                if (parts.length >= 7) {
-                    String recordId = parts[0].trim();
-                    String memberId = parts[1].trim();
-                    String[] bookIds = parts[2].trim().split(",");
-                    LocalDate borrowDate = LocalDate.parse(parts[3].trim(), BorrowRecord.DATE_FORMAT);
-                    LocalDate dueDate = LocalDate.parse(parts[4].trim(), BorrowRecord.DATE_FORMAT);
-                    String returnStr = parts[5].trim();
-                    boolean returned = parts[6].trim().equalsIgnoreCase("RETURNED");
+            List<BorrowRecord> loaded = lines.stream()
+                    .map(this::parseBorrowRecord)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
 
-                    Member member = memberDAO.findById(memberId);
-                    if (member == null) {
-                        continue;
-                    }
-                    List<Book> books = new ArrayList<>();
-                    for (int j = 0; j < bookIds.length; j++) {
-                        Book b = bookDAO.findBookById(bookIds[j].trim());
-                        if (b != null) {
-                            books.add(b);
-                        }
-                    }
-                    if (books.isEmpty()) {
-                        continue;
-                    }
-                    BorrowRecord record = new BorrowRecord(recordId, member, books, borrowDate, dueDate);
-                    if (!returnStr.equalsIgnoreCase("NONE") && !returnStr.isEmpty()) {
-                        record.setReturnDate(LocalDate.parse(returnStr, BorrowRecord.DATE_FORMAT));
-                    }
-                    record.setReturned(returned);
-                    if (parts.length >= 8) {
-                        record.setExtensionCount(Integer.parseInt(parts[7].trim()));
-                    }
-                    if (parts.length >= 9) {
-                        record.setCompensationFee(Double.parseDouble(parts[8].trim()));
-                    }
-                    loaded.add(record);
-                }
-            }
             if (!loaded.isEmpty()) {
                 recordList.clear();
                 recordList.addAll(loaded);

@@ -35,19 +35,11 @@ public class Menu {
 
     public static void printHeader(String title) {
         int width = 60;
-        StringBuilder borderBuilder = new StringBuilder();
-        for (int i = 0; i < width; i++) {
-            borderBuilder.append("=");
-        }
-        String border = borderBuilder.toString();
+        String border = "=".repeat(width);
 
         System.out.println("\n" + border);
-        int padding = (width - title.length()) / 2;
-        StringBuilder padBuilder = new StringBuilder();
-        for (int i = 0; i < Math.max(0, padding); i++) {
-            padBuilder.append(" ");
-        }
-        System.out.println(padBuilder.toString() + title.toUpperCase());
+        int padding = Math.max(0, (width - title.length()) / 2);
+        System.out.println(" ".repeat(padding) + title.toUpperCase());
         System.out.println(border);
     }
 

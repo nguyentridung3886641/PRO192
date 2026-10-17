@@ -402,50 +402,54 @@ public class BookDAO implements IBookDAO {
     // ========================================================
 
     /**
-     * Ghi toàn bộ dữ liệu sách ra file theo định dạng chuẩn UTF-8:
-     * LOAI_SACH|BOOK_ID|TITLE|AUTHOR|PRICE|QUANTITY|EXTRA_INFO
+     * [LAMBDA & STREAM API]: Chuyển đổi đối tượng Book thành chuỗi định dạng lưu file.
+     */
+    public static String toFileString(Book b) {
+        if (b == null) return null;
+        String typeStr;
+        String extraInfo;
+        if (b instanceof TextBook) {
+            typeStr = "TEXTBOOK";
+            extraInfo = ((TextBook) b).getGenre();
+        } else if (b instanceof ReferenceBook) {
+            typeStr = "REFERENCEBOOK";
+            extraInfo = ((ReferenceBook) b).getPublisher();
+        } else {
+            typeStr = "BOOK";
+            extraInfo = "Chung";
+        }
+
+        return String.format("%s|%s|%s|%s|%.2f|%d|%s|%.2f|%d",
+                typeStr,
+                b.getBookId(),
+                b.getTitle(),
+                b.getAuthor(),
+                b.getPrice(),
+                b.getQuantity(),
+                extraInfo,
+                b.getRating(),
+                b.getRatingCount());
+    }
+
+    /**
+     * [LAMBDA & STREAM API]: Ghi toàn bộ dữ liệu sách ra file với FileManager và Stream map.
+     * Áp dụng Method Reference BookDAO::toFileString và filter loại bỏ null.
      */
     @Override
     public boolean saveToFile(String filePath) {
         if (filePath == null || filePath.trim().isEmpty()) {
             filePath = DEFAULT_FILE_PATH;
         }
-        File file = new File(filePath);
-        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
-                new FileOutputStream(file), StandardCharsets.UTF_8))) {
-            
-            writer.write("# Danh sách lưu trữ sách (Library Management System - PRO192)");
-            writer.newLine();
-            writer.write("# Format: LOAI_SACH|MA_SACH|TEN_SACH|TAC_GIA|GIA|SO_LUONG|THE_LOAI_HOAC_NXB");
-            writer.newLine();
-
-            for (Book b : bookList) {
-                String typeStr;
-                String extraInfo;
-                if (b instanceof TextBook) {
-                    typeStr = "TEXTBOOK";
-                    extraInfo = ((TextBook) b).getGenre();
-                } else if (b instanceof ReferenceBook) {
-                    typeStr = "REFERENCEBOOK";
-                    extraInfo = ((ReferenceBook) b).getPublisher();
-                } else {
-                    typeStr = "BOOK";
-                    extraInfo = "Chung";
-                }
-
-                String line = String.format("%s|%s|%s|%s|%.2f|%d|%s|%.2f|%d",
-                        typeStr,
-                        b.getBookId(),
-                        b.getTitle(),
-                        b.getAuthor(),
-                        b.getPrice(),
-                        b.getQuantity(),
-                        extraInfo,
-                        b.getRating(),
-                        b.getRatingCount());
-                writer.write(line);
-                writer.newLine();
-            }
+        try {
+            List<String> lines = new ArrayList<>();
+            lines.add("# Danh sách lưu trữ sách (Library Management System - PRO192)");
+            lines.add("# Format: LOAI_SACH|MA_SACH|TEN_SACH|TAC_GIA|GIA|SO_LUONG|THE_LOAI_HOAC_NXB");
+            bookList.stream()
+                    .filter(Objects::nonNull)
+                    .map(BookDAO::toFileString)
+                    .filter(Objects::nonNull)
+                    .forEach(lines::add);
+            FileManager.writeLines(filePath, lines);
             return true;
         } catch (IOException e) {
             System.err.println(">> Lỗi khi lưu file: " + e.getMessage());
@@ -454,8 +458,58 @@ public class BookDAO implements IBookDAO {
     }
 
     /**
-     * Đọc và parse dữ liệu sách từ file Books.txt chuẩn UTF-8.
-     * Hỗ trợ tự động phân tích cả định dạng 6 trường, 7 trường và 9 trường (có điểm đánh giá sao).
+     * [LAMBDA & STREAM API]: Parse một dòng văn bản từ file thành đối tượng Book (TextBook hoặc ReferenceBook).
+     */
+    public static Book parseBookFromLine(String line) {
+        if (line == null || line.trim().isEmpty() || line.trim().startsWith("#")) {
+            return null;
+        }
+        String[] parts = line.split("\\|");
+        if (parts.length < 6) {
+            return null;
+        }
+        try {
+            String type = parts[0].trim().toUpperCase();
+            String id = parts[1].trim();
+            String title = parts[2].trim();
+            String author;
+            double price;
+            int quantity;
+            String extra;
+
+            if (parts.length >= 7) {
+                author = parts[3].trim();
+                price = Double.parseDouble(parts[4].trim());
+                quantity = Integer.parseInt(parts[5].trim());
+                extra = parts[6].trim();
+            } else {
+                author = "Nhiều tác giả";
+                price = Double.parseDouble(parts[3].trim());
+                quantity = Integer.parseInt(parts[4].trim());
+                extra = parts[5].trim();
+            }
+
+            Book book;
+            if (type.contains("TEXT")) {
+                book = new TextBook(id, title, author, price, quantity, extra);
+            } else {
+                book = new ReferenceBook(id, title, author, price, quantity, extra);
+            }
+
+            if (parts.length >= 9) {
+                book.setRating(Double.parseDouble(parts[7].trim()));
+                book.setRatingCount(Integer.parseInt(parts[8].trim()));
+            }
+            return book;
+        } catch (Exception ex) {
+            System.err.println(">> Cảnh báo: Bỏ qua dòng dữ liệu không hợp lệ: " + line);
+            return null;
+        }
+    }
+
+    /**
+     * [LAMBDA & STREAM API]: Đọc và parse dữ liệu sách từ file Books.txt với Stream pipeline.
+     * Sử dụng FileManager.readLines và Stream.map(BookDAO::parseBookFromLine).
      */
     @Override
     public boolean loadFromFile(String filePath) {
@@ -467,58 +521,12 @@ public class BookDAO implements IBookDAO {
             return false;
         }
 
-        List<Book> loadedList = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-                new FileInputStream(file), StandardCharsets.UTF_8))) {
-            
-            String line;
-            while ((line = reader.readLine()) != null) {
-                line = line.trim();
-                if (line.isEmpty() || line.startsWith("#")) {
-                    continue;
-                }
-
-                String[] parts = line.split("\\|");
-                if (parts.length >= 6) {
-                    try {
-                        String type = parts[0].trim().toUpperCase();
-                        String id = parts[1].trim();
-                        String title = parts[2].trim();
-                        String author;
-                        double price;
-                        int quantity;
-                        String extra;
-
-                        if (parts.length >= 7) {
-                            author = parts[3].trim();
-                            price = Double.parseDouble(parts[4].trim());
-                            quantity = Integer.parseInt(parts[5].trim());
-                            extra = parts[6].trim();
-                        } else {
-                            author = "Nhiều tác giả";
-                            price = Double.parseDouble(parts[3].trim());
-                            quantity = Integer.parseInt(parts[4].trim());
-                            extra = parts[5].trim();
-                        }
-
-                        Book book;
-                        if (type.contains("TEXT")) {
-                            book = new TextBook(id, title, author, price, quantity, extra);
-                        } else {
-                            book = new ReferenceBook(id, title, author, price, quantity, extra);
-                        }
-
-                        if (parts.length >= 9) {
-                            book.setRating(Double.parseDouble(parts[7].trim()));
-                            book.setRatingCount(Integer.parseInt(parts[8].trim()));
-                        }
-
-                        loadedList.add(book);
-                    } catch (Exception ex) {
-                        System.err.println(">> Cảnh báo: Bỏ qua dòng dữ liệu không hợp lệ: " + line);
-                    }
-                }
-            }
+        try {
+            List<String> lines = FileManager.readLines(filePath);
+            List<Book> loadedList = lines.stream()
+                    .map(BookDAO::parseBookFromLine)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
 
             if (!loadedList.isEmpty()) {
                 this.bookList.clear();

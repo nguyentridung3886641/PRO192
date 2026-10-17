@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -205,6 +206,7 @@ public class BorrowRecord {
      public double calculateTotalBorrowFee() {
          int days = getBorrowDurationDays();
          return borrowedBooks.stream()
+                 .filter(Objects::nonNull)
                  .mapToDouble(b -> b.calculateBorrowFee(days))
                  .sum();
      }
@@ -244,12 +246,13 @@ public class BorrowRecord {
      * 
      * So sánh:
      * - Cách cũ: Dùng StringBuilder kết hợp vòng lặp for và `if (i > 0) append(",")` để nối ID sách.
-     * - Lambda/Stream: Dùng `borrowedBooks.stream().map(Book::getBookId).collect(Collectors.joining(","))`.
+     * - Lambda/Stream: Dùng `borrowedBooks.stream().filter(Objects::nonNull).map(Book::getBookId).collect(Collectors.joining(","))`.
      *   -> Sử dụng Method Reference `Book::getBookId` kết hợp Collector `Collectors.joining(",")`
      *      tự động xử lý dấu phân cách mà không cần kiểm tra điều kiện phần tử đầu tiên.
      */
     public String toFileString() {
         String bookIds = borrowedBooks.stream()
+                .filter(Objects::nonNull)
                 .map(Book::getBookId)
                 .collect(Collectors.joining(","));
 
@@ -284,7 +287,9 @@ public class BorrowRecord {
         // [LAMBDA & STREAM API]: Dùng IntStream.range kết hợp biểu thức Lambda để in chỉ số và tên sách
         IntStream.range(0, borrowedBooks.size()).forEach(i -> {
             Book b = borrowedBooks.get(i);
-            sb.append(String.format("    %d. [%s] %s\n", i + 1, b.getBookId(), b.getTitle()));
+            if (b != null) {
+                sb.append(String.format("    %d. [%s] %s\n", i + 1, b.getBookId(), b.getTitle()));
+            }
         });
         return sb.toString();
     }

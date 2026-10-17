@@ -647,9 +647,9 @@ public class BookManagement {
         }
         if (!lowStockBooks.isEmpty()) {
             System.out.printf("  * CẢNH BÁO TỒN KHO THẤP (< 5 cuốn)  : Có %d đầu sách cần nhập thêm!%n", lowStockBooks.size());
-            for (Book lsb : lowStockBooks) {
-                System.out.printf("      + [%s] %s (Hiện còn: %d cuốn)%n", lsb.getBookId(), lsb.getTitle(), lsb.getQuantity());
-            }
+            lowStockBooks.forEach(lsb ->
+                System.out.printf("      + [%s] %s (Hiện còn: %d cuốn)%n", lsb.getBookId(), lsb.getTitle(), lsb.getQuantity())
+            );
         } else {
             System.out.println("  * Tình trạng tồn kho                 : Mọi đầu sách đều duy trì tồn kho an toàn (>= 5 cuốn).");
         }
@@ -659,11 +659,7 @@ public class BookManagement {
     // --- Helper methods căn chỉnh hiển thị bảng biểu ---
 
     private static String makeLine(char ch, int length) {
-        StringBuilder sb = new StringBuilder(length);
-        for (int i = 0; i < length; i++) {
-            sb.append(ch);
-        }
-        return sb.toString();
+        return String.valueOf(ch).repeat(Math.max(0, length));
     }
 
     private static String centerText(String text, int width) {
@@ -672,12 +668,7 @@ public class BookManagement {
         int totalPad = width - text.length();
         int leftPad = totalPad / 2;
         int rightPad = totalPad - leftPad;
-
-        StringBuilder sb = new StringBuilder(width);
-        for (int i = 0; i < leftPad; i++) sb.append(' ');
-        sb.append(text);
-        for (int i = 0; i < rightPad; i++) sb.append(' ');
-        return sb.toString();
+        return " ".repeat(leftPad) + text + " ".repeat(rightPad);
     }
 
     private static String truncate(String text, int maxLength) {

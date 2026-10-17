@@ -207,16 +207,16 @@ public class MemberDAO implements IMemberDAO {
     }
 
     /**
-     * Nạp dữ liệu từ Path với cơ chế kiểm tra chống trùng lặp mã độc giả (Duplicate ID Check via HashSet).
+     * [LAMBDA & STREAM API]: Nạp dữ liệu từ Path với cơ chế kiểm tra chống trùng lặp mã độc giả qua Stream anyMatch & HashSet.
      */
     public void loadToMemberList(Path filePath) throws IOException {
         List<Member> loadedMemberList = MemberFileHandler.loadMembers(filePath);
         Set<String> ids = new HashSet<>();
-        for (Member member : loadedMemberList) {
-            String id = member.getUserId().toLowerCase(Locale.ROOT);
-            if (!ids.add(id)) {
-                throw new IOException("Duplicate Member ID: " + id);
-            }
+        boolean hasDuplicate = loadedMemberList.stream()
+                .map(m -> m.getUserId().toLowerCase(Locale.ROOT))
+                .anyMatch(id -> !ids.add(id));
+        if (hasDuplicate) {
+            throw new IOException("Duplicate Member ID detected in file: " + filePath);
         }
         memberList.clear();
         memberList.addAll(loadedMemberList);

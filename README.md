@@ -173,10 +173,10 @@ Map<String, Long> bookBorrowCounts = all.stream()
 
 ---
 
-### 3.5. Đọc tập tin văn bản bằng Java NIO.2 & Stream lười (Lazy Evaluation)
-* **Vị trí**: `FileManager.readLines`, `MemberFileHandler.loadMembers`
+### 3.5. Đọc/Ghi tập tin văn bản bằng Java NIO.2, FileManager & Stream pipeline
+* **Vị trí**: `FileManager.readLines/writeLines`, `BookDAO.loadFromFile/saveToFile`, `BorrowDAO.loadFromFile/saveToFile`, `MemberFileHandler.loadMembers/saveMembers`
 
-* **Cách cũ (BufferedReader & while loop)**:
+* **Cách cũ (BufferedReader/BufferedWriter & for/while loop)**:
 ```java
 BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
 String line;
