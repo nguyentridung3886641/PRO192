@@ -21,7 +21,7 @@ public class DataInput {
             if (!DataValidation.checkStringEmpty(input)) {
                 return input;
             }
-            System.out.println(">> Lỗi: Dữ liệu không được để trống. Vui lòng nhập lại!");
+            System.out.println(">> Error: Data cannot be empty. Please enter again!");
         }
     }
 
@@ -31,7 +31,7 @@ public class DataInput {
                 String input = getString(prompt);
                 return Integer.parseInt(input);
             } catch (NumberFormatException e) {
-                System.out.println(">> Lỗi: Vui lòng nhập số nguyên hợp lệ!");
+                System.out.println(">> Error: Please enter a valid integer!");
             }
         }
     }
@@ -42,7 +42,7 @@ public class DataInput {
             if (DataValidation.checkNumberInMinMax(number, min, max)) {
                 return number;
             }
-            System.out.printf(">> Lỗi: Giá trị phải nằm trong khoảng [%d - %d]!\n", min, max);
+            System.out.printf(">> Error: Value must be in range [%d - %d]!\n", min, max);
         }
     }
 
@@ -52,7 +52,7 @@ public class DataInput {
                 String input = getString(prompt);
                 return Double.parseDouble(input);
             } catch (NumberFormatException e) {
-                System.out.println(">> Lỗi: Vui lòng nhập số thực hợp lệ!");
+                System.out.println(">> Error: Please enter a valid real number!");
             }
         }
     }
@@ -63,7 +63,7 @@ public class DataInput {
             if (number > 0) {
                 return number;
             }
-            System.out.println(">> Lỗi: Giá trị phải lớn hơn 0!");
+            System.out.println(">> Error: Value must be greater than 0!");
         }
     }
 
@@ -76,7 +76,7 @@ public class DataInput {
             try {
                 return LocalDate.parse(input, DATE_FORMATTER);
             } catch (DateTimeParseException e) {
-                System.out.println(">> Lỗi: Ngày tháng không đúng định dạng dd/MM/yyyy!");
+                System.out.println(">> Error: Date is not in valid format dd/MM/yyyy!");
             }
         }
     }
@@ -90,7 +90,7 @@ public class DataInput {
             if (input.equals("N") || input.equals("NO")) {
                 return false;
             }
-            System.out.println(">> Lỗi: Vui lòng chỉ chọn Y hoặc N!");
+            System.out.println(">> Error: Please choose only Y or N!");
         }
     }
 }

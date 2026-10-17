@@ -63,7 +63,7 @@ public class BorrowRecord {
 
     public void setRecordId(String recordId) {
         if (recordId == null || recordId.trim().isEmpty()) {
-            throw new IllegalArgumentException("Lỗi: Mã phiếu mượn không được để trống!");
+            throw new IllegalArgumentException("Error: Borrow record ID cannot be empty!");
         }
         this.recordId = recordId.trim();
     }
@@ -74,7 +74,7 @@ public class BorrowRecord {
 
     public void setMember(Member member) {
         if (member == null) {
-            throw new IllegalArgumentException("Lỗi: Thông tin độc giả không được để trống!");
+            throw new IllegalArgumentException("Error: Member information cannot be empty!");
         }
         this.member = member;
     }
@@ -85,7 +85,7 @@ public class BorrowRecord {
 
     public void addBook(Book book) {
         if (book == null) {
-            throw new IllegalArgumentException("Lỗi: Cuốn sách cần thêm không hợp lệ!");
+            throw new IllegalArgumentException("Error: Book to add is invalid!");
         }
         borrowedBooks.add(book);
     }
@@ -112,7 +112,7 @@ public class BorrowRecord {
 
     public void setDueDate(LocalDate dueDate) {
         if (dueDate != null && borrowDate != null && dueDate.isBefore(borrowDate)) {
-            throw new IllegalArgumentException("Lỗi: Hạn trả không thể trước ngày mượn!");
+            throw new IllegalArgumentException("Error: Due date cannot be before borrow date!");
         }
         this.dueDate = dueDate;
     }
@@ -233,12 +233,12 @@ public class BorrowRecord {
 
     public String getStatusText() {
         if (returned) {
-            return isOverdue() ? "Đã trả (Trễ hạn)" : "Đã trả đúng hạn";
+            return isOverdue() ? "Returned (Late)" : "Returned (On time)";
         }
         if (isOverdue()) {
-            return "QUÁ HẠN";
+            return "OVERDUE";
         }
-        return (extensionCount > 0) ? "Đang mượn (Đã GH)" : "Đang mượn";
+        return (extensionCount > 0) ? "Borrowing (Ext.)" : "Borrowing";
     }
 
     /**
@@ -268,22 +268,22 @@ public class BorrowRecord {
     public String toString() {
         String bDate = (borrowDate != null) ? borrowDate.format(DATE_FORMAT) : "N/A";
         String dDate = (dueDate != null) ? dueDate.format(DATE_FORMAT) : "N/A";
-        String rDate = (returnDate != null) ? returnDate.format(DATE_FORMAT) : "Chưa trả";
+        String rDate = (returnDate != null) ? returnDate.format(DATE_FORMAT) : "Not returned";
 
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("Phiếu mượn: %-8s | Độc giả: %-20s (ID: %s | Hạng: %s)\n",
+        sb.append(String.format("Record ID: %-8s | Member: %-20s (ID: %s | Tier: %s)\n",
                 recordId, member.getFullName(), member.getUserId(), member.getMembershipTier()));
-        sb.append(String.format("  Ngày mượn: %-10s | Hạn trả: %-10s | Ngày trả: %-10s | Trạng thái: %s\n",
+        sb.append(String.format("  Borrow Date: %-10s | Due Date: %-10s | Return Date: %-10s | Status: %s\n",
                 bDate, dDate, rDate, getStatusText()));
-        sb.append(String.format("  Phí mượn gốc: %,.0f VNĐ | Sau ưu đãi (-%.0f%%): %,.0f VNĐ",
+        sb.append(String.format("  Base Fee: %,.0f VND | Discounted (-%.0f%%): %,.0f VND",
                 calculateTotalBorrowFee(), member.getDiscountRate() * 100, calculateDiscountedBorrowFee()));
         if (calculateFine() > 0) {
-            sb.append(String.format(" | Trễ: %d ngày (Phạt: %,.0f VNĐ)", getOverdueDays(), calculateFine()));
+            sb.append(String.format(" | Overdue: %d day(s) (Fine: %,.0f VND)", getOverdueDays(), calculateFine()));
         }
         if (compensationFee > 0) {
-            sb.append(String.format(" | Đền bù sách: %,.0f VNĐ", compensationFee));
+            sb.append(String.format(" | Compensation: %,.0f VND", compensationFee));
         }
-        sb.append("\n  Danh sách sách mượn (").append(borrowedBooks.size()).append(" cuốn):\n");
+        sb.append("\n  Borrowed Books (").append(borrowedBooks.size()).append(" item(s)):\n");
         // [LAMBDA & STREAM API]: Dùng IntStream.range kết hợp biểu thức Lambda để in chỉ số và tên sách
         IntStream.range(0, borrowedBooks.size()).forEach(i -> {
             Book b = borrowedBooks.get(i);

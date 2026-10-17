@@ -18,7 +18,7 @@ public class ReferenceBook extends Book {
     }
 
     public ReferenceBook(String bookId, String title, double price, int quantity, String publisher) {
-        this(bookId, title, "Nhiều tác giả", price, quantity, publisher);
+        this(bookId, title, "Various Authors", price, quantity, publisher);
     }
 
     public String getPublisher() {
@@ -26,11 +26,11 @@ public class ReferenceBook extends Book {
     }
 
     public void setPublisher(String publisher) {
-        this.publisher = (publisher != null && !publisher.trim().isEmpty()) ? publisher.trim() : "Chưa rõ NXB";
+        this.publisher = (publisher != null && !publisher.trim().isEmpty()) ? publisher.trim() : "Unknown Publisher";
     }
 
     /**
-     * Sách tham khảo là sách chuyên ngành, có chi phí bản quyền quốc tế và thuế VAT 10%.
+     * Reference books have an additional 10% royalty and VAT.
      */
     @Override
     public double calculatePrice() {
@@ -38,7 +38,7 @@ public class ReferenceBook extends Book {
     }
 
     /**
-     * Phí mượn sách tham khảo chuyên sâu và quý hiếm: 5.000 VNĐ/ngày.
+     * Borrow fee for reference books: 5,000 VND / day.
      */
     @Override
     public double calculateBorrowFee(int days) {
@@ -47,7 +47,7 @@ public class ReferenceBook extends Book {
     }
 
     /**
-     * Tổng giá trị kho sách tham khảo = (Đơn giá bìa * Số lượng) * 1.05 (phí thuế và bảo quản).
+     * Total value = (Price * Quantity) * 1.05 (preservation and tax).
      */
     @Override
     public double calculateTotalValue() {
@@ -56,7 +56,7 @@ public class ReferenceBook extends Book {
 
     @Override
     public String toString() {
-        return String.format("ReferenceBook [%s | NXB: %-15s | Giá sau thuế: %,.2f | Phí mượn/ngày: %,.0f | Tổng trị giá (+5%% VAT): %,.2f]", 
+        return String.format("ReferenceBook [%s | Publisher: %-15s | Taxed Price: %,.2f | Borrow Fee/Day: %,.0f | Total Value (+5%% Tax): %,.2f]", 
                 super.toString(), publisher, calculatePrice(), calculateBorrowFee(1), calculateTotalValue());
     }
 }

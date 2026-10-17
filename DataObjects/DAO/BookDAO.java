@@ -60,13 +60,13 @@ public class BookDAO implements IBookDAO {
      */
     public void initSampleData() {
         bookList.clear();
-        addBook(new TextBook("B001", "Lập trình Hướng đối tượng Java", "Herbert Schildt", 125000, 30, "CNTT"));
-        addBook(new TextBook("B002", "Cấu trúc dữ liệu & Giải thuật", "Robert Lafore", 98000, 25, "Khoa học máy tính"));
-        addBook(new TextBook("B003", "Cơ sở dữ liệu quan hệ SQL", "Abraham Silberschatz", 85000, 40, "Hệ thống thông tin"));
-        addBook(new TextBook("B004", "Mạng máy tính căn bản", "Andrew S. Tanenbaum", 110000, 20, "Mạng & Viễn thông"));
-        addBook(new ReferenceBook("B005", "Clean Code - Nghệ thuật viết code sạch", "Robert C. Martin", 240000, 20, "O'Reilly Media"));
+        addBook(new TextBook("B001", "Object-Oriented Programming with Java", "Herbert Schildt", 125000, 30, "Information Technology"));
+        addBook(new TextBook("B002", "Data Structures & Algorithms in Java", "Robert Lafore", 98000, 25, "Computer Science"));
+        addBook(new TextBook("B003", "Database System Concepts (SQL)", "Abraham Silberschatz", 85000, 40, "Information Systems"));
+        addBook(new TextBook("B004", "Computer Networks Principles", "Andrew S. Tanenbaum", 110000, 20, "Telecommunications"));
+        addBook(new ReferenceBook("B005", "Clean Code: A Handbook of Agile Craftsmanship", "Robert C. Martin", 240000, 20, "O'Reilly Media"));
         addBook(new ReferenceBook("B006", "Design Patterns: Gang of Four", "Erich Gamma", 320000, 15, "Addison-Wesley"));
-        addBook(new ReferenceBook("B007", "Refactoring - Cải tiến mã nguồn", "Martin Fowler", 280000, 18, "Addison-Wesley"));
+        addBook(new ReferenceBook("B007", "Refactoring: Improving Code Design", "Martin Fowler", 280000, 18, "Addison-Wesley"));
         addBook(new ReferenceBook("B008", "Head First Design Patterns", "Eric Freeman", 210000, 22, "O'Reilly Media"));
     }
 
@@ -416,7 +416,7 @@ public class BookDAO implements IBookDAO {
             extraInfo = ((ReferenceBook) b).getPublisher();
         } else {
             typeStr = "BOOK";
-            extraInfo = "Chung";
+            extraInfo = "General";
         }
 
         return String.format("%s|%s|%s|%s|%.2f|%d|%s|%.2f|%d",
@@ -442,8 +442,8 @@ public class BookDAO implements IBookDAO {
         }
         try {
             List<String> lines = new ArrayList<>();
-            lines.add("# Danh sách lưu trữ sách (Library Management System - PRO192)");
-            lines.add("# Format: LOAI_SACH|MA_SACH|TEN_SACH|TAC_GIA|GIA|SO_LUONG|THE_LOAI_HOAC_NXB");
+            lines.add("# Book Storage Repository (Library Management System - PRO192)");
+            lines.add("# Format: BOOK_TYPE|BOOK_ID|TITLE|AUTHOR|PRICE|QUANTITY|GENRE_OR_PUBLISHER|RATING|RATING_COUNT");
             bookList.stream()
                     .filter(Objects::nonNull)
                     .map(BookDAO::toFileString)
@@ -452,7 +452,7 @@ public class BookDAO implements IBookDAO {
             FileManager.writeLines(filePath, lines);
             return true;
         } catch (IOException e) {
-            System.err.println(">> Lỗi khi lưu file: " + e.getMessage());
+            System.err.println(">> Error saving file: " + e.getMessage());
             return false;
         }
     }
@@ -483,7 +483,7 @@ public class BookDAO implements IBookDAO {
                 quantity = Integer.parseInt(parts[5].trim());
                 extra = parts[6].trim();
             } else {
-                author = "Nhiều tác giả";
+                author = "Various Authors";
                 price = Double.parseDouble(parts[3].trim());
                 quantity = Integer.parseInt(parts[4].trim());
                 extra = parts[5].trim();
@@ -502,7 +502,7 @@ public class BookDAO implements IBookDAO {
             }
             return book;
         } catch (Exception ex) {
-            System.err.println(">> Cảnh báo: Bỏ qua dòng dữ liệu không hợp lệ: " + line);
+            System.err.println(">> Warning: Skipping invalid data line: " + line);
             return null;
         }
     }
@@ -535,7 +535,7 @@ public class BookDAO implements IBookDAO {
             }
             return false;
         } catch (IOException e) {
-            System.err.println(">> Lỗi khi đọc file: " + e.getMessage());
+            System.err.println(">> Error reading file: " + e.getMessage());
             return false;
         }
     }

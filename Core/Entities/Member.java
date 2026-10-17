@@ -125,9 +125,9 @@ public class Member extends User {
 
     public String getStatusText() {
         if (active) {
-            return "Đang hoạt động";
+            return "Active";
         } else {
-            return "Bị khóa";
+            return "Locked";
         }
     }
 
@@ -150,7 +150,7 @@ public class Member extends User {
     @Override
     public String toString() {
         String regDate = (registrationDate != null) ? registrationDate.format(DATE_FORMAT) : "N/A";
-        return String.format("%s | Ngày ĐK: %-10s | Hạng: %-6s (%3dđ) | Trạng thái: %s",
+        return String.format("%s | Reg Date: %-10s | Tier: %-6s (%3d pts) | Status: %s",
                 super.toString(), regDate, getMembershipTier(), reputationPoints, getStatusText());
     }
 }

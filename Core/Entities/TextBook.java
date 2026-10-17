@@ -18,7 +18,7 @@ public class TextBook extends Book {
     }
 
     public TextBook(String bookId, String title, double price, int quantity, String genre) {
-        this(bookId, title, "Nhiều tác giả", price, quantity, genre);
+        this(bookId, title, "Various Authors", price, quantity, genre);
     }
 
     public String getGenre() {
@@ -26,12 +26,11 @@ public class TextBook extends Book {
     }
 
     public void setGenre(String genre) {
-        this.genre = (genre != null && !genre.trim().isEmpty()) ? genre.trim() : "Tổng hợp";
+        this.genre = (genre != null && !genre.trim().isEmpty()) ? genre.trim() : "General";
     }
 
     /**
-     * Sách giáo trình được nhà trường và thư viện trợ giá học tập cho học sinh/sinh viên.
-     * Áp dụng chiết khấu 10% so với giá bìa niêm yết.
+     * Textbooks are subsidized with a 10% discount on cover price for students.
      */
     @Override
     public double calculatePrice() {
@@ -39,7 +38,7 @@ public class TextBook extends Book {
     }
 
     /**
-     * Phí mượn sách giáo trình ưu đãi dành cho sinh viên: 2.000 VNĐ/ngày.
+     * Borrow fee for textbooks: 2,000 VND / day.
      */
     @Override
     public double calculateBorrowFee(int days) {
@@ -48,7 +47,7 @@ public class TextBook extends Book {
     }
 
     /**
-     * Tổng giá trị kho sách giáo trình = Đơn giá bìa * Số lượng.
+     * Total inventory value = Cover price * Quantity.
      */
     @Override
     public double calculateTotalValue() {
@@ -57,7 +56,7 @@ public class TextBook extends Book {
 
     @Override
     public String toString() {
-        return String.format("TextBook      [%s | Thể loại: %-12s | Giá ưu đãi: %,.2f | Phí mượn/ngày: %,.0f | Tổng trị giá: %,.2f]", 
+        return String.format("TextBook      [%s | Genre: %-12s | Disc. Price: %,.2f | Borrow Fee/Day: %,.0f | Total Value: %,.2f]", 
                 super.toString(), genre, calculatePrice(), calculateBorrowFee(1), calculateTotalValue());
     }
 }

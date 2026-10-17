@@ -23,7 +23,7 @@ public abstract class User {
 
     public void setUserId(String userId) {
         if (userId == null || userId.trim().isEmpty()) {
-            throw new IllegalArgumentException("Lỗi: Mã người dùng không được để trống!");
+            throw new IllegalArgumentException("Error: User ID cannot be empty!");
         }
         this.userId = userId.trim();
     }
@@ -34,7 +34,7 @@ public abstract class User {
 
     public void setFullName(String fullName) {
         if (fullName == null || fullName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Lỗi: Họ tên không được để trống!");
+            throw new IllegalArgumentException("Error: Full name cannot be empty!");
         }
         this.fullName = fullName.trim();
     }
@@ -45,7 +45,7 @@ public abstract class User {
 
     public void setPhone(String phone) {
         if (phone == null || !phone.trim().matches("\\d{9,11}")) {
-            throw new IllegalArgumentException("Lỗi: Số điện thoại phải gồm 9 - 11 chữ số!");
+            throw new IllegalArgumentException("Error: Phone number must contain 9 - 11 digits!");
         }
         this.phone = phone.trim();
     }
@@ -56,7 +56,7 @@ public abstract class User {
 
     public void setDateOfBirth(LocalDate dateOfBirth) {
         if (dateOfBirth != null && dateOfBirth.isAfter(LocalDate.now())) {
-            throw new IllegalArgumentException("Lỗi: Ngày sinh không thể ở tương lai!");
+            throw new IllegalArgumentException("Error: Date of birth cannot be in the future!");
         }
         this.dateOfBirth = dateOfBirth;
     }
@@ -66,6 +66,6 @@ public abstract class User {
     @Override
     public String toString() {
         String dob = (dateOfBirth != null) ? dateOfBirth.format(DATE_FORMAT) : "N/A";
-        return String.format("ID: %-8s | Tên: %-20s | SĐT: %-11s | Ngày sinh: %s", userId, fullName, phone, dob);
+        return String.format("ID: %-8s | Name: %-20s | Phone: %-11s | DOB: %s", userId, fullName, phone, dob);
     }
 }

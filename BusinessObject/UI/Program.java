@@ -37,7 +37,7 @@ public class Program {
         boolean running = true;
         while (running) {
             printMainBanner();
-            int choice = DataInput.getIntegerNumber(">> Chọn phân hệ làm việc [0-6]: ");
+            int choice = DataInput.getIntegerNumber(">> Select subsystem [0-6]: ");
             System.out.println();
             switch (choice) {
                 case 1:
@@ -51,28 +51,28 @@ public class Program {
                     break;
                 case 4:
                     displaySystemDashboard(bookDAO, memberDAO, borrowDAO);
-                    System.out.println("\nNhấn Enter để tiếp tục...");
+                    System.out.println("\nPress Enter to continue...");
                     DataInput.getString("");
                     break;
                 case 5:
                     exportSystemReportToFile(bookDAO, memberDAO, borrowDAO);
-                    System.out.println("\nNhấn Enter để tiếp tục...");
+                    System.out.println("\nPress Enter to continue...");
                     DataInput.getString("");
                     break;
                 case 6:
                     saveAllData(bookDAO, memberDAO, borrowDAO);
-                    System.out.println("\nNhấn Enter để tiếp tục...");
+                    System.out.println("\nPress Enter to continue...");
                     DataInput.getString("");
                     break;
                 case 0:
                     saveAllData(bookDAO, memberDAO, borrowDAO);
                     System.out.println("==========================================================================");
-                    System.out.println("   Cảm ơn bạn đã sử dụng Hệ thống Quản lý Thư viện! Hẹn gặp lại!          ");
+                    System.out.println("   Thank you for using the Library Management System! See you again!     ");
                     System.out.println("==========================================================================");
                     running = false;
                     break;
                 default:
-                    System.out.println(">> Lựa chọn không hợp lệ! Vui lòng chọn từ 0 đến 6.");
+                    System.out.println(">> Invalid choice! Please select from 0 to 6.");
                     break;
             }
         }
@@ -80,16 +80,16 @@ public class Program {
 
     private static void printMainBanner() {
         System.out.println("\n╔════════════════════════════════════════════════════════════════════════╗");
-        System.out.println("║         HỆ THỐNG QUẢN LÝ THƯ VIỆN (LIBRARY MANAGEMENT SYSTEM)          ║");
-        System.out.println("║                    ĐỒ ÁN MÔN HỌC PRO192 - FALL 2026                    ║");
+        System.out.println("║                      LIBRARY MANAGEMENT SYSTEM                         ║");
+        System.out.println("║                   PRO192 PROJECT - FALL SEMESTER 2026                  ║");
         System.out.println("╠════════════════════════════════════════════════════════════════════════╣");
-        System.out.println("║  1. Quản lý Kho Tài liệu & Sách       (Đa hình, Đánh giá ⭐, Đặt trước) ║");
-        System.out.println("║  2. Quản lý Độc giả Thư viện          (Hạng thẻ VIP/GOLD/SILVER, Điểm) ║");
-        System.out.println("║  3. Quản lý Giao dịch Mượn - Trả      (Gia hạn, Đền bù, Xuất Biên lai) ║");
-        System.out.println("║  4. Bảng Tổng hợp & Biểu đồ Hệ thống  (Dashboard & ASCII Bar Charts)   ║");
-        System.out.println("║  5. Xuất Báo cáo Tổng kết ra File     (Library_Summary_Report.txt)     ║");
-        System.out.println("║  6. Sao lưu Toàn bộ Dữ liệu ra File   (Books / Members / BorrowRecords)║");
-        System.out.println("║  0. Lưu dữ liệu & Thoát chương trình                                   ║");
+        System.out.println("║  1. Book & Inventory Management    (Polymorphism, Rating ⭐, Reserve)   ║");
+        System.out.println("║  2. Library Member Management      (Tiers VIP/GOLD/SILVER, Points)     ║");
+        System.out.println("║  3. Borrow & Return Transactions   (Extension, Damage Fee, Receipt)    ║");
+        System.out.println("║  4. System Summary & Visual Charts (Dashboard & ASCII Bar Charts)      ║");
+        System.out.println("║  5. Export Summary Report to File  (Library_Summary_Report.txt)        ║");
+        System.out.println("║  6. Backup All Data to Files       (Books / Members / BorrowRecords)   ║");
+        System.out.println("║  0. Save Data & Exit Program                                           ║");
         System.out.println("╚════════════════════════════════════════════════════════════════════════╝");
     }
 
@@ -99,22 +99,22 @@ public class Program {
         int totalQty = books.stream().mapToInt(Book::getQuantity).sum();
 
         System.out.println("==========================================================================");
-        System.out.println("                BẢNG TỔNG HỢP TOÀN HỆ THỐNG (SYSTEM DASHBOARD)            ");
+        System.out.println("                      SYSTEM DASHBOARD SUMMARY                            ");
         System.out.println("==========================================================================");
-        System.out.printf("  [1. KHO SÁCH]     Tổng số đầu sách: %d đầu sách (%d cuốn tồn kho)\n",
+        System.out.printf("  [1. BOOK INVENTORY]   Total Book Titles: %d titles (%d copies in stock)\n",
                 books.size(), totalQty);
-        System.out.printf("                    Tổng giá trị tài sản kho sách: %,.0f VNĐ\n",
+        System.out.printf("                        Total Inventory Asset Value: %,.0f VND\n",
                 bookDAO.calculateTotalInventoryValue());
-        System.out.printf("  [2. ĐỘC GIẢ]      Tổng số thẻ độc giả: %d độc giả (VIP: %d | GOLD: %d | SILVER: %d)\n",
+        System.out.printf("  [2. MEMBERS]          Total Registered Members: %d (VIP: %d | GOLD: %d | SILVER: %d)\n",
                 memberDAO.getAll().size(),
                 memberDAO.filterByTier("VIP").size(),
                 memberDAO.filterByTier("GOLD").size(),
                 memberDAO.filterByTier("SILVER").size());
-        System.out.printf("  [3. MƯỢN - TRẢ]   Tổng số phiếu mượn: %d phiếu (Đang mượn: %d | Quá hạn: %d)\n",
+        System.out.printf("  [3. TRANSACTIONS]     Total Borrow Records: %d (Borrowing: %d | Overdue: %d)\n",
                 borrowDAO.getAll().size(),
                 borrowDAO.getActiveBorrowRecords().size(),
                 borrowDAO.getOverdueRecords().size());
-        System.out.printf("                    Phí mượn: %,.0f VNĐ | Tiền phạt: %,.0f VNĐ | Đền bù: %,.0f VNĐ\n",
+        System.out.printf("                        Borrow Fees: %,.0f VND | Fines: %,.0f VND | Damage Fees: %,.0f VND\n",
                 borrowDAO.calculateTotalBorrowFeeRevenue(),
                 borrowDAO.calculateTotalFineRevenue(),
                 borrowDAO.calculateTotalCompensationRevenue());
@@ -128,7 +128,7 @@ public class Program {
                 .map(Book::getQuantity)
                 .collect(Collectors.toList());
 
-        Menu.printAsciiBarChart("TỒN KHO SÁCH HIỆN TẠI", labels, values, "cuốn");
+        Menu.printAsciiBarChart("CURRENT BOOK INVENTORY", labels, values, "copies");
     }
 
     /**
@@ -144,34 +144,34 @@ public class Program {
         int totalQty = books.stream().mapToInt(Book::getQuantity).sum();
 
         lines.add("==========================================================================");
-        lines.add("          BÁO CÁO TỔNG KẾT HOẠT ĐỘNG HỆ THỐNG QUẢN LÝ THƯ VIỆN            ");
-        lines.add("          Ngày xuất báo cáo: " + LocalDate.now().format(Core.Entities.User.DATE_FORMAT));
+        lines.add("              LIBRARY MANAGEMENT SYSTEM - SUMMARY REPORT                  ");
+        lines.add("              Report Date: " + LocalDate.now().format(Core.Entities.User.DATE_FORMAT));
         lines.add("==========================================================================");
-        lines.add("1. THỐNG KÊ KHO SÁCH:");
-        lines.add("   - Tổng số đầu sách           : " + books.size() + " đầu sách");
-        lines.add("   - Tổng số bản sách tồn kho   : " + totalQty + " cuốn");
-        lines.add(String.format("   - Tổng giá trị tài sản kho   : %,.0f VNĐ", bookDAO.calculateTotalInventoryValue()));
+        lines.add("1. BOOK INVENTORY STATISTICS:");
+        lines.add("   - Total Book Titles          : " + books.size() + " titles");
+        lines.add("   - Total Copies in Stock      : " + totalQty + " copies");
+        lines.add(String.format("   - Total Inventory Asset Value: %,.0f VND", bookDAO.calculateTotalInventoryValue()));
         lines.add("--------------------------------------------------------------------------");
-        lines.add("2. THỐNG KÊ ĐỘC GIẢ & HẠNG THẺ:");
-        lines.add("   - Tổng số độc giả            : " + members.size() + " độc giả");
-        lines.add("   - Hạng VIP (-25% phí mượn)   : " + memberDAO.filterByTier("VIP").size() + " độc giả");
-        lines.add("   - Hạng GOLD (-10% phí mượn)  : " + memberDAO.filterByTier("GOLD").size() + " độc giả");
-        lines.add("   - Hạng SILVER (0% ưu đãi)    : " + memberDAO.filterByTier("SILVER").size() + " độc giả");
+        lines.add("2. MEMBER & MEMBERSHIP TIER STATISTICS:");
+        lines.add("   - Total Registered Members   : " + members.size() + " members");
+        lines.add("   - VIP Tier (-25% borrow fee) : " + memberDAO.filterByTier("VIP").size() + " members");
+        lines.add("   - GOLD Tier (-10% borrow fee): " + memberDAO.filterByTier("GOLD").size() + " members");
+        lines.add("   - SILVER Tier (0% discount)  : " + memberDAO.filterByTier("SILVER").size() + " members");
         lines.add("--------------------------------------------------------------------------");
-        lines.add("3. THỐNG KÊ GIAO DỊCH MƯỢN - TRẢ & TÀI CHÍNH:");
-        lines.add("   - Tổng số phiếu mượn         : " + borrowDAO.getAll().size() + " phiếu");
-        lines.add("   - Số phiếu đang mượn         : " + borrowDAO.getActiveBorrowRecords().size() + " phiếu");
-        lines.add("   - Số phiếu quá hạn (Overdue) : " + borrowDAO.getOverdueRecords().size() + " phiếu");
-        lines.add(String.format("   - Doanh thu phí mượn sách    : %,.0f VNĐ", borrowDAO.calculateTotalBorrowFeeRevenue()));
-        lines.add(String.format("   - Tổng tiền phạt trễ hạn     : %,.0f VNĐ", borrowDAO.calculateTotalFineRevenue()));
-        lines.add(String.format("   - Tiền đền bù sách mất/hỏng  : %,.0f VNĐ", borrowDAO.calculateTotalCompensationRevenue()));
+        lines.add("3. BORROW - RETURN TRANSACTIONS & FINANCIALS:");
+        lines.add("   - Total Borrow Records       : " + borrowDAO.getAll().size() + " records");
+        lines.add("   - Currently Borrowing Records: " + borrowDAO.getActiveBorrowRecords().size() + " records");
+        lines.add("   - Overdue Records            : " + borrowDAO.getOverdueRecords().size() + " records");
+        lines.add(String.format("   - Borrow Fee Revenue         : %,.0f VND", borrowDAO.calculateTotalBorrowFeeRevenue()));
+        lines.add(String.format("   - Total Overdue Fines        : %,.0f VND", borrowDAO.calculateTotalFineRevenue()));
+        lines.add(String.format("   - Book Loss/Damage Fee       : %,.0f VND", borrowDAO.calculateTotalCompensationRevenue()));
         lines.add("==========================================================================");
 
         try {
             FileManager.writeLines(reportFile, lines);
-            System.out.println(">> Đã xuất Báo cáo Tổng kết Hệ thống ra file: " + reportFile + " thành công!");
+            System.out.println(">> Successfully exported System Summary Report to: " + reportFile + "!");
         } catch (Exception e) {
-            System.out.println(">> Lỗi khi xuất file báo cáo: " + e.getMessage());
+            System.out.println(">> Error exporting report file: " + e.getMessage());
         }
     }
 
@@ -180,9 +180,9 @@ public class Program {
         boolean mOk = memberDAO.saveToFile();
         boolean rOk = borrowDAO.saveToFile();
         if (bOk && mOk && rOk) {
-            System.out.println(">> Đã đồng bộ toàn bộ dữ liệu ra 3 file: Books.txt, Members.txt, BorrowRecords.txt!");
+            System.out.println(">> Successfully synchronized all data to Books.txt, Members.txt, BorrowRecords.txt!");
         } else {
-            System.out.println(">> Có lỗi xảy ra khi lưu một số file dữ liệu!");
+            System.out.println(">> An error occurred while saving some data files!");
         }
     }
 }

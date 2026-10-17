@@ -1,12 +1,12 @@
-# Danh sách lưu trữ sách (Library Management System - PRO192)
-# Format: LOAI_SACH|MA_SACH|TEN_SACH|TAC_GIA|GIA|SO_LUONG|THE_LOAI_HOAC_NXB
-TEXTBOOK|B001|Lập trình Hướng đối tượng Java|Herbert Schildt|125000.00|30|CNTT|4.50|1
-TEXTBOOK|B002|Cấu trúc dữ liệu & Giải thuật|Robert Lafore|98000.00|25|Khoa học máy tính|4.50|1
-TEXTBOOK|B003|Cơ sở dữ liệu quan hệ SQL|Abraham Silberschatz|85000.00|40|Hệ thống thông tin|4.50|1
-TEXTBOOK|B004|Mạng máy tính căn bản|Andrew S. Tanenbaum|110000.00|20|Mạng & Viễn thông|4.50|1
-TEXTBOOK|B005|Kỹ thuật lập trình C/C++|Phạm Văn Ất|90000.00|15|CNTT|4.50|1
-REFERENCEBOOK|B006|Clean Code - Nghệ thuật viết code sạch|Robert C. Martin|240000.00|20|O'Reilly Media|4.50|1
+# Book Storage Repository (Library Management System - PRO192)
+# Format: BOOK_TYPE|BOOK_ID|TITLE|AUTHOR|PRICE|QUANTITY|GENRE_OR_PUBLISHER|RATING|RATING_COUNT
+TEXTBOOK|B001|Object-Oriented Programming with Java|Herbert Schildt|125000.00|30|Information Technology|4.50|1
+TEXTBOOK|B002|Data Structures & Algorithms in Java|Robert Lafore|98000.00|25|Computer Science|4.50|1
+TEXTBOOK|B003|Database System Concepts (SQL)|Abraham Silberschatz|85000.00|40|Information Systems|4.50|1
+TEXTBOOK|B004|Computer Networks Principles|Andrew S. Tanenbaum|110000.00|20|Telecommunications|4.50|1
+TEXTBOOK|B005|C/C++ Programming Techniques|Pham Van At|90000.00|15|Information Technology|4.50|1
+REFERENCEBOOK|B006|Clean Code: A Handbook of Agile Craftsmanship|Robert C. Martin|240000.00|20|O'Reilly Media|4.50|1
 REFERENCEBOOK|B007|Design Patterns: Gang of Four|Erich Gamma|320000.00|15|Addison-Wesley|4.50|1
-REFERENCEBOOK|B008|Refactoring - Cải tiến mã nguồn|Martin Fowler|280000.00|18|Addison-Wesley|4.50|1
+REFERENCEBOOK|B008|Refactoring: Improving Code Design|Martin Fowler|280000.00|18|Addison-Wesley|4.50|1
 REFERENCEBOOK|B009|The Pragmatic Programmer|Andrew Hunt|260000.00|12|Pragmatic Bookshelf|4.50|1
 REFERENCEBOOK|B010|Head First Design Patterns|Eric Freeman|210000.00|22|O'Reilly Media|4.50|1

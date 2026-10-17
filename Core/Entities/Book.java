@@ -33,7 +33,7 @@ public abstract class Book {
     }
 
     public Book(String bookId, String title, double price, int quantity) {
-        this(bookId, title, "Nhiều tác giả", price, quantity);
+        this(bookId, title, "Various Authors", price, quantity);
     }
 
     public String getBookId() {
@@ -42,7 +42,7 @@ public abstract class Book {
 
     public void setBookId(String bookId) {
         if (bookId == null || bookId.trim().isEmpty()) {
-            throw new IllegalArgumentException("Lỗi: Mã sách không được để trống!");
+            throw new IllegalArgumentException("Error: Book ID cannot be empty!");
         }
         this.bookId = bookId.trim();
     }
@@ -53,7 +53,7 @@ public abstract class Book {
 
     public void setTitle(String title) {
         if (title == null || title.trim().isEmpty()) {
-            throw new IllegalArgumentException("Lỗi: Tên sách không được để trống!");
+            throw new IllegalArgumentException("Error: Book title cannot be empty!");
         }
         this.title = title.trim();
     }
@@ -66,7 +66,7 @@ public abstract class Book {
         if (author != null && !author.trim().isEmpty()) {
             this.author = author.trim();
         } else {
-            this.author = "Nhiều tác giả";
+            this.author = "Various Authors";
         }
     }
 
@@ -76,7 +76,7 @@ public abstract class Book {
 
     public void setPrice(double price) {
         if (price <= 0) {
-            throw new IllegalArgumentException("Lỗi: Giá sách phải lớn hơn 0!");
+            throw new IllegalArgumentException("Error: Book price must be greater than 0!");
         }
         this.price = price;
     }
@@ -87,13 +87,13 @@ public abstract class Book {
 
     public void setQuantity(int quantity) {
         if (quantity < 0) {
-            throw new IllegalArgumentException("Lỗi: Số lượng không được âm!");
+            throw new IllegalArgumentException("Error: Quantity cannot be negative!");
         }
         this.quantity = quantity;
     }
 
     // ========================================================
-    // Tính năng 3: Đánh giá Sao (Rating 1 - 5 ⭐)
+    // Feature 3: Rating (1 - 5 stars)
     // ========================================================
 
     public double getRating() {
@@ -118,7 +118,7 @@ public abstract class Book {
 
     public void addRating(int stars) {
         if (stars < 1 || stars > 5) {
-            throw new IllegalArgumentException("Số sao đánh giá phải từ 1 đến 5!");
+            throw new IllegalArgumentException("Rating must be between 1 and 5 stars!");
         }
         double totalScore = this.rating * this.ratingCount + stars;
         this.ratingCount = this.ratingCount + 1;
@@ -130,7 +130,7 @@ public abstract class Book {
     }
 
     // ========================================================
-    // Tính năng 7: Hàng đợi Đặt trước sách (Reservation Queue)
+    // Feature 7: Reservation Queue
     // ========================================================
 
     public List<String> getReservationQueue() {
@@ -139,12 +139,6 @@ public abstract class Book {
 
     /**
      * [LAMBDA & STREAM API]: Đăng ký đặt trước sách (Reservation Queue).
-     * 
-     * So sánh:
-     * - Cách cũ: Dùng vòng for duyệt từng phần tử `reservationQueue.get(i)` và so sánh equalsIgnoreCase.
-     * - Lambda/Stream: Dùng `reservationQueue.stream().anyMatch(cleanId::equalsIgnoreCase)`.
-     *   -> anyMatch là một short-circuiting terminal operation: nó dừng duyệt ngay khi tìm thấy phần tử trùng,
-     *      giúp mã nguồn súc tích, dễ đọc và tối ưu hóa hiệu năng.
      */
     public boolean addReservation(String memberId) {
         if (memberId == null || memberId.trim().isEmpty()) {
@@ -154,14 +148,14 @@ public abstract class Book {
         boolean alreadyReserved = reservationQueue.stream()
                 .anyMatch(cleanId::equalsIgnoreCase);
         if (alreadyReserved) {
-            return false; // Độc giả đã có tên trong hàng đợi
+            return false;
         }
         reservationQueue.add(cleanId);
         return true;
     }
 
     /**
-     * Lấy mã độc giả đầu tiên trong hàng đợi (FIFO - vào trước phục vụ trước).
+     * Lấy mã độc giả đầu tiên trong hàng đợi (FIFO).
      */
     public String popNextReservation() {
         if (reservationQueue.isEmpty()) {
@@ -171,7 +165,7 @@ public abstract class Book {
     }
 
     // ========================================================
-    // Các phương thức Đa hình (Polymorphism)
+    // Polymorphic Methods
     // ========================================================
 
     public abstract double calculateTotalValue();
@@ -182,7 +176,7 @@ public abstract class Book {
 
     @Override
     public String toString() {
-        return String.format("Mã: %-6s | Tên: %-25s | Tác giả: %-16s | Giá: %-8.0f | SL: %-3d | Đánh giá: %s",
+        return String.format("ID: %-6s | Title: %-25s | Author: %-16s | Price: %-8.0f | Qty: %-3d | Rating: %s",
                 bookId, title, author, price, quantity, getStarDisplay());
     }
 }

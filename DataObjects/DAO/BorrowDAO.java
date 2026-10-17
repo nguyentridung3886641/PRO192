@@ -200,8 +200,8 @@ public class BorrowDAO implements IBorrowDAO {
                 // Tính năng 7: Kiểm tra hàng đợi đặt trước của cuốn sách này
                 String nextWaitingMember = b.popNextReservation();
                 if (nextWaitingMember != null) {
-                    System.out.println("  🔔 [THÔNG BÁO ĐẶT TRƯỚC]: Sách '" + b.getTitle()
-                            + "' vừa được hoàn trả! Độc giả ưu tiên tiếp theo trong hàng đợi: " + nextWaitingMember);
+                    System.out.println("  🔔 [RESERVATION NOTIFICATION]: Book '" + b.getTitle()
+                            + "' has been returned! Next waiting member in queue: " + nextWaitingMember);
                 }
             }
         });
@@ -252,25 +252,24 @@ public class BorrowDAO implements IBorrowDAO {
         String fileName = "Receipt_" + r.getRecordId().toUpperCase() + ".txt";
         List<String> lines = new ArrayList<>();
         lines.add("======================================================================");
-        lines.add("               BIÊN LAI GIAO DỊCH MƯỢN - TRẢ THƯ VIỆN                 ");
-        lines.add("                    (LIBRARY TRANSACTION RECEIPT)                     ");
+        lines.add("                    LIBRARY TRANSACTION RECEIPT                       ");
         lines.add("======================================================================");
-        lines.add("  Mã phiếu mượn    : " + r.getRecordId());
-        lines.add("  Mã độc giả       : " + r.getMember().getUserId());
-        lines.add("  Họ tên độc giả   : " + r.getMember().getFullName());
-        lines.add("  Hạng thẻ hiện tại: " + r.getMember().getMembershipTier()
-                + " (Điểm uy tín: " + r.getMember().getReputationPoints() + "đ)");
-        lines.add("  Ngày mượn        : " + r.getBorrowDate().format(BorrowRecord.DATE_FORMAT));
-        lines.add("  Hạn trả          : " + r.getDueDate().format(BorrowRecord.DATE_FORMAT));
-        lines.add("  Ngày trả thực tế : " + (r.getReturnDate() != null ? r.getReturnDate().format(BorrowRecord.DATE_FORMAT) : "Chưa trả"));
-        lines.add("  Trạng thái phiếu : " + r.getStatusText());
+        lines.add("  Record ID        : " + r.getRecordId());
+        lines.add("  Member ID        : " + r.getMember().getUserId());
+        lines.add("  Member Name      : " + r.getMember().getFullName());
+        lines.add("  Current Tier     : " + r.getMember().getMembershipTier()
+                + " (Reputation Points: " + r.getMember().getReputationPoints() + " pts)");
+        lines.add("  Borrow Date      : " + r.getBorrowDate().format(BorrowRecord.DATE_FORMAT));
+        lines.add("  Due Date         : " + r.getDueDate().format(BorrowRecord.DATE_FORMAT));
+        lines.add("  Actual Return    : " + (r.getReturnDate() != null ? r.getReturnDate().format(BorrowRecord.DATE_FORMAT) : "Not returned"));
+        lines.add("  Record Status    : " + r.getStatusText());
         lines.add("----------------------------------------------------------------------");
-        lines.add("  DANH SÁCH SÁCH TRONG PHIẾU (" + r.getBorrowedBooks().size() + " cuốn):");
+        lines.add("  BORROWED BOOK LIST (" + r.getBorrowedBooks().size() + " book(s)):");
         // [LAMBDA & STREAM API]: Duyệt in danh sách sách trong phiếu bằng IntStream.range
         IntStream.range(0, r.getBorrowedBooks().size()).forEach(i -> {
             Book b = r.getBorrowedBooks().get(i);
             if (b != null) {
-                lines.add(String.format("    %d. [%s] %-32s | Phí mượn (%d ngày): %,.0f VNĐ",
+                lines.add(String.format("    %d. [%s] %-32s | Borrow Fee (%d days): %,.0f VND",
                         i + 1, b.getBookId(), b.getTitle(), r.getBorrowDurationDays(),
                         b.calculateBorrowFee(r.getBorrowDurationDays())));
             }
@@ -281,14 +280,14 @@ public class BorrowDAO implements IBorrowDAO {
         double discountedFee = r.calculateDiscountedBorrowFee();
         double fine = r.calculateFine();
         double comp = r.getCompensationFee();
-        lines.add(String.format("  + Tổng phí mượn gốc                : %,14.0f VNĐ", rawFee));
-        lines.add(String.format("  + Ưu đãi hạng thẻ %-6s (-%2.0f%%)     : -%,13.0f VNĐ",
+        lines.add(String.format("  + Total Raw Borrow Fee             : %,14.0f VND", rawFee));
+        lines.add(String.format("  + Tier Discount %-6s (-%2.0f%%)       : -%,13.0f VND",
                 r.getMember().getMembershipTier(), discountRate * 100, rawFee - discountedFee));
-        lines.add(String.format("  + Phí mượn sau chiết khấu          : %,14.0f VNĐ", discountedFee));
-        lines.add(String.format("  + Tiền phạt quá hạn (%2d ngày)      : %,14.0f VNĐ", r.getOverdueDays(), fine));
-        lines.add(String.format("  + Tiền đền bù sách mất/hỏng (150%%) : %,14.0f VNĐ", comp));
+        lines.add(String.format("  + Fee After Discount               : %,14.0f VND", discountedFee));
+        lines.add(String.format("  + Overdue Fine (%2d days)           : %,14.0f VND", r.getOverdueDays(), fine));
+        lines.add(String.format("  + Book Damage/Loss Fee (150%%)      : %,14.0f VND", comp));
         lines.add("----------------------------------------------------------------------");
-        lines.add(String.format("  => TỔNG SỐ TIỀN THANH TOÁN         : %,14.0f VNĐ", r.calculateFinalPayment()));
+        lines.add(String.format("  => TOTAL PAYMENT AMOUNT            : %,14.0f VND", r.calculateFinalPayment()));
         lines.add("======================================================================");
 
         try {
@@ -467,7 +466,7 @@ public class BorrowDAO implements IBorrowDAO {
                 return true;
             }
         } catch (Exception e) {
-            System.out.println(">> Cảnh báo đọc file BorrowRecords.txt: " + e.getMessage());
+            System.out.println(">> Warning reading file BorrowRecords.txt: " + e.getMessage());
         }
         return false;
     }
@@ -485,14 +484,14 @@ public class BorrowDAO implements IBorrowDAO {
     public boolean saveToFile(String filePath) {
         try {
             List<String> lines = new ArrayList<>();
-            lines.add("# Định dạng: RecordID|MemberID|BookIDs|BorrowDate|DueDate|ReturnDate|Status|ExtensionCount|CompensationFee");
+            lines.add("# Format: RecordID|MemberID|BookIDs|BorrowDate|DueDate|ReturnDate|Status|ExtensionCount|CompensationFee");
             recordList.stream()
                     .map(BorrowRecord::toFileString)
                     .forEach(lines::add);
             FileManager.writeLines(filePath, lines);
             return true;
         } catch (Exception e) {
-            System.out.println(">> Lỗi ghi file BorrowRecords.txt: " + e.getMessage());
+            System.out.println(">> Error writing file BorrowRecords.txt: " + e.getMessage());
             return false;
         }
     }

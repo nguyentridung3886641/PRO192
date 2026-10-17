@@ -39,7 +39,7 @@ public class BookManagement {
         boolean running = true;
         while (running) {
             printMenuHeader();
-            int choice = DataInput.getIntegerNumber(">> Nhập lựa chọn của bạn [0-12]: ");
+            int choice = DataInput.getIntegerNumber(">> Enter your choice [0-12]: ");
             System.out.println();
             switch (choice) {
                 case 1:
@@ -79,16 +79,16 @@ public class BookManagement {
                     displayBookInventoryChart();
                     break;
                 case 0:
-                    System.out.println(">> Đang lưu dữ liệu và thoát khỏi phân hệ Quản lý Sách. Hẹn gặp lại!");
+                    System.out.println(">> Saving data and exiting Book Management subsystem. See you again!");
                     bookDAO.saveToFile();
                     running = false;
                     break;
                 default:
-                    System.out.println(">> Lựa chọn không hợp lệ! Vui lòng chọn số từ 0 đến 12.");
+                    System.out.println(">> Invalid choice! Please select a number from 0 to 12.");
                     break;
             }
             if (running) {
-                System.out.println("\nNhấn Enter để tiếp tục...");
+                System.out.println("\nPress Enter to continue...");
                 DataInput.getString("");
             }
         }
@@ -97,22 +97,22 @@ public class BookManagement {
     private void printMenuHeader() {
         System.out.println();
         System.out.println("========================================================================================================");
-        System.out.println("                      HỆ THỐNG QUẢN LÝ KHO SÁCH & TÀI LIỆU (BOOK MANAGEMENT)                            ");
+        System.out.println("                      BOOK & DOCUMENT INVENTORY MANAGEMENT SYSTEM                                       ");
         System.out.println("                      PRO192 - Member 2: Nguyen Thien Tue (Milestones 3 & 4)                            ");
         System.out.println("========================================================================================================");
-        System.out.println("  1. Xem danh sách toàn bộ sách (Bảng biểu chi tiết, áp dụng Đa hình & Upcasting)                       ");
-        System.out.println("  2. Thêm sách mới vào kho (Sách giáo trình / Sách tham khảo, hỗ trợ Tác giả)                           ");
-        System.out.println("  3. Cập nhật thông tin sách theo Mã sách                                                               ");
-        System.out.println("  4. Xóa sách khỏi kho lưu trữ                                                                          ");
-        System.out.println("  5. Tìm kiếm sách đa tiêu chí (Theo mã, tên, tác giả, khoảng giá, kết hợp)                            ");
-        System.out.println("  6. Sắp xếp danh sách sách (Đa tiêu chí: Tên, Tác giả, Giá, SL, Thuật toán Selection/Insertion Sort)  ");
-        System.out.println("  7. Mô phỏng tính phí mượn theo Đa hình (Polymorphic Borrow Fee Simulator)                             ");
-        System.out.println("  8. Quản lý lưu trữ file Books.txt (Lưu file / Tải lại file)                                           ");
-        System.out.println("  9. Báo cáo thống kê & Tổng quan giá trị kho sách                                                      ");
-        System.out.println(" 10. Đánh giá Sao (1-5 ⭐) & Gợi ý Sách Thông minh (Smart Book Recommendation)                          ");
-        System.out.println(" 11. Hàng đợi Đặt trước Sách khi hết hàng (Book Reservation Queue)                                      ");
-        System.out.println(" 12. Biểu đồ Trực quan Tồn kho theo Đầu sách (Console ASCII Bar Chart)                                  ");
-        System.out.println("  0. Quay lại Menu chính / Thoát                                                                        ");
+        System.out.println("  1. View all books (Detailed table, Polymorphism & Upcasting)                                          ");
+        System.out.println("  2. Add new book to inventory (TextBook / ReferenceBook, supports Author)                              ");
+        System.out.println("  3. Update book details by Book ID                                                                     ");
+        System.out.println("  4. Delete book from inventory                                                                         ");
+        System.out.println("  5. Multi-criteria search (By ID, Title, Author, Price Range, Combined)                                ");
+        System.out.println("  6. Sort book list (Multi-criteria: Title, Author, Price, Qty, Selection/Insertion Sort)              ");
+        System.out.println("  7. Polymorphic borrow fee simulator (Demonstrates dynamic method dispatch)                            ");
+        System.out.println("  8. Manage Books.txt file storage (Save to file / Reload from file)                                    ");
+        System.out.println("  9. Inventory statistical report & Total asset valuation                                               ");
+        System.out.println(" 10. Star rating (1-5 ⭐) & Smart book recommendations (Feature 3)                                      ");
+        System.out.println(" 11. Book reservation queue when out of stock (Feature 7)                                               ");
+        System.out.println(" 12. Book inventory visual bar chart (Console ASCII Bar Chart - Feature 8)                              ");
+        System.out.println("  0. Return to Main Menu / Exit                                                                         ");
         System.out.println("========================================================================================================");
     }
 
@@ -132,11 +132,11 @@ public class BookManagement {
         System.out.println(centerText(tableTitle.toUpperCase(), totalWidth));
         System.out.println(sep);
         System.out.printf("| %-8s | %-32s | %-20s | %-15s | %-22s | %-3s | %-14s | %-14s | %-14s | %-14s |%n",
-                "MÃ SÁCH", "TÊN SÁCH", "TÁC GIẢ", "PHÂN LOẠI", "THỂ LOẠI / NXB", "SL", "GIÁ BÌA(VNĐ)", "GIÁ ĐA HÌNH", "PHÍ MƯỢN/NGÀY", "THÀNH TIỀN(VNĐ)");
+                "BOOK ID", "BOOK TITLE", "AUTHOR", "CATEGORY", "GENRE / PUBLISHER", "QTY", "PRICE (VND)", "POLY PRICE", "FEE/DAY (VND)", "TOTAL VALUE(VND)");
         System.out.println(sep);
 
         if (books == null || books.isEmpty()) {
-            System.out.printf("|%s|%n", centerText("KHÔNG CÓ DỮ LIỆU SÁCH ĐỂ HIỂN THỊ", totalWidth - 2));
+            System.out.printf("|%s|%n", centerText("NO BOOK DATA TO DISPLAY", totalWidth - 2));
             System.out.println(sep);
             return;
         }
@@ -152,13 +152,13 @@ public class BookManagement {
 
             // Áp dụng Upcasting & Dynamic Method Dispatch
             if (b instanceof TextBook) {
-                typeStr = "Giáo trình";
+                typeStr = "TextBook";
                 extraInfo = ((TextBook) b).getGenre();
             } else if (b instanceof ReferenceBook) {
-                typeStr = "Tham khảo";
+                typeStr = "Reference";
                 extraInfo = ((ReferenceBook) b).getPublisher();
             } else {
-                typeStr = "Sách chung";
+                typeStr = "General";
                 extraInfo = "-";
             }
 
@@ -183,9 +183,9 @@ public class BookManagement {
         });
 
         System.out.println(sep);
-        String summaryPart1 = String.format("Tổng: %d đầu sách", books.size());
-        String summaryPart2 = String.format("Tổng số bản in: %,d cuốn", totalQty);
-        String summaryPart3 = String.format("Tổng giá trị kho: %,.2f VNĐ", totalVal);
+        String summaryPart1 = String.format("Total: %d book titles", books.size());
+        String summaryPart2 = String.format("Total inventory copies: %,d copies", totalQty);
+        String summaryPart3 = String.format("Total inventory value: %,.2f VND", totalVal);
 
         System.out.printf("| %-45s | %-55s | %-62s |%n", summaryPart1, summaryPart2, summaryPart3);
         System.out.println(makeLine('=', totalWidth));
@@ -193,115 +193,115 @@ public class BookManagement {
 
     public void printAllBooks() {
         List<Book> list = bookDAO.getBookList();
-        printBookTable(list, "DANH SÁCH TOÀN BỘ SÁCH TRONG KHO THƯ VIỆN");
+        printBookTable(list, "ALL BOOKS IN LIBRARY INVENTORY");
     }
 
     public void addNewBook() {
-        System.out.println("\n--- [ THÊM SÁCH MỚI VÀO KHO ] ---");
-        System.out.println("Chọn loại sách cần thêm:");
-        System.out.println("  1. Sách giáo trình (TextBook) - Giảm 10% ưu đãi sinh viên, phí mượn 2.000đ/ngày");
-        System.out.println("  2. Sách tham khảo (ReferenceBook) - Thuế VAT/bản quyền 10%, phí mượn 5.000đ/ngày");
-        int typeChoice = DataInput.getIntegerNumber(">> Lựa chọn [1 hoặc 2]: ", 1, 2);
+        System.out.println("\n--- [ ADD NEW BOOK TO INVENTORY ] ---");
+        System.out.println("Select book type to add:");
+        System.out.println("  1. TextBook - 10% student subsidy discount, borrow fee 2,000 VND/day");
+        System.out.println("  2. ReferenceBook - 10% VAT/copyright tax, borrow fee 5,000 VND/day");
+        int typeChoice = DataInput.getIntegerNumber(">> Select option [1 or 2]: ", 1, 2);
 
         String bookId;
         while (true) {
-            bookId = DataInput.getNonEmptyString("Nhập Mã sách (VD: B009, TB001): ").toUpperCase();
+            bookId = DataInput.getNonEmptyString("Enter Book ID (e.g. B009, TB001): ").toUpperCase();
             if (bookDAO.findBookById(bookId) != null) {
-                System.out.println(">> Lỗi: Mã sách '" + bookId + "' đã tồn tại! Vui lòng nhập mã khác.");
+                System.out.println(">> Error: Book ID '" + bookId + "' already exists! Please enter another ID.");
             } else {
                 break;
             }
         }
 
-        String title = DataInput.getNonEmptyString("Nhập Tên sách: ");
-        String author = DataInput.getNonEmptyString("Nhập Tác giả: ");
-        double price = DataInput.getPositiveDouble("Nhập Giá bìa niêm yết (VNĐ): ");
-        int quantity = DataInput.getIntegerNumber("Nhập Số lượng tồn kho (>= 0): ", 0, 100000);
+        String title = DataInput.getNonEmptyString("Enter Book Title: ");
+        String author = DataInput.getNonEmptyString("Enter Author: ");
+        double price = DataInput.getPositiveDouble("Enter Listed Cover Price (VND): ");
+        int quantity = DataInput.getIntegerNumber("Enter Inventory Quantity (>= 0): ", 0, 100000);
 
         Book newBook;
         if (typeChoice == 1) {
-            String genre = DataInput.getNonEmptyString("Nhập Thể loại / Chuyên ngành giáo trình: ");
+            String genre = DataInput.getNonEmptyString("Enter Genre / Textbook Discipline: ");
             newBook = new TextBook(bookId, title, author, price, quantity, genre);
         } else {
-            String publisher = DataInput.getNonEmptyString("Nhập Tên Nhà xuất bản (NXB): ");
+            String publisher = DataInput.getNonEmptyString("Enter Publisher Name: ");
             newBook = new ReferenceBook(bookId, title, author, price, quantity, publisher);
         }
 
         boolean success = bookDAO.addBook(newBook);
         if (success) {
             bookDAO.saveToFile();
-            System.out.println("\n>> THÀNH CÔNG: Đã thêm sách mới và lưu trữ đồng bộ vào Books.txt!");
+            System.out.println("\n>> SUCCESS: Added new book and synchronized to Books.txt!");
             List<Book> single = new ArrayList<>();
             single.add(newBook);
-            printBookTable(single, "THÔNG TIN SÁCH VỪA THÊM");
+            printBookTable(single, "NEWLY ADDED BOOK DETAILS");
         } else {
-            System.out.println("\n>> THẤT BÀI: Không thể thêm sách vào kho!");
+            System.out.println("\n>> FAILED: Unable to add book to inventory!");
         }
     }
 
     public void updateBook() {
-        System.out.println("\n--- [ CẬP NHẬT THÔNG TIN SÁCH ] ---");
-        String bookId = DataInput.getNonEmptyString("Nhập Mã sách cần cập nhật: ");
+        System.out.println("\n--- [ UPDATE BOOK INFORMATION ] ---");
+        String bookId = DataInput.getNonEmptyString("Enter Book ID to update: ");
         Book current = bookDAO.findBookById(bookId);
 
         if (current == null) {
-            System.out.println(">> Không tìm thấy sách nào với mã: " + bookId);
+            System.out.println(">> No book found with ID: " + bookId);
             return;
         }
 
         List<Book> preview = new ArrayList<>();
         preview.add(current);
-        printBookTable(preview, "THÔNG TIN HIỆN TẠI CỦA SÁCH");
+        printBookTable(preview, "CURRENT BOOK INFORMATION");
 
-        System.out.println(">> Hướng dẫn: Nhập thông tin mới hoặc nhấn Enter để giữ nguyên giá trị cũ.");
+        System.out.println(">> Guide: Enter new value or press Enter to keep current value.");
 
-        String newTitle = DataInput.getString(String.format("Tên mới [Hiện tại: '%s']: ", current.getTitle()));
+        String newTitle = DataInput.getString(String.format("New Title [Current: '%s']: ", current.getTitle()));
         if (!newTitle.trim().isEmpty()) {
             current.setTitle(newTitle.trim());
         }
 
-        String newAuthor = DataInput.getString(String.format("Tác giả mới [Hiện tại: '%s']: ", current.getAuthor()));
+        String newAuthor = DataInput.getString(String.format("New Author [Current: '%s']: ", current.getAuthor()));
         if (!newAuthor.trim().isEmpty()) {
             current.setAuthor(newAuthor.trim());
         }
 
-        String priceStr = DataInput.getString(String.format("Đơn giá bìa mới [Hiện tại: %,.2f VNĐ]: ", current.getPrice()));
+        String priceStr = DataInput.getString(String.format("New Cover Price [Current: %,.2f VND]: ", current.getPrice()));
         if (!priceStr.trim().isEmpty()) {
             try {
                 double newPrice = Double.parseDouble(priceStr.trim());
                 if (newPrice > 0) {
                     current.setPrice(newPrice);
                 } else {
-                    System.out.println(">> Đơn giá không hợp lệ, giữ nguyên giá cũ.");
+                    System.out.println(">> Invalid price, keeping current price.");
                 }
             } catch (NumberFormatException e) {
-                System.out.println(">> Định dạng số không hợp lệ, giữ nguyên giá cũ.");
+                System.out.println(">> Invalid number format, keeping current price.");
             }
         }
 
-        String qtyStr = DataInput.getString(String.format("Số lượng mới [Hiện tại: %d]: ", current.getQuantity()));
+        String qtyStr = DataInput.getString(String.format("New Quantity [Current: %d]: ", current.getQuantity()));
         if (!qtyStr.trim().isEmpty()) {
             try {
                 int newQty = Integer.parseInt(qtyStr.trim());
                 if (newQty >= 0) {
                     current.setQuantity(newQty);
                 } else {
-                    System.out.println(">> Số lượng không được âm, giữ nguyên số lượng cũ.");
+                    System.out.println(">> Quantity cannot be negative, keeping current quantity.");
                 }
             } catch (NumberFormatException e) {
-                System.out.println(">> Định dạng số không hợp lệ, giữ nguyên số lượng cũ.");
+                System.out.println(">> Invalid number format, keeping current quantity.");
             }
         }
 
         if (current instanceof TextBook) {
             TextBook tb = (TextBook) current;
-            String newGenre = DataInput.getString(String.format("Thể loại mới [Hiện tại: '%s']: ", tb.getGenre()));
+            String newGenre = DataInput.getString(String.format("New Genre [Current: '%s']: ", tb.getGenre()));
             if (!newGenre.trim().isEmpty()) {
                 tb.setGenre(newGenre.trim());
             }
         } else if (current instanceof ReferenceBook) {
             ReferenceBook rb = (ReferenceBook) current;
-            String newPub = DataInput.getString(String.format("Nhà xuất bản mới [Hiện tại: '%s']: ", rb.getPublisher()));
+            String newPub = DataInput.getString(String.format("New Publisher [Current: '%s']: ", rb.getPublisher()));
             if (!newPub.trim().isEmpty()) {
                 rb.setPublisher(newPub.trim());
             }
@@ -310,55 +310,55 @@ public class BookManagement {
         boolean ok = bookDAO.updateBook(current);
         if (ok) {
             bookDAO.saveToFile();
-            System.out.println("\n>> THÀNH CÔNG: Đã cập nhật thông tin sách và đồng bộ vào Books.txt!");
-            printBookTable(preview, "THÔNG TIN SÁCH SAU KHI CẬP NHẬT");
+            System.out.println("\n>> SUCCESS: Book information updated and synchronized to Books.txt!");
+            printBookTable(preview, "BOOK INFORMATION AFTER UPDATE");
         } else {
-            System.out.println("\n>> THẤT BÀI: Cập nhật thông tin sách không thành công!");
+            System.out.println("\n>> FAILED: Updating book information failed!");
         }
     }
 
     public void deleteBook() {
-        System.out.println("\n--- [ XÓA SÁCH KHỎI HỆ THỐNG ] ---");
-        String bookId = DataInput.getNonEmptyString("Nhập Mã sách cần xóa: ");
+        System.out.println("\n--- [ REMOVE BOOK FROM INVENTORY ] ---");
+        String bookId = DataInput.getNonEmptyString("Enter Book ID to remove: ");
         Book book = bookDAO.findBookById(bookId);
 
         if (book == null) {
-            System.out.println(">> Không tìm thấy sách nào với mã: " + bookId);
+            System.out.println(">> No book found with ID: " + bookId);
             return;
         }
 
         List<Book> preview = new ArrayList<>();
         preview.add(book);
-        printBookTable(preview, "SÁCH ĐƯỢC CHỌN ĐỂ XÓA");
+        printBookTable(preview, "BOOK SELECTED FOR REMOVAL");
 
-        boolean confirm = DataInput.getBoolean(">> Bạn có chắc chắn muốn xóa cuốn sách này khỏi kho? ");
+        boolean confirm = DataInput.getBoolean(">> Are you sure you want to remove this book from inventory? ");
         if (confirm) {
             boolean ok = bookDAO.deleteBook(bookId);
             if (ok) {
                 bookDAO.saveToFile();
-                System.out.println(">> THÀNH CÔNG: Đã xóa cuốn sách có mã '" + bookId + "' và đồng bộ vào Books.txt!");
+                System.out.println(">> SUCCESS: Removed book with ID '" + bookId + "' and synchronized to Books.txt!");
             } else {
-                System.out.println(">> THẤT BÀI: Không thể xóa cuốn sách!");
+                System.out.println(">> FAILED: Unable to remove book!");
             }
         } else {
-            System.out.println(">> Đã hủy thao tác xóa sách.");
+            System.out.println(">> Book removal cancelled.");
         }
     }
 
     // ========================================================
-    // Milestone 4: Menu tìm kiếm đa tiêu chí
+    // Milestone 4: Multi-criteria search menu
     // ========================================================
 
     public void searchBooksSubMenu() {
-        System.out.println("\n--- [ TÌM KIẾM SÁCH ĐA TIÊU CHÍ (MILESTONE 4) ] ---");
-        System.out.println("  1. Tìm kiếm theo Mã sách (Book ID)");
-        System.out.println("  2. Tìm kiếm theo Tên sách (Title)");
-        System.out.println("  3. Tìm kiếm theo Tác giả (Author)");
-        System.out.println("  4. Tìm kiếm theo Khoảng giá bìa (Price Range)");
-        System.out.println("  5. Tìm kiếm kết hợp đa tiêu chí (Tên + Tác giả + Giá + Phân loại)");
-        System.out.println("  0. Quay lại");
+        System.out.println("\n--- [ MULTI-CRITERIA BOOK SEARCH (MILESTONE 4) ] ---");
+        System.out.println("  1. Search by Book ID");
+        System.out.println("  2. Search by Book Title");
+        System.out.println("  3. Search by Author");
+        System.out.println("  4. Search by Listed Price Range");
+        System.out.println("  5. Combined Multi-Criteria Search (Title + Author + Price + Classification)");
+        System.out.println("  0. Back");
 
-        int choice = DataInput.getIntegerNumber(">> Chọn tiêu chí tìm kiếm [0-5]: ", 0, 5);
+        int choice = DataInput.getIntegerNumber(">> Select search criteria [0-5]: ", 0, 5);
         switch (choice) {
             case 1:
                 findBookById();
@@ -381,71 +381,71 @@ public class BookManagement {
     }
 
     public void findBookById() {
-        String bookId = DataInput.getNonEmptyString("Nhập Mã sách cần tìm: ");
+        String bookId = DataInput.getNonEmptyString("Enter Book ID to search: ");
         Book book = bookDAO.findBookById(bookId);
         if (book != null) {
             List<Book> list = new ArrayList<>();
             list.add(book);
-            printBookTable(list, "KẾT QUẢ TÌM KIẾM CHO MÃ: " + bookId.toUpperCase());
+            printBookTable(list, "SEARCH RESULTS FOR ID: " + bookId.toUpperCase());
         } else {
-            System.out.println(">> Không tìm thấy sách nào có mã: " + bookId);
+            System.out.println(">> No book found with ID: " + bookId);
         }
     }
 
     public void searchBooksByTitle() {
-        String keyword = DataInput.getNonEmptyString("Nhập từ khóa Tên sách: ");
+        String keyword = DataInput.getNonEmptyString("Enter Book Title keyword: ");
         List<Book> results = bookDAO.findBookByTitle(keyword);
         if (!results.isEmpty()) {
-            printBookTable(results, "KẾT QUẢ TÌM KIẾM THEO TÊN: '" + keyword + "' (" + results.size() + " kết quả)");
+            printBookTable(results, "SEARCH RESULTS BY TITLE: '" + keyword + "' (" + results.size() + " results)");
         } else {
-            System.out.println(">> Không tìm thấy cuốn sách nào chứa từ khóa tên: '" + keyword + "'");
+            System.out.println(">> No books found containing title keyword: '" + keyword + "'");
         }
     }
 
     public void searchBooksByAuthor() {
-        String author = DataInput.getNonEmptyString("Nhập từ khóa Tác giả: ");
+        String author = DataInput.getNonEmptyString("Enter Author keyword: ");
         List<Book> results = bookDAO.findBookByAuthor(author);
         if (!results.isEmpty()) {
-            printBookTable(results, "KẾT QUẢ TÌM KIẾM THEO TÁC GIẢ: '" + author + "' (" + results.size() + " kết quả)");
+            printBookTable(results, "SEARCH RESULTS BY AUTHOR: '" + author + "' (" + results.size() + " results)");
         } else {
-            System.out.println(">> Không tìm thấy cuốn sách nào của tác giả: '" + author + "'");
+            System.out.println(">> No books found for author: '" + author + "'");
         }
     }
 
     public void searchBooksByPriceRange() {
-        double minPrice = DataInput.getDoubleNumber("Nhập Giá thấp nhất (VNĐ): ");
-        double maxPrice = DataInput.getDoubleNumber("Nhập Giá cao nhất (VNĐ): ");
+        double minPrice = DataInput.getDoubleNumber("Enter Minimum Price (VND): ");
+        double maxPrice = DataInput.getDoubleNumber("Enter Maximum Price (VND): ");
         List<Book> results = bookDAO.findBookByPriceRange(minPrice, maxPrice);
         if (!results.isEmpty()) {
-            String title = String.format("KẾT QUẢ TÌM KIẾM TRONG KHOẢNG GIÁ [%,.0f - %,.0f VNĐ] (%d kết quả)", 
+            String title = String.format("SEARCH RESULTS IN PRICE RANGE [%,.0f - %,.0f VND] (%d results)", 
                     Math.min(minPrice, maxPrice), Math.max(minPrice, maxPrice), results.size());
             printBookTable(results, title);
         } else {
-            System.out.printf(">> Không tìm thấy sách nào trong khoảng giá [%,.0f - %,.0f VNĐ]%n", minPrice, maxPrice);
+            System.out.printf(">> No books found within price range [%,.0f - %,.0f VND]%n", minPrice, maxPrice);
         }
     }
 
     public void searchBooksCombinedMultiCriteria() {
-        System.out.println("\n--- [ TÌM KIẾM KẾT HỢP ĐA TIÊU CHÍ ] ---");
-        System.out.println(">> Ghi chú: Nhấn Enter để bỏ qua tiêu chí không quan tâm.");
+        System.out.println("\n--- [ COMBINED MULTI-CRITERIA SEARCH ] ---");
+        System.out.println(">> Note: Press Enter to skip any criteria.");
 
-        String title = DataInput.getString("1. Từ khóa Tên sách: ");
-        String author = DataInput.getString("2. Từ khóa Tác giả: ");
+        String title = DataInput.getString("1. Book Title keyword: ");
+        String author = DataInput.getString("2. Author keyword: ");
 
-        String minStr = DataInput.getString("3. Giá thấp nhất (VNĐ): ");
+        String minStr = DataInput.getString("3. Minimum Price (VND): ");
         Double minPrice = null;
         if (!minStr.trim().isEmpty()) {
             try { minPrice = Double.parseDouble(minStr.trim()); } catch (NumberFormatException ignored) {}
         }
 
-        String maxStr = DataInput.getString("4. Giá cao nhất (VNĐ): ");
+        String maxStr = DataInput.getString("4. Maximum Price (VND): ");
         Double maxPrice = null;
         if (!maxStr.trim().isEmpty()) {
             try { maxPrice = Double.parseDouble(maxStr.trim()); } catch (NumberFormatException ignored) {}
         }
 
-        System.out.println("5. Phân loại sách: (1) Giáo trình, (2) Tham khảo, (Enter để chọn tất cả)");
-        String typeInput = DataInput.getString(">> Lựa chọn phân loại: ");
+        System.out.println("5. Book Classification: (1) TextBook, (2) ReferenceBook, (Enter for all)");
+        String typeInput = DataInput.getString(">> Select classification: ");
         String bookType = "";
         if ("1".equals(typeInput.trim())) {
             bookType = "TEXT";
@@ -455,64 +455,64 @@ public class BookManagement {
 
         List<Book> results = bookDAO.searchMultiCriteria(title, author, minPrice, maxPrice, bookType);
         if (!results.isEmpty()) {
-            printBookTable(results, "KẾT QUẢ TÌM KIẾM ĐA TIÊU CHÍ KẾT HỢP (" + results.size() + " kết quả)");
+            printBookTable(results, "COMBINED MULTI-CRITERIA SEARCH RESULTS (" + results.size() + " results)");
         } else {
-            System.out.println(">> Không tìm thấy sách nào thỏa mãn đồng thời các tiêu chí trên.");
+            System.out.println(">> No books found matching all specified criteria.");
         }
     }
 
     // ========================================================
-    // Milestone 4: Menu thuật toán sắp xếp
+    // Milestone 4: Sorting algorithms menu
     // ========================================================
 
     public void sortBooksSubMenu() {
-        System.out.println("\n--- [ SẮP XẾP DANH SÁCH SÁCH (MILESTONE 4) ] ---");
-        System.out.println("  1. Sắp xếp theo Tên sách (A -> Z) [Cài đặt giải thuật Insertion Sort]");
-        System.out.println("  2. Sắp xếp theo Tên sách (Z -> A)");
-        System.out.println("  3. Sắp xếp theo Tác giả (A -> Z)");
-        System.out.println("  4. Sắp xếp theo Tác giả (Z -> A)");
-        System.out.println("  5. Sắp xếp theo Đơn giá tăng dần [Cài đặt giải thuật Selection Sort]");
-        System.out.println("  6. Sắp xếp theo Đơn giá giảm dần [Cài đặt giải thuật Selection Sort]");
-        System.out.println("  7. Sắp xếp theo Số lượng tồn kho giảm dần");
-        System.out.println("  8. Sắp xếp theo Tổng giá trị lưu kho giảm dần");
-        System.out.println("  0. Quay lại");
+        System.out.println("\n--- [ SORT BOOK LIST (MILESTONE 4) ] ---");
+        System.out.println("  1. Sort by Title (A -> Z) [Insertion Sort Algorithm]");
+        System.out.println("  2. Sort by Title (Z -> A)");
+        System.out.println("  3. Sort by Author (A -> Z)");
+        System.out.println("  4. Sort by Author (Z -> A)");
+        System.out.println("  5. Sort by Listed Price Ascending [Selection Sort Algorithm]");
+        System.out.println("  6. Sort by Listed Price Descending [Selection Sort Algorithm]");
+        System.out.println("  7. Sort by Inventory Quantity Descending");
+        System.out.println("  8. Sort by Total Inventory Value Descending");
+        System.out.println("  0. Back");
 
-        int sortChoice = DataInput.getIntegerNumber(">> Chọn tiêu chí sắp xếp [0-8]: ", 0, 8);
+        int sortChoice = DataInput.getIntegerNumber(">> Select sorting option [0-8]: ", 0, 8);
         List<Book> list;
         String title;
 
         switch (sortChoice) {
             case 1:
                 list = bookDAO.sortByTitleAlgorithm(true);
-                title = "SẮP XẾP THEO TÊN (A - Z) [INSERTION SORT ALGORITHM]";
+                title = "SORT BY TITLE (A - Z) [INSERTION SORT ALGORITHM]";
                 break;
             case 2:
                 list = bookDAO.sortByTitleAlgorithm(false);
-                title = "SẮP XẾP THEO TÊN (Z - A)";
+                title = "SORT BY TITLE (Z - A)";
                 break;
             case 3:
                 list = bookDAO.getSortedByAuthor(true);
-                title = "SẮP XẾP THEO TÁC GIẢ (A - Z)";
+                title = "SORT BY AUTHOR (A - Z)";
                 break;
             case 4:
                 list = bookDAO.getSortedByAuthor(false);
-                title = "SẮP XẾP THEO TÁC GIẢ (Z - A)";
+                title = "SORT BY AUTHOR (Z - A)";
                 break;
             case 5:
                 list = bookDAO.sortByPriceAlgorithm(true);
-                title = "SẮP XẾP THEO ĐƠN GIÁ TĂNG DẦN [SELECTION SORT ALGORITHM]";
+                title = "SORT BY LISTED PRICE ASCENDING [SELECTION SORT ALGORITHM]";
                 break;
             case 6:
                 list = bookDAO.sortByPriceAlgorithm(false);
-                title = "SẮP XẾP THEO ĐƠN GIÁ GIẢM DẦN [SELECTION SORT ALGORITHM]";
+                title = "SORT BY LISTED PRICE DESCENDING [SELECTION SORT ALGORITHM]";
                 break;
             case 7:
                 list = bookDAO.getSortedByQuantity(false);
-                title = "SẮP XẾP THEO SỐ LƯỢNG TỒN KHO GIẢM DẦN";
+                title = "SORT BY INVENTORY QUANTITY DESCENDING";
                 break;
             case 8:
                 list = bookDAO.getSortedByTotalValue(false);
-                title = "SẮP XẾP THEO TỔNG GIÁ TRỊ LƯU KHO GIẢM DẦN";
+                title = "SORT BY TOTAL INVENTORY VALUE DESCENDING";
                 break;
             default:
                 return;
@@ -522,73 +522,74 @@ public class BookManagement {
     }
 
     // ========================================================
-    // Milestone 3: Mô phỏng tính phí mượn theo Đa hình (Polymorphism)
+    // ========================================================
+    // Milestone 3: Simulate borrow fee calculation via Polymorphism
     // ========================================================
 
     public void simulateBorrowFeePolymorphism() {
-        System.out.println("\n--- [ MÔ PHỎNG TÍNH PHÍ MƯỢN THEO ĐA HÌNH (MILESTONE 3) ] ---");
-        System.out.println(">> Cơ chế Đa hình (Polymorphism & Upcasting):");
-        System.out.println("   - TextBook (Giáo trình): calculateBorrowFee(days) = days * 2.000 VNĐ (trợ giá sinh viên)");
-        System.out.println("   - ReferenceBook (Tham khảo): calculateBorrowFee(days) = days * 5.000 VNĐ (tài liệu chuyên sâu)");
+        System.out.println("\n--- [ SIMULATE BORROW FEE VIA POLYMORPHISM (MILESTONE 3) ] ---");
+        System.out.println(">> Polymorphism & Upcasting Mechanism:");
+        System.out.println("   - TextBook: calculateBorrowFee(days) = days * 2,000 VND (student subsidy)");
+        System.out.println("   - ReferenceBook: calculateBorrowFee(days) = days * 5,000 VND (specialized material)");
         System.out.println();
 
-        String bookId = DataInput.getNonEmptyString("Nhập Mã sách cần tính phí mượn thử nghiệm: ");
+        String bookId = DataInput.getNonEmptyString("Enter Book ID to simulate borrow fee: ");
         Book book = bookDAO.findBookById(bookId);
         if (book == null) {
-            System.out.println(">> Không tìm thấy sách nào có mã: " + bookId);
+            System.out.println(">> No book found with ID: " + bookId);
             return;
         }
 
-        int days = DataInput.getIntegerNumber("Nhập số ngày dự kiến mượn (1 - 365 ngày): ", 1, 365);
+        int days = DataInput.getIntegerNumber("Enter projected borrow days (1 - 365 days): ", 1, 365);
         double fee = book.calculateBorrowFee(days);
         double polyPrice = book.calculatePrice();
 
         System.out.println();
         System.out.println("==========================================================================");
-        System.out.println("                KẾT QUẢ TÍNH PHÍ MƯỢN THEO TÍNH ĐA HÌNH                   ");
+        System.out.println("             POLYMORPHIC BORROW FEE CALCULATION RESULT                    ");
         System.out.println("==========================================================================");
-        System.out.printf("  * Tên sách               : %s (Mã: %s)%n", book.getTitle(), book.getBookId());
-        System.out.printf("  * Tác giả                : %s%n", book.getAuthor());
-        System.out.printf("  * Phân loại thực thể     : %s%n", book.getClass().getSimpleName());
-        System.out.printf("  * Đơn giá bìa niêm yết   : %,.2f VNĐ%n", book.getPrice());
-        System.out.printf("  * Đơn giá thực tế (đa hình): %,.2f VNĐ ", polyPrice);
+        System.out.printf("  * Book Title             : %s (ID: %s)%n", book.getTitle(), book.getBookId());
+        System.out.printf("  * Author                 : %s%n", book.getAuthor());
+        System.out.printf("  * Entity Classification  : %s%n", book.getClass().getSimpleName());
+        System.out.printf("  * Listed Cover Price     : %,.2f VND%n", book.getPrice());
+        System.out.printf("  * Effective Price (poly) : %,.2f VND ", polyPrice);
         if (book instanceof TextBook) {
-            System.out.println("(Giảm 10% hỗ trợ học tập)");
+            System.out.println("(10% student subsidy discount applied)");
         } else {
-            System.out.println("(Cộng 10% thuế VAT / bản quyền)");
+            System.out.println("(10% VAT / copyright tax added)");
         }
-        System.out.printf("  * Số ngày mượn           : %d ngày%n", days);
-        System.out.printf("  * Tổng phí mượn tạm tính : %,.2f VNĐ%n", fee);
+        System.out.printf("  * Borrow Duration        : %d days%n", days);
+        System.out.printf("  * Estimated Borrow Fee   : %,.2f VND%n", fee);
         System.out.println("==========================================================================");
     }
 
     // ========================================================
-    // Milestone 4: Quản lý lưu trữ file Books.txt
+    // Milestone 4: Books.txt file storage management
     // ========================================================
 
     public void fileManagementSubMenu() {
-        System.out.println("\n--- [ QUẢN LÝ LƯU TRỮ FILE BOOKS.TXT (MILESTONE 4) ] ---");
-        System.out.println("  1. Lưu toàn bộ danh sách sách hiện tại ra file Books.txt");
-        System.out.println("  2. Tải/Đồng bộ lại danh sách sách từ file Books.txt");
-        System.out.println("  0. Quay lại");
+        System.out.println("\n--- [ BOOKS.TXT FILE STORAGE MANAGEMENT (MILESTONE 4) ] ---");
+        System.out.println("  1. Save current book list to Books.txt");
+        System.out.println("  2. Reload/Sync book list from Books.txt");
+        System.out.println("  0. Back");
 
-        int choice = DataInput.getIntegerNumber(">> Chọn thao tác [0-2]: ", 0, 2);
+        int choice = DataInput.getIntegerNumber(">> Select operation [0-2]: ", 0, 2);
         switch (choice) {
             case 1:
                 boolean saved = bookDAO.saveToFile();
                 if (saved) {
-                    System.out.println(">> THÀNH CÔNG: Đã lưu toàn bộ dữ liệu sách vào file Books.txt chuẩn UTF-8!");
+                    System.out.println(">> SUCCESS: Saved all book data to Books.txt in UTF-8 format!");
                 } else {
-                    System.out.println(">> THẤT BÀI: Có lỗi xảy ra khi ghi file!");
+                    System.out.println(">> FAILED: An error occurred while writing to file!");
                 }
                 break;
             case 2:
                 boolean loaded = bookDAO.loadFromFile();
                 if (loaded) {
-                    System.out.println(">> THÀNH CÔNG: Đã nạp thành công dữ liệu sách từ file Books.txt!");
+                    System.out.println(">> SUCCESS: Successfully loaded book data from Books.txt!");
                     printAllBooks();
                 } else {
-                    System.out.println(">> THẤT BÀI: File Books.txt không tồn tại hoặc không có dữ liệu hợp lệ!");
+                    System.out.println(">> FAILED: Books.txt does not exist or contains invalid data!");
                 }
                 break;
             default:
@@ -621,37 +622,37 @@ public class BookManagement {
 
         System.out.println();
         System.out.println("==========================================================================================");
-        System.out.println("                    BÁO CÁO THỐNG KÊ TỔNG QUAN KHO SÁCH                                   ");
+        System.out.println("                         OVERVIEW BOOK INVENTORY REPORT                                   ");
         System.out.println("==========================================================================================");
-        System.out.printf("  * Tổng số đầu sách trong thư viện    : %,d đầu sách%n", totalTitles);
-        System.out.printf("  * Tổng số lượng bản in tồn kho       : %,d cuốn%n", totalQty);
-        System.out.printf("  * Tổng giá trị tài sản kho sách      : %,.2f VNĐ%n", totalVal);
+        System.out.printf("  * Total book titles in library       : %,d titles%n", totalTitles);
+        System.out.printf("  * Total inventory copies             : %,d copies%n", totalQty);
+        System.out.printf("  * Total inventory asset value        : %,.2f VND%n", totalVal);
         System.out.println("------------------------------------------------------------------------------------------");
-        System.out.println("  [ PHÂN BỐ THEO LOẠI SÁCH (ĐA HÌNH) ]");
-        System.out.printf("    - Sách giáo trình (TextBook)       : %d đầu sách | %,d cuốn | Trị giá: %,.2f VNĐ%n",
+        System.out.println("  [ BREAKDOWN BY BOOK TYPE (POLYMORPHISM) ]");
+        System.out.printf("    - TextBook                         : %d titles | %,d copies | Value: %,.2f VND%n",
                 textBookCount, textBookQty, textBookVal);
-        System.out.printf("    - Sách tham khảo (ReferenceBook)   : %d đầu sách | %,d cuốn | Trị giá: %,.2f VNĐ%n",
+        System.out.printf("    - ReferenceBook                    : %d titles | %,d copies | Value: %,.2f VND%n",
                 refBookCount, refBookQty, refBookVal);
         System.out.println("------------------------------------------------------------------------------------------");
         if (highestPriceBook != null) {
-            System.out.printf("  * Sách có đơn giá cao nhất           : [%s] %s (%,.2f VNĐ)%n",
+            System.out.printf("  * Highest priced book                : [%s] %s (%,.2f VND)%n",
                     highestPriceBook.getBookId(), highestPriceBook.getTitle(), highestPriceBook.getPrice());
         }
         if (lowestPriceBook != null) {
-            System.out.printf("  * Sách có đơn giá thấp nhất          : [%s] %s (%,.2f VNĐ)%n",
+            System.out.printf("  * Lowest priced book                 : [%s] %s (%,.2f VND)%n",
                     lowestPriceBook.getBookId(), lowestPriceBook.getTitle(), lowestPriceBook.getPrice());
         }
         if (highestQtyBook != null) {
-            System.out.printf("  * Sách có số lượng tồn kho nhiều nhất: [%s] %s (%d cuốn)%n",
+            System.out.printf("  * Highest inventory stock book       : [%s] %s (%d copies)%n",
                     highestQtyBook.getBookId(), highestQtyBook.getTitle(), highestQtyBook.getQuantity());
         }
         if (!lowStockBooks.isEmpty()) {
-            System.out.printf("  * CẢNH BÁO TỒN KHO THẤP (< 5 cuốn)  : Có %d đầu sách cần nhập thêm!%n", lowStockBooks.size());
+            System.out.printf("  * LOW STOCK WARNING (< 5 copies)     : %d book titles require restocking!%n", lowStockBooks.size());
             lowStockBooks.forEach(lsb ->
-                System.out.printf("      + [%s] %s (Hiện còn: %d cuốn)%n", lsb.getBookId(), lsb.getTitle(), lsb.getQuantity())
+                System.out.printf("      + [%s] %s (Current stock: %d copies)%n", lsb.getBookId(), lsb.getTitle(), lsb.getQuantity())
             );
         } else {
-            System.out.println("  * Tình trạng tồn kho                 : Mọi đầu sách đều duy trì tồn kho an toàn (>= 5 cuốn).");
+            System.out.println("  * Inventory Status                   : All book titles maintain safe stock levels (>= 5 copies).");
         }
         System.out.println("==========================================================================================");
     }
@@ -678,43 +679,43 @@ public class BookManagement {
     }
 
     // ========================================================
-    // Tính năng 3, 7, 8: Đánh giá Sao & Gợi ý Sách, Hàng đợi Đặt trước, Biểu đồ ASCII
+    // Features 3, 7, 8: Star Rating & Book Recommendations, Reservation Queue, ASCII Chart
     // ========================================================
 
     private void rateAndRecommendSubMenu() {
         System.out.println("==========================================================================================");
-        System.out.println("              ĐÁNH GIÁ SAO (1-5 ⭐) & GỢI Ý SÁCH THÔNG MINH (FEATURE 3)                    ");
+        System.out.println("            STAR RATING (1-5 ⭐) & SMART BOOK RECOMMENDATIONS (FEATURE 3)                  ");
         System.out.println("==========================================================================================");
-        System.out.println("  1. Chấm điểm Sao (1-5 ⭐) cho cuốn sách bạn đã đọc");
-        System.out.println("  2. Gợi ý Top 3 cuốn sách liên quan có điểm đánh giá cao nhất");
-        System.out.println("  3. Xem bảng xếp hạng Sách theo số Sao đánh giá");
-        int subChoice = DataInput.getIntegerNumber(">> Chọn chức năng [1-3]: ");
+        System.out.println("  1. Submit Star Rating (1-5 ⭐) for a book you have read");
+        System.out.println("  2. Recommend Top 3 highest-rated related books");
+        System.out.println("  3. View Book Leaderboard ranked by Star Rating");
+        int subChoice = DataInput.getIntegerNumber(">> Select feature [1-3]: ");
 
         if (subChoice == 1) {
-            String bookId = DataInput.getNonEmptyString("Nhập mã sách muốn đánh giá (VD: B001): ").toUpperCase();
+            String bookId = DataInput.getNonEmptyString("Enter Book ID to rate (e.g. B001): ").toUpperCase();
             Book book = bookDAO.findBookById(bookId);
             if (book == null) {
-                System.out.println(">> Không tìm thấy sách có mã: " + bookId);
+                System.out.println(">> No book found with ID: " + bookId);
                 return;
             }
-            System.out.println("Sách đang chọn: " + book.getTitle() + " | Điểm hiện tại: " + book.getStarDisplay());
-            int stars = DataInput.getIntegerNumber("Nhập số sao đánh giá [1-5]: ", 1, 5);
+            System.out.println("Selected book: " + book.getTitle() + " | Current Rating: " + book.getStarDisplay());
+            int stars = DataInput.getIntegerNumber("Enter rating stars [1-5]: ", 1, 5);
             if (bookDAO.rateBook(bookId, stars)) {
-                System.out.println(">> Cảm ơn bạn đã đánh giá! Điểm mới của sách '" + book.getTitle() + "' là: " + book.getStarDisplay());
+                System.out.println(">> Thank you for rating! New rating for '" + book.getTitle() + "': " + book.getStarDisplay());
             }
         } else if (subChoice == 2) {
-            String bookId = DataInput.getNonEmptyString("Nhập mã cuốn sách bạn đang quan tâm (VD: B001): ").toUpperCase();
+            String bookId = DataInput.getNonEmptyString("Enter Book ID of interest (e.g. B001): ").toUpperCase();
             Book target = bookDAO.findBookById(bookId);
             if (target == null) {
-                System.out.println(">> Không tìm thấy sách có mã: " + bookId);
+                System.out.println(">> No book found with ID: " + bookId);
                 return;
             }
-            System.out.println("\n>> Dựa trên cuốn '" + target.getTitle() + "', hệ thống gợi ý Top 3 cuốn sách cùng nhóm có đánh giá cao nhất:");
+            System.out.println("\n>> Based on '" + target.getTitle() + "', recommended Top 3 highest-rated books in the same group:");
             List<Book> recommended = bookDAO.getRecommendedBooks(bookId, 3);
             // [LAMBDA & STREAM API]: Duyệt danh sách gợi ý bằng IntStream
             IntStream.range(0, recommended.size()).forEach(i -> {
                 Book rec = recommended.get(i);
-                System.out.printf("   %d. [%s] %-35s | Tác giả: %-18s | Đánh giá: %s | Còn: %d cuốn\n",
+                System.out.printf("   %d. [%s] %-35s | Author: %-18s | Rating: %s | In Stock: %d copies\n",
                         i + 1, rec.getBookId(), rec.getTitle(), rec.getAuthor(), rec.getStarDisplay(), rec.getQuantity());
             });
         } else if (subChoice == 3) {
@@ -723,10 +724,10 @@ public class BookManagement {
             list.sort(Comparator.comparingDouble(Book::getRating).reversed()
                     .thenComparing(Comparator.comparingInt(Book::getRatingCount).reversed()));
 
-            System.out.println("\n--- BẢNG XẾP HẠNG SÁCH ĐƯỢC YÊU THÍCH NHẤT ---");
+            System.out.println("\n--- MOST POPULAR BOOKS LEADERBOARD ---");
             IntStream.range(0, list.size()).forEach(i -> {
                 Book b = list.get(i);
-                System.out.printf("  Hạng %d: [%s] %-36s | ⭐ %s | Giá: %,.0f VNĐ\n",
+                System.out.printf("  Rank %d: [%s] %-36s | ⭐ %s | Price: %,.0f VND\n",
                         i + 1, b.getBookId(), b.getTitle(), b.getStarDisplay(), b.getPrice());
             });
         }
@@ -734,38 +735,38 @@ public class BookManagement {
 
     private void reservationQueueSubMenu() {
         System.out.println("==========================================================================================");
-        System.out.println("              HÀNG ĐỢI ĐẶT TRƯỚC SÁCH KHI HẾT HÀNG (RESERVATION QUEUE - FEATURE 7)       ");
+        System.out.println("            BOOK RESERVATION QUEUE WHEN OUT OF STOCK (FEATURE 7)                          ");
         System.out.println("==========================================================================================");
-        System.out.println("  1. Đăng ký Đặt trước sách cho Độc giả");
-        System.out.println("  2. Xem danh sách các đầu sách đang có người chờ Đặt trước");
-        int subChoice = DataInput.getIntegerNumber(">> Chọn chức năng [1-2]: ");
+        System.out.println("  1. Register Book Reservation for Member");
+        System.out.println("  2. View books with waiting Reservation Queues");
+        int subChoice = DataInput.getIntegerNumber(">> Select feature [1-2]: ");
 
         if (subChoice == 1) {
-            String bookId = DataInput.getNonEmptyString("Nhập mã sách muốn đặt trước (VD: B005): ").toUpperCase();
+            String bookId = DataInput.getNonEmptyString("Enter Book ID to reserve (e.g. B005): ").toUpperCase();
             Book book = bookDAO.findBookById(bookId);
             if (book == null) {
-                System.out.println(">> Không tìm thấy sách có mã: " + bookId);
+                System.out.println(">> No book found with ID: " + bookId);
                 return;
             }
-            String memberId = DataInput.getNonEmptyString("Nhập mã độc giả đăng ký chờ (VD: M001): ").toUpperCase();
+            String memberId = DataInput.getNonEmptyString("Enter Member ID to register (e.g. M001): ").toUpperCase();
             if (bookDAO.reserveBook(bookId, memberId)) {
-                System.out.println(">> Đã thêm độc giả " + memberId + " vào hàng đợi đặt trước của sách '" + book.getTitle() + "'!");
-                System.out.println(">> Vị trí trong hàng đợi: #" + book.getReservationQueue().size()
-                        + " (Khi có người trả sách, hệ thống sẽ tự động thông báo ưu tiên!)");
+                System.out.println(">> Added member " + memberId + " to the reservation queue for book '" + book.getTitle() + "'!");
+                System.out.println(">> Position in queue: #" + book.getReservationQueue().size()
+                        + " (When a copy is returned, the system will automatically notify priority!)");
             } else {
-                System.out.println(">> Độc giả " + memberId + " đã có trong danh sách chờ của cuốn sách này rồi!");
+                System.out.println(">> Member " + memberId + " is already in the reservation queue for this book!");
             }
         } else if (subChoice == 2) {
             List<Book> reservedBooks = bookDAO.getBooksWithReservations();
             if (reservedBooks.isEmpty()) {
-                System.out.println(">> Hiện tại chưa có cuốn sách nào trong danh sách chờ đặt trước.");
+                System.out.println(">> There are currently no books in the reservation queue.");
                 return;
             }
-            System.out.println("\n--- DANH SÁCH SÁCH ĐANG CÓ ĐỘC GIẢ ĐẶT TRƯỚC ---");
+            System.out.println("\n--- BOOKS WITH ACTIVE RESERVATION QUEUES ---");
             // [LAMBDA & STREAM API]: In danh sách đặt trước bằng IntStream
             IntStream.range(0, reservedBooks.size()).forEach(i -> {
                 Book b = reservedBooks.get(i);
-                System.out.printf("  %d. [%s] %-35s (Tồn kho: %d) -> Hàng đợi (%d người): %s\n",
+                System.out.printf("  %d. [%s] %-35s (Stock: %d) -> Queue (%d members): %s\n",
                         i + 1, b.getBookId(), b.getTitle(), b.getQuantity(),
                         b.getReservationQueue().size(), b.getReservationQueue().toString());
             });
@@ -782,7 +783,7 @@ public class BookManagement {
                 .map(Book::getQuantity)
                 .collect(Collectors.toList());
 
-        Menu.printAsciiBarChart("SỐ LƯỢNG TỒN KHO THEO TỪNG ĐẦU SÁCH", labels, values, "cuốn");
+        Menu.printAsciiBarChart("INVENTORY QUANTITY PER BOOK TITLE", labels, values, "copies");
     }
 
     public static void main(String[] args) {

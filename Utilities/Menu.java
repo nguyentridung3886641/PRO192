@@ -55,11 +55,11 @@ public class Menu {
      */
     public static void printAsciiBarChart(String chartTitle, List<String> labels, List<Integer> values, String unit) {
         System.out.println("\n  ┌──────────────────────────────────────────────────────────────────────────────────┐");
-        System.out.printf("  │ 📊 BIỂU ĐỒ TRỰC QUAN: %-58s │\n", chartTitle);
+        System.out.printf("  │ 📊 VISUAL BAR CHART: %-59s │\n", chartTitle);
         System.out.println("  ├──────────────────────────────────────────────────────────────────────────────────┤");
 
         if (labels == null || values == null || labels.isEmpty() || labels.size() != values.size()) {
-            System.out.println("  │   (Chưa có dữ liệu để hiển thị biểu đồ)                                          │");
+            System.out.println("  │   (No data available to display chart)                                           │");
             System.out.println("  └──────────────────────────────────────────────────────────────────────────────────┘");
             return;
         }

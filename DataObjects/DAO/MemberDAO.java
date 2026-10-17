@@ -51,16 +51,16 @@ public class MemberDAO implements IMemberDAO {
 
     public void initSampleData() {
         memberList.clear();
-        add(new Member("M001", "Nguyễn Trí Dũng", "0901234567",
+        add(new Member("M001", "Nguyen Tri Dung", "0901234567",
                 LocalDate.of(2005, 5, 15), LocalDate.of(2026, 1, 10), true, 120)); // VIP
-        add(new Member("M002", "Nguyễn Thiên Tuệ", "0912345678",
+        add(new Member("M002", "Nguyen Thien Tue", "0912345678",
                 LocalDate.of(2005, 8, 20), LocalDate.of(2026, 1, 12), true, 85));  // GOLD
-        add(new Member("M003", "Trần Minh Quân", "0987654321",
+        add(new Member("M003", "Tran Minh Quan", "0987654321",
                 LocalDate.of(2005, 3, 25), LocalDate.of(2026, 2, 1), true, 65));   // GOLD
-        add(new Member("M004", "Lê Hoàng Nam", "0933445566",
+        add(new Member("M004", "Le Hoang Nam", "0933445566",
                 LocalDate.of(2005, 11, 5), LocalDate.of(2026, 2, 15), true, 50));  // SILVER
-        add(new Member("M005", "Phạm Thu Hà", "0977889900",
-                LocalDate.of(2006, 2, 18), LocalDate.of(2026, 3, 1), false, -5));  // Bị khóa
+        add(new Member("M005", "Pham Thu Ha", "0977889900",
+                LocalDate.of(2006, 2, 18), LocalDate.of(2026, 3, 1), false, -5));  // Locked
     }
 
     /**
@@ -240,7 +240,7 @@ public class MemberDAO implements IMemberDAO {
             loadToMemberList(Paths.get(filePath));
             return true;
         } catch (Exception e) {
-            System.out.println(">> Cảnh báo đọc file Members.txt: " + e.getMessage());
+            System.out.println(">> Warning reading file Members.txt: " + e.getMessage());
             return false;
         }
     }
@@ -256,7 +256,7 @@ public class MemberDAO implements IMemberDAO {
             saveToFile(Paths.get(filePath));
             return true;
         } catch (Exception e) {
-            System.out.println(">> Lỗi ghi file Members.txt: " + e.getMessage());
+            System.out.println(">> Error writing file Members.txt: " + e.getMessage());
             return false;
         }
     }

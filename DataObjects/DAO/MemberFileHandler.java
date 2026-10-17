@@ -34,7 +34,7 @@ public class MemberFileHandler {
         }
         String[] data = line.split("\\|", -1);
         if (data.length < 5) {
-            throw new IllegalArgumentException("Định dạng dữ liệu không hợp lệ (tối thiểu 5 trường): " + line);
+            throw new IllegalArgumentException("Invalid data format (minimum 5 fields): " + line);
         }
 
         String userId = data[0].trim();
@@ -66,7 +66,7 @@ public class MemberFileHandler {
         boolean active = true;
         if (data.length >= 6) {
             String status = data[5].trim();
-            active = status.equalsIgnoreCase("ACTIVE") || status.equalsIgnoreCase("true") || status.equalsIgnoreCase("Đang hoạt động");
+            active = status.equalsIgnoreCase("ACTIVE") || status.equalsIgnoreCase("true") || status.equalsIgnoreCase("Active") || status.equalsIgnoreCase("Đang hoạt động");
         }
 
         int points = 50;
@@ -88,7 +88,7 @@ public class MemberFileHandler {
      */
     public static void saveMembers(List<Member> memberList, Path filePath) throws IOException {
         List<String> lines = new ArrayList<>();
-        lines.add("# Định dạng: MemberID|FullName|Phone|DateOfBirth(dd/MM/yyyy)|RegistrationDate(dd/MM/yyyy)|Status|ReputationPoints");
+        lines.add("# Format: MemberID|FullName|Phone|DateOfBirth(dd/MM/yyyy)|RegistrationDate(dd/MM/yyyy)|Status|ReputationPoints");
         if (memberList != null) {
             memberList.stream()
                     .filter(Objects::nonNull)

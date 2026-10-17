@@ -40,11 +40,11 @@ public class BorrowManagement {
         boolean running = true;
         while (running) {
             printMenuHeader();
-            int choice = DataInput.getIntegerNumber(">> Nhập lựa chọn của bạn [0-10]: ");
+            int choice = DataInput.getIntegerNumber(">> Enter your choice [0-10]: ");
             System.out.println();
             switch (choice) {
                 case 1:
-                    displayBorrowRecords(borrowDAO.getAll(), "DANH SÁCH TOÀN BỘ PHIẾU MƯỢN - TRẢ");
+                    displayBorrowRecords(borrowDAO.getAll(), "ALL BORROW & RETURN RECORDS");
                     break;
                 case 2:
                     createNewBorrowRecord();
@@ -59,7 +59,7 @@ public class BorrowManagement {
                     searchBorrowSubMenu();
                     break;
                 case 6:
-                    displayBorrowRecords(borrowDAO.getOverdueRecords(), "DANH SÁCH CÁC PHIẾU MƯỢN QUÁ HẠN (OVERDUE)");
+                    displayBorrowRecords(borrowDAO.getOverdueRecords(), "OVERDUE BORROW RECORDS");
                     break;
                 case 7:
                     displayBorrowStatistics();
@@ -72,20 +72,20 @@ public class BorrowManagement {
                     break;
                 case 10:
                     if (borrowDAO.saveToFile()) {
-                        System.out.println(">> Đã lưu lịch sử mượn - trả ra file BorrowRecords.txt thành công!");
+                        System.out.println(">> Successfully saved borrow records to BorrowRecords.txt!");
                     }
                     break;
                 case 0:
                     borrowDAO.saveToFile();
-                    System.out.println(">> Đã lưu dữ liệu mượn - trả và quay lại Menu chính!");
+                    System.out.println(">> Borrow records saved. Returning to Main Menu!");
                     running = false;
                     break;
                 default:
-                    System.out.println(">> Lựa chọn không hợp lệ! Vui lòng chọn từ 0 đến 10.");
+                    System.out.println(">> Invalid choice! Please select from 0 to 10.");
                     break;
             }
             if (running) {
-                System.out.println("\nNhấn Enter để tiếp tục...");
+                System.out.println("\nPress Enter to continue...");
                 DataInput.getString("");
             }
         }
@@ -93,39 +93,39 @@ public class BorrowManagement {
 
     private void printMenuHeader() {
         System.out.println("\n==========================================================================================================");
-        System.out.println("                      PHÂN HỆ QUẢN LÝ GIAO DỊCH MƯỢN - TRẢ SÁCH (BORROW MANAGEMENT)                       ");
+        System.out.println("                      BORROW & RETURN TRANSACTIONS MANAGEMENT SYSTEM                                      ");
         System.out.println("==========================================================================================================");
-        System.out.println("  1. Hiển thị toàn bộ danh sách phiếu mượn - trả (Kèm Ưu đãi hạng thẻ, Phạt & Đền bù)");
-        System.out.println("  2. Lập phiếu mượn sách mới (Tự động áp dụng hạn mức VIP/GOLD/SILVER & Đặt trước nếu hết sách)");
-        System.out.println("  3. Xử lý trả sách, Báo mất/hỏng sách (150%), Cộng/Trừ Điểm uy tín & Xuất biên lai");
-        System.out.println("  4. Gia hạn phiếu mượn sách (+7 ngày cho phiếu chưa quá hạn - Tính năng 5)");
-        System.out.println("  5. Tra cứu phiếu mượn (Theo Mã Phiếu / Theo Mã Độc Giả / Phiếu Đang Mượn)");
-        System.out.println("  6. Lọc danh sách các phiếu mượn QUÁ HẠN (Overdue Records)");
-        System.out.println("  7. Báo cáo thống kê Mượn - Trả & Biểu đồ ASCII Top sách mượn nhiều nhất (Tính năng 8)");
-        System.out.println("  8. Xuất biên lai giao dịch ra file riêng Receipt_<MãPhiếu>.txt (Tính năng 9)");
-        System.out.println("  9. Xóa phiếu mượn theo mã");
-        System.out.println(" 10. Lưu dữ liệu lịch sử mượn trả ra file (BorrowRecords.txt)");
-        System.out.println("  0. Lưu & Quay lại Menu chính");
+        System.out.println("  1. Display all borrow & return records (Includes Tier Discount, Fines & Damage Fees)");
+        System.out.println("  2. Create new borrow record (Applies Tier limits VIP/GOLD/SILVER & Book Reservation)");
+        System.out.println("  3. Process book return, report damage/loss (150%), update reputation points & export receipt");
+        System.out.println("  4. Extend loan period (+7 days for non-overdue records - Feature 5)");
+        System.out.println("  5. Search borrow records (By Record ID / Member ID / Active Records)");
+        System.out.println("  6. Filter OVERDUE records");
+        System.out.println("  7. Borrow statistics report & Top borrowed books ASCII chart (Feature 8)");
+        System.out.println("  8. Export transaction receipt to file Receipt_<RecordID>.txt (Feature 9)");
+        System.out.println("  9. Delete borrow record by ID");
+        System.out.println(" 10. Save borrow records to file (BorrowRecords.txt)");
+        System.out.println("  0. Save & return to Main Menu");
         System.out.println("==========================================================================================================");
     }
 
     public void displayBorrowRecords(List<BorrowRecord> records, String title) {
         System.out.println("--------------------------------------------------------------------------------------------------------------------");
-        System.out.println("  " + title + " (Tổng số: " + records.size() + " phiếu)");
+        System.out.println("  " + title + " (Total: " + records.size() + " records)");
         System.out.println("--------------------------------------------------------------------------------------------------------------------");
         if (records.isEmpty()) {
-            System.out.println("  >> Không có phiếu mượn nào trong danh sách!");
+            System.out.println("  >> No borrow records found in the list!");
             System.out.println("--------------------------------------------------------------------------------------------------------------------");
             return;
         }
         System.out.printf("| %-6s | %-18s | %-6s | %-4s | %-10s | %-10s | %-10s | %-18s | %-10s | %-11s |\n",
-                "Mã PM", "Tên Độc Giả", "Hạng", "SL", "Ngày Mượn", "Hạn Trả", "Ngày Trả", "Trạng Thái", "Phạt Trễ", "Tổng TT");
+                "ID", "Member Name", "Tier", "Qty", "BorrowDate", "Due Date", "Ret. Date", "Status", "Fine", "Total Pay");
         System.out.println("--------------------------------------------------------------------------------------------------------------------");
         // [LAMBDA & STREAM API]: Hiển thị danh sách phiếu mượn bằng forEach Lambda
         records.forEach(r -> {
             String bDate = (r.getBorrowDate() != null) ? r.getBorrowDate().format(BorrowRecord.DATE_FORMAT) : "N/A";
             String dDate = (r.getDueDate() != null) ? r.getDueDate().format(BorrowRecord.DATE_FORMAT) : "N/A";
-            String rDate = (r.getReturnDate() != null) ? r.getReturnDate().format(BorrowRecord.DATE_FORMAT) : "Chưa trả";
+            String rDate = (r.getReturnDate() != null) ? r.getReturnDate().format(BorrowRecord.DATE_FORMAT) : "Not returned";
             System.out.printf("| %-6s | %-18s | %-6s | %-4d | %-10s | %-10s | %-10s | %-18s | %,10.0f | %,11.0f |\n",
                     r.getRecordId(), r.getMember().getFullName(), r.getMember().getMembershipTier(),
                     r.getBorrowedBooks().size(), bDate, dDate, rDate,
@@ -135,30 +135,30 @@ public class BorrowManagement {
     }
 
     private void createNewBorrowRecord() {
-        System.out.println("--- LẬP PHIẾU MƯỢN SÁCH MỚI ---");
+        System.out.println("--- CREATE NEW BORROW RECORD ---");
         String recordId;
         while (true) {
-            recordId = DataInput.getNonEmptyString("Nhập mã phiếu mượn (VD: BR004): ").toUpperCase();
+            recordId = DataInput.getNonEmptyString("Enter borrow record ID (e.g. BR004): ").toUpperCase();
             if (!DataValidation.isValidId(recordId, "BR")) {
-                System.out.println(">> Lỗi: Mã phiếu mượn phải có định dạng BRxxx (VD: BR001)!");
+                System.out.println(">> Error: Borrow record ID must be in format BRxxx (e.g. BR001)!");
                 continue;
             }
             if (borrowDAO.findById(recordId) != null) {
-                System.out.println(">> Lỗi: Mã phiếu mượn đã tồn tại!");
+                System.out.println(">> Error: Borrow record ID already exists!");
             } else {
                 break;
             }
         }
 
-        String memberId = DataInput.getNonEmptyString("Nhập mã độc giả mượn sách (VD: M001): ").toUpperCase();
+        String memberId = DataInput.getNonEmptyString("Enter member ID borrowing books (e.g. M001): ").toUpperCase();
         Member member = memberDAO.findById(memberId);
         if (member == null) {
-            System.out.println(">> Lỗi: Không tìm thấy độc giả có mã " + memberId + "!");
+            System.out.println(">> Error: Member with ID " + memberId + " not found!");
             return;
         }
         if (!member.isActive()) {
-            System.out.println(">> Lỗi: Thẻ của độc giả " + member.getFullName() + " hiện đang BỊ KHÓA (Điểm uy tín: "
-                    + member.getReputationPoints() + "đ), không thể mượn sách!");
+            System.out.println(">> Error: Member " + member.getFullName() + "'s card is currently LOCKED (Reputation points: "
+                    + member.getReputationPoints() + " pts), cannot borrow books!");
             return;
         }
 
@@ -166,33 +166,33 @@ public class BorrowManagement {
         int currentBorrowed = borrowDAO.countActiveBorrowedBooksByMember(memberId);
         int remainingQuota = maxLimit - currentBorrowed;
         if (remainingQuota <= 0) {
-            System.out.println(">> Lỗi: Độc giả hạng " + member.getMembershipTier() + " đang mượn "
-                    + currentBorrowed + " cuốn (Đã đạt trần tối đa " + maxLimit + " cuốn)!");
+            System.out.println(">> Error: Member tier " + member.getMembershipTier() + " is currently borrowing "
+                    + currentBorrowed + " books (Reached maximum quota of " + maxLimit + " books)!");
             return;
         }
-        System.out.printf(">> Độc giả: %s | Hạng thẻ: %s (Ưu đãi -%.0f%%) | Còn được mượn thêm: %d cuốn.\n",
+        System.out.printf(">> Member: %s | Tier: %s (Discount -%.0f%%) | Remaining quota: %d book(s).\n",
                 member.getFullName(), member.getMembershipTier(), member.getDiscountRate() * 100, remainingQuota);
 
-        int numBooks = DataInput.getIntegerNumber("Nhập số lượng đầu sách muốn mượn [1-" + remainingQuota + "]: ", 1, remainingQuota);
+        int numBooks = DataInput.getIntegerNumber("Enter number of book titles to borrow [1-" + remainingQuota + "]: ", 1, remainingQuota);
         List<Book> selectedBooks = new ArrayList<>();
 
         // [LAMBDA & STREAM API]: Duyệt từng lượt nhập sách bằng IntStream.rangeClosed
         IntStream.rangeClosed(1, numBooks).forEach(i -> {
             while (true) {
-                String bookId = DataInput.getNonEmptyString("  Nhập mã cuốn sách thứ " + i + " (VD: B001): ").toUpperCase();
+                String bookId = DataInput.getNonEmptyString("  Enter book ID for item " + i + " (e.g. B001): ").toUpperCase();
                 Book book = bookDAO.findBookById(bookId);
                 if (book == null) {
-                    System.out.println("  >> Không tìm thấy sách có mã " + bookId + "!");
+                    System.out.println("  >> Book with ID " + bookId + " not found!");
                     continue;
                 }
                 if (book.getQuantity() <= 0) {
-                    System.out.println("  >> Sách '" + book.getTitle() + "' hiện đã HẾT HÀNG (SL = 0)!");
+                    System.out.println("  >> Book '" + book.getTitle() + "' is currently OUT OF STOCK (Qty = 0)!");
                     // Tính năng 7: Cho phép đặt trước ngay khi hết sách
-                    if (DataInput.getBoolean("  >> Bạn có muốn đăng ký ĐẶT TRƯỚC (Reserve) cuốn sách này không?")) {
+                    if (DataInput.getBoolean("  >> Would you like to RESERVE this book?")) {
                         if (bookDAO.reserveBook(bookId, memberId)) {
-                            System.out.println("  >> Đã đưa độc giả " + memberId + " vào hàng đợi ưu tiên của sách '" + book.getTitle() + "'!");
+                            System.out.println("  >> Successfully placed member " + memberId + " in the priority queue for '" + book.getTitle() + "'!");
                         } else {
-                            System.out.println("  >> Độc giả đã có tên trong hàng đợi của cuốn sách này!");
+                            System.out.println("  >> Member is already in the reservation queue for this book!");
                         }
                     }
                     continue;
@@ -201,162 +201,162 @@ public class BorrowManagement {
                 boolean alreadySelected = selectedBooks.stream()
                         .anyMatch(b -> b.getBookId().equalsIgnoreCase(bookId));
                 if (alreadySelected) {
-                    System.out.println("  >> Cuốn sách này đã có trong phiếu mượn!");
+                    System.out.println("  >> This book is already in the borrow list!");
                     continue;
                 }
                 selectedBooks.add(book);
-                System.out.println("  >> Đã chọn: " + book.getTitle() + " (Tồn kho còn: " + book.getQuantity() + ")");
+                System.out.println("  >> Selected: " + book.getTitle() + " (Remaining in stock: " + book.getQuantity() + ")");
                 break;
             }
         });
 
-        int borrowDays = DataInput.getIntegerNumber("Nhập số ngày mượn [1-30] (Mặc định 14 ngày): ", 1, 30);
+        int borrowDays = DataInput.getIntegerNumber("Enter borrow period in days [1-30] (Default 14 days): ", 1, 30);
         LocalDate borrowDate = LocalDate.now();
         LocalDate dueDate = borrowDate.plusDays(borrowDays);
 
         BorrowRecord newRecord = new BorrowRecord(recordId, member, selectedBooks, borrowDate, dueDate);
         if (borrowDAO.createBorrowRecord(newRecord)) {
-            System.out.println("\n>> LẬP PHIẾU MƯỢN THÀNH CÔNG!");
+            System.out.println("\n>> BORROW RECORD CREATED SUCCESSFULLY!");
             System.out.println(newRecord);
         } else {
-            System.out.println(">> Lập phiếu mượn thất bại!");
+            System.out.println(">> Failed to create borrow record!");
         }
     }
 
     /**
-     * Tính năng 1, 6, 7, 9: Trả sách, kiểm tra sách mất/hỏng, cộng/trừ điểm uy tín và xuất biên lai.
+     * Features 1, 6, 7, 9: Return books, damage inspection, reputation points update & receipt generation.
      */
     private void processReturnBooks() {
-        System.out.println("--- XỬ LÝ TRẢ SÁCH, KIỂM TRA HƯ HỎNG & XUẤT HÓA ĐƠN ---");
-        String recordId = DataInput.getNonEmptyString("Nhập mã phiếu mượn cần trả (VD: BR002): ").toUpperCase();
+        System.out.println("--- PROCESS BOOK RETURN, DAMAGE INSPECTION & RECEIPT GENERATION ---");
+        String recordId = DataInput.getNonEmptyString("Enter borrow record ID to return (e.g. BR002): ").toUpperCase();
         BorrowRecord record = borrowDAO.findById(recordId);
         if (record == null) {
-            System.out.println(">> Không tìm thấy phiếu mượn có mã: " + recordId);
+            System.out.println(">> No borrow record found with ID: " + recordId);
             return;
         }
         if (record.isReturned()) {
-            System.out.println(">> Phiếu mượn này đã được hoàn trả trước đó vào ngày "
+            System.out.println(">> This borrow record was already returned on "
                     + record.getReturnDate().format(BorrowRecord.DATE_FORMAT) + "!");
             return;
         }
 
-        System.out.println("Thông tin phiếu mượn hiện tại:");
+        System.out.println("Current borrow record information:");
         System.out.println(record);
 
-        LocalDate returnDate = DataInput.getDate("Nhập ngày trả thực tế (Nhấn Enter để lấy ngày hôm nay)");
+        LocalDate returnDate = DataInput.getDate("Enter actual return date (Press Enter for today)");
         if (returnDate == null) {
             returnDate = LocalDate.now();
         }
         if (returnDate.isBefore(record.getBorrowDate())) {
-            System.out.println(">> Lỗi: Ngày trả không thể trước ngày mượn ("
+            System.out.println(">> Error: Return date cannot be before borrow date ("
                     + record.getBorrowDate().format(BorrowRecord.DATE_FORMAT) + ")!");
             return;
         }
 
         // Tính năng 6: Kiểm tra xem có cuốn sách nào bị làm mất hoặc hư hỏng không
         List<String> damagedBookIds = new ArrayList<>();
-        if (DataInput.getBoolean("Có cuốn sách nào bị LÀM MẤT hoặc HƯ HỎNG nặng không?")) {
+        if (DataInput.getBoolean("Are any books LOST or SEVERELY DAMAGED?")) {
             record.getBorrowedBooks().forEach(b -> {
-                boolean isLost = DataInput.getBoolean("  - Sách [" + b.getBookId() + "] '" + b.getTitle() + "' có bị mất/hỏng không?");
+                boolean isLost = DataInput.getBoolean("  - Is book [" + b.getBookId() + "] '" + b.getTitle() + "' lost/damaged?");
                 if (isLost) {
                     damagedBookIds.add(b.getBookId());
-                    System.out.printf("    -> Phạt đền bù 150%% giá trị thực: %,.0f VNĐ\n", b.calculatePrice() * 1.5);
+                    System.out.printf("    -> 150%% Compensation Fee: %,.0f VND\n", b.calculatePrice() * 1.5);
                 }
             });
         }
 
         if (borrowDAO.returnBooksWithDamageCheck(recordId, returnDate, damagedBookIds)) {
             Member m = record.getMember();
-            System.out.println("\n==================== HÓA ĐƠN HOÀN TRẢ SÁCH ====================");
+            System.out.println("\n==================== BOOK RETURN RECEIPT ====================");
             System.out.println(record);
             double rawFee = record.calculateTotalBorrowFee();
             double discountedFee = record.calculateDiscountedBorrowFee();
             double fine = record.calculateFine();
             double comp = record.getCompensationFee();
-            System.out.printf("  + Phí mượn sách gốc (Đa hình)       : %,14.0f VNĐ\n", rawFee);
-            System.out.printf("  + Ưu đãi hạng thẻ %-6s (-%2.0f%%)     : -%,13.0f VNĐ\n",
+            System.out.printf("  + Base Borrow Fee (Polymorphic)     : %,14.0f VND\n", rawFee);
+            System.out.printf("  + Tier Discount %-6s (-%2.0f%%)       : -%,13.0f VND\n",
                     m.getMembershipTier(), m.getDiscountRate() * 100, rawFee - discountedFee);
-            System.out.printf("  + Phí mượn sau ưu đãi               : %,14.0f VNĐ\n", discountedFee);
-            System.out.printf("  + Tiền phạt quá hạn (%2d ngày)      : %,14.0f VNĐ\n", record.getOverdueDays(), fine);
-            System.out.printf("  + Tiền đền bù sách mất/hỏng (150%%) : %,14.0f VNĐ\n", comp);
+            System.out.printf("  + Fee After Discount                : %,14.0f VND\n", discountedFee);
+            System.out.printf("  + Overdue Fine (%2d days)            : %,14.0f VND\n", record.getOverdueDays(), fine);
+            System.out.printf("  + Book Damage/Loss Fee (150%%)       : %,14.0f VND\n", comp);
             System.out.println("---------------------------------------------------------------");
-            System.out.printf("  => TỔNG THANH TOÁN CUỐI CÙNG        : %,14.0f VNĐ\n", record.calculateFinalPayment());
-            System.out.printf("  * Điểm uy tín mới của độc giả       : %d điểm (Hạng: %s)\n",
+            System.out.printf("  => FINAL TOTAL PAYMENT              : %,14.0f VND\n", record.calculateFinalPayment());
+            System.out.printf("  * Member's New Reputation Points    : %d pts (Tier: %s)\n",
                     m.getReputationPoints(), m.getMembershipTier());
             System.out.println("===============================================================");
 
             // Tính năng 9: Tự động xuất biên lai ra file Receipt_<MãPhiếu>.txt
             if (borrowDAO.exportReceiptToFile(recordId)) {
-                System.out.println(">> Đã tự động xuất biên lai ra file: Receipt_" + recordId + ".txt!");
+                System.out.println(">> Receipt automatically exported to file: Receipt_" + recordId + ".txt!");
             }
         }
     }
 
     /**
-     * Tính năng 5: Gia hạn phiếu mượn sách (+7 ngày).
+     * Feature 5: Extend loan period (+7 days).
      */
     private void extendLoanPeriod() {
-        System.out.println("--- GIA HẠN PHIẾU MƯỢN SÁCH (LOAN EXTENSION - FEATURE 5) ---");
-        String recordId = DataInput.getNonEmptyString("Nhập mã phiếu mượn cần gia hạn (VD: BR001): ").toUpperCase();
+        System.out.println("--- EXTEND LOAN PERIOD (FEATURE 5) ---");
+        String recordId = DataInput.getNonEmptyString("Enter borrow record ID to extend (e.g. BR001): ").toUpperCase();
         BorrowRecord record = borrowDAO.findById(recordId);
         if (record == null) {
-            System.out.println(">> Không tìm thấy phiếu mượn có mã: " + recordId);
+            System.out.println(">> No borrow record found with ID: " + recordId);
             return;
         }
         if (record.isReturned()) {
-            System.out.println(">> Lỗi: Phiếu mượn này đã hoàn trả, không thể gia hạn!");
+            System.out.println(">> Error: This record has already been returned, cannot extend!");
             return;
         }
         if (record.isOverdue()) {
-            System.out.println(">> Lỗi: Phiếu mượn đang bị QUÁ HẠN, không được phép gia hạn! Vui lòng trả sách.");
+            System.out.println(">> Error: This record is OVERDUE, cannot extend! Please return books.");
             return;
         }
         if (record.getExtensionCount() >= BorrowRecord.MAX_EXTENSIONS) {
-            System.out.println(">> Lỗi: Phiếu mượn này đã hết lượt gia hạn (Tối đa " + BorrowRecord.MAX_EXTENSIONS + " lần)!");
+            System.out.println(">> Error: Maximum extension limit reached (Max " + BorrowRecord.MAX_EXTENSIONS + " time(s))!");
             return;
         }
 
-        int extraDays = DataInput.getIntegerNumber("Nhập số ngày muốn gia hạn thêm [1-7]: ", 1, 7);
+        int extraDays = DataInput.getIntegerNumber("Enter extra days to extend [1-7]: ", 1, 7);
         if (borrowDAO.extendBorrowRecord(recordId, extraDays)) {
-            System.out.println(">> Gia hạn thành công thêm " + extraDays + " ngày! Hạn trả mới là: "
+            System.out.println(">> Successfully extended loan by " + extraDays + " days! New due date is: "
                     + record.getDueDate().format(BorrowRecord.DATE_FORMAT));
         } else {
-            System.out.println(">> Không thể gia hạn phiếu mượn!");
+            System.out.println(">> Failed to extend borrow record!");
         }
     }
 
     private void exportReceiptMenu() {
-        System.out.println("--- XUẤT BIÊN LAI GIAO DỊCH RA FILE .TXT (FEATURE 9) ---");
-        String recordId = DataInput.getNonEmptyString("Nhập mã phiếu mượn muốn xuất biên lai (VD: BR001): ").toUpperCase();
+        System.out.println("--- EXPORT TRANSACTION RECEIPT TO FILE (FEATURE 9) ---");
+        String recordId = DataInput.getNonEmptyString("Enter borrow record ID to export (e.g. BR001): ").toUpperCase();
         if (borrowDAO.exportReceiptToFile(recordId)) {
-            System.out.println(">> Đã xuất biên lai thành công ra file: Receipt_" + recordId + ".txt!");
+            System.out.println(">> Successfully exported receipt to file: Receipt_" + recordId + ".txt!");
         } else {
-            System.out.println(">> Không tìm thấy phiếu mượn hoặc lỗi ghi file!");
+            System.out.println(">> Record not found or error writing file!");
         }
     }
 
     private void searchBorrowSubMenu() {
-        System.out.println("1. Tìm theo Mã Phiếu Mượn | 2. Tìm theo Mã Độc Giả | 3. Xem các phiếu Đang Mượn");
-        int choice = DataInput.getIntegerNumber("Chọn tiêu chí [1-3]: ");
+        System.out.println("1. Find by Record ID | 2. Find by Member ID | 3. View Active Borrow Records");
+        int choice = DataInput.getIntegerNumber("Choose option [1-3]: ");
         switch (choice) {
             case 1:
-                String rId = DataInput.getNonEmptyString("Nhập mã phiếu mượn: ");
+                String rId = DataInput.getNonEmptyString("Enter borrow record ID: ");
                 BorrowRecord r = borrowDAO.findById(rId);
                 if (r != null) {
                     System.out.println("\n" + r);
                 } else {
-                    System.out.println(">> Không tìm thấy phiếu mượn có mã: " + rId);
+                    System.out.println(">> No borrow record found with ID: " + rId);
                 }
                 break;
             case 2:
-                String mId = DataInput.getNonEmptyString("Nhập mã độc giả: ");
-                displayBorrowRecords(borrowDAO.findByMemberId(mId), "LỊCH SỬ MƯỢN SÁCH CỦA ĐỘC GIẢ: " + mId.toUpperCase());
+                String mId = DataInput.getNonEmptyString("Enter Member ID: ");
+                displayBorrowRecords(borrowDAO.findByMemberId(mId), "BORROW HISTORY OF MEMBER: " + mId.toUpperCase());
                 break;
             case 3:
-                displayBorrowRecords(borrowDAO.getActiveBorrowRecords(), "DANH SÁCH CÁC PHIẾU ĐANG MƯỢN CHƯA TRẢ");
+                displayBorrowRecords(borrowDAO.getActiveBorrowRecords(), "ACTIVE UNRETURNED BORROW RECORDS");
                 break;
             default:
-                System.out.println(">> Lựa chọn không hợp lệ!");
+                System.out.println(">> Invalid choice!");
                 break;
         }
     }
@@ -367,15 +367,15 @@ public class BorrowManagement {
         List<BorrowRecord> overdue = borrowDAO.getOverdueRecords();
 
         System.out.println("==========================================================================");
-        System.out.println("                 BÁO CÁO THỐNG KÊ GIAO DỊCH MƯỢN - TRẢ                    ");
+        System.out.println("                 BORROW & RETURN TRANSACTIONS REPORT                      ");
         System.out.println("==========================================================================");
-        System.out.printf("  - Tổng số phiếu mượn đã lập          : %d phiếu\n", all.size());
-        System.out.printf("  - Số phiếu đang mượn chưa trả        : %d phiếu\n", active.size());
-        System.out.printf("  - Số phiếu đã hoàn trả               : %d phiếu\n", all.size() - active.size());
-        System.out.printf("  - Số phiếu quá hạn (Overdue)         : %d phiếu\n", overdue.size());
-        System.out.printf("  - Tổng doanh thu phí mượn (sau giảm) : %,.0f VNĐ\n", borrowDAO.calculateTotalBorrowFeeRevenue());
-        System.out.printf("  - Tổng tiền phạt trễ hạn phát sinh   : %,.0f VNĐ\n", borrowDAO.calculateTotalFineRevenue());
-        System.out.printf("  - Tổng tiền đền bù sách mất/hỏng     : %,.0f VNĐ\n", borrowDAO.calculateTotalCompensationRevenue());
+        System.out.printf("  - Total Borrow Records Created       : %d records\n", all.size());
+        System.out.printf("  - Active Records (Not Returned)      : %d records\n", active.size());
+        System.out.printf("  - Completed Records (Returned)       : %d records\n", all.size() - active.size());
+        System.out.printf("  - Overdue Records                    : %d records\n", overdue.size());
+        System.out.printf("  - Total Borrow Fee Revenue (Discount): %,.0f VND\n", borrowDAO.calculateTotalBorrowFeeRevenue());
+        System.out.printf("  - Total Overdue Fine Revenue         : %,.0f VND\n", borrowDAO.calculateTotalFineRevenue());
+        System.out.printf("  - Total Book Damage/Loss Fees        : %,.0f VND\n", borrowDAO.calculateTotalCompensationRevenue());
         System.out.println("==========================================================================");
 
         // [LAMBDA & STREAM API]: Tính năng 8 - Thống kê số lượt mượn từng cuốn sách
@@ -403,20 +403,20 @@ public class BorrowManagement {
                 .collect(Collectors.toList());
 
         // Tính năng 8: Vẽ biểu đồ cột ASCII cho các sách được mượn
-        Menu.printAsciiBarChart("THỐNG KÊ SỐ LƯỢT MƯỢN THEO ĐẦU SÁCH", chartLabels, chartValues, "lượt");
+        Menu.printAsciiBarChart("BORROW COUNT BY BOOK TITLE", chartLabels, chartValues, "loans");
     }
 
     private void deleteBorrowRecord() {
-        String recordId = DataInput.getNonEmptyString("Nhập mã phiếu mượn cần xóa: ");
+        String recordId = DataInput.getNonEmptyString("Enter borrow record ID to delete: ");
         BorrowRecord r = borrowDAO.findById(recordId);
         if (r == null) {
-            System.out.println(">> Không tìm thấy phiếu mượn: " + recordId);
+            System.out.println(">> Record not found: " + recordId);
             return;
         }
         System.out.println(r);
-        if (DataInput.getBoolean("Bạn có chắc chắn muốn xóa phiếu mượn này không?")) {
+        if (DataInput.getBoolean("Are you sure you want to delete this borrow record?")) {
             if (borrowDAO.deleteBorrowRecord(recordId)) {
-                System.out.println(">> Đã xóa phiếu mượn thành công!");
+                System.out.println(">> Borrow record deleted successfully!");
             }
         }
     }
