@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Java Stream API & Lambda Expressions Study Guide - PRO192</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 18mm 15mm 18mm 15mm;
+            @bottom-right {
+                content: counter(page) " / " counter(pages);
+            }
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #1e293b;
+            line-height: 1.5;
+            font-size: 13px;
+            background: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #2563eb;
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+        }
+        .header h1 {
+            color: #1e3a8a;
+            font-size: 22px;
+            margin: 0 0 6px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .header .subtitle {
+            font-size: 13px;
+            color: #475569;
+            font-weight: 500;
+        }
+        .badge {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1d4ed8;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-top: 6px;
+        }
+        h2 {
+            color: #0f172a;
+            font-size: 15px;
+            border-left: 4px solid #2563eb;
+            padding-left: 8px;
+            margin-top: 18px;
+            margin-bottom: 8px;
+        }
+        p {
+            margin: 6px 0;
+        }
+        .intro-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin-bottom: 14px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0 16px 0;
+            font-size: 12px;
+        }
+        th, td {
+            border: 1px solid #cbd5e1;
+            padding: 6px 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #f1f5f9;
+            color: #1e293b;
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        code {
+            font-family: 'Consolas', 'Courier New', monospace;
+            background-color: #f1f5f9;
+            color: #0969da;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-size: 11px;
+        }
+        .code-block {
+            font-family: 'Consolas', 'Courier New', monospace;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-size: 11.5px;
+            color: #0f172a;
+            white-space: pre-wrap;
+            margin: 8px 0;
+            line-height: 1.4;
+        }
+        .highlight {
+            color: #b91c1c;
+            font-weight: 600;
+        }
+        .tag-intermediate {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        .tag-terminal {
+            background: #dcfce7;
+            color: #166534;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        .tip-box {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 8px 12px;
+            margin: 10px 0;
+            font-size: 12px;
+            border-radius: 0 4px 4px 0;
+        }
+        .page-break {
+            page-break-before: always;
+        }
+        .footer {
+            margin-top: 25px;
+            padding-top: 10px;
+            border-top: 1px solid #e2e8f0;
+            text-align: center;
+            font-size: 11px;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>JAVA STREAM API & LAMBDA EXPRESSIONS</h1>
+        <div class="subtitle">Tài Liệu Ôn Tập Vấn Đáp Toàn Diện — Đồ Án PRO192 (Library Management System)</div>
+        <div class="badge">Dành cho các thành viên Nhóm 01 • PRO192 Fall 2026</div>
+    </div>
+
+    <div class="intro-box">
+        <strong>📌 Khái niệm cốt lõi:</strong> Stream API (Java 8+) là cơ chế xử lý dữ liệu tập hợp (Collections) theo phong cách khai báo (Declarative Pipeline) giống như một băng chuyền nhà máy. Dữ liệu chạy qua các trạm trung gian (lọc, biến đổi, sắp xếp) và được đóng gói ở trạm kết thúc mà không làm thay đổi dữ liệu gốc.
+    </div>
+
+    <h2>1. Băng Chuyền Dữ Liệu 3 Giai Đoạn (Stream Pipeline Architecture)</h2>
+    <div class="code-block">
+[ 1. NGUỒN (Source) ]           -->  memberList.stream()
+          │
+          ▼
+[ 2. TRUNG GIAN (Intermediate) ] -->  .filter(...)  --> .map(...)  --> .sorted(...)  (LAZY: Chưa chạy ngay)
+          │
+          ▼
+[ 3. KẾT THÚC (Terminal) ]       -->  .collect(Collectors.toList()) / .sum()         (EAGER: Chạy & Đóng Stream)
+    </div>
+
+    <h2>2. Bảng Tra Cứu Các Thao Tác Trung Gian (Intermediate Operations - Lazy)</h2>
+    <p><em>Đặc tính: Luôn trả về một <code>Stream&lt;T&gt;</code> mới. Không thực thi tính toán cho tới khi gặp Terminal Operation.</em></p>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 22%;">Phương thức</th>
+                <th style="width: 28%;">Ý nghĩa & Bản chất</th>
+                <th style="width: 20%;">Vị trí trong dự án</th>
+                <th style="width: 30%;">Ví dụ thực tế trong Code</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>filter(Predicate)</code></td>
+                <td>Lọc phần tử. Giữ lại phần tử nếu biểu thức Lambda trả về <code>true</code>.</td>
+                <td><code>MemberDAO</code><br><code>BookDAO</code></td>
+                <td><code>.filter(m -&gt; m.getMembershipTier().equals("VIP"))</code><br><em>Lọc độc giả VIP</em></td>
+            </tr>
+            <tr>
+                <td><code>map(Function)</code></td>
+                <td><strong>Ánh xạ (Transform):</strong> Rút trích hoặc biến đổi đối tượng sang kiểu dữ liệu khác.</td>
+                <td><code>BorrowRecord</code><br><code>BookDAO</code></td>
+                <td><code>.map(Book::getBookId)</code><br><em>Biến Stream&lt;Book&gt; thành Stream&lt;String&gt;</em></td>
+            </tr>
+            <tr>
+                <td><code>mapToDouble(Function)</code></td>
+                <td>Biến đổi đối tượng thành luồng số thực nguyên thủy <code>DoubleStream</code> để tính toán.</td>
+                <td><code>BorrowDAO</code><br><code>BorrowRecord</code></td>
+                <td><code>.mapToDouble(b -&gt; b.calculateBorrowFee(days))</code><br><em>Lấy phí mượn từng cuốn sách</em></td>
+            </tr>
+            <tr>
+                <td><code>mapToInt(Function)</code></td>
+                <td>Biến đổi thành <code>IntStream</code> giúp tiết kiệm RAM (tránh boxing/unboxing).</td>
+                <td><code>Program.java</code><br><code>BookDAO</code></td>
+                <td><code>.mapToInt(Book::getQuantity)</code><br><em>Lấy số lượng tồn kho</em></td>
+            </tr>
+            <tr>
+                <td><code>sorted(Comparator)</code></td>
+                <td>Sắp xếp luồng theo tiêu chuẩn truyền vào (dùng <code>Comparator.comparing</code>).</td>
+                <td><code>MemberDAO</code><br><code>BookDAO</code></td>
+                <td><code>.sorted(Comparator.comparing(Member::getReputationPoints).reversed())</code></td>
+            </tr>
+            <tr>
+                <td><code>distinct()</code></td>
+                <td>Loại bỏ các phần tử trùng lặp (dựa trên <code>equals()</code> và <code>hashCode()</code>).</td>
+                <td><code>BorrowDAO</code></td>
+                <td><code>.map(Book::getAuthor).distinct()</code><br><em>Lấy danh sách tác giả không trùng</em></td>
+            </tr>
+            <tr>
+                <td><code>limit(n)</code></td>
+                <td>Cắt luồng, chỉ lấy tối đa <code>n</code> phần tử đầu tiên (Short-circuiting).</td>
+                <td><code>BookDAO</code></td>
+                <td><code>.limit(3)</code><br><em>Gợi ý Top 3 sách tương tự</em></td>
+            </tr>
+            <tr>
+                <td><code>flatMap(Function)</code></td>
+                <td><strong>Làm phẳng:</strong> Gộp nhiều List/Stream con lồng nhau thành 1 Stream phẳng duy nhất.</td>
+                <td><code>BorrowDAO</code></td>
+                <td><code>.flatMap(r -&gt; r.getBorrowedBooks().stream())</code><br><em>Gộp toàn bộ sách của mọi phiếu mượn</em></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="page-break"></div>
+
+    <h2>3. Bảng Tra Cứu Các Thao Tác Kết Thúc (Terminal Operations - Eager)</h2>
+    <p><em>Đặc tính: Kích hoạt toàn bộ pipeline chạy, thu hoạch kết quả và đóng luồng Stream.</em></p>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 22%;">Phương thức</th>
+                <th style="width: 28%;">Ý nghĩa & Bản chất</th>
+                <th style="width: 20%;">Vị trí trong dự án</th>
+                <th style="width: 30%;">Ví dụ thực tế trong Code</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>collect(Collector)</code></td>
+                <td>Thu hoạch kết quả đóng gói vào <code>List</code>, <code>Set</code>, hoặc nối chuỗi.</td>
+                <td>Toàn bộ dự án</td>
+                <td><code>.collect(Collectors.toList())</code><br><code>.collect(Collectors.joining(","))</code></td>
+            </tr>
+            <tr>
+                <td><code>forEach(Consumer)</code></td>
+                <td>Duyệt qua từng phần tử và thực thi hành động (không trả về dữ liệu).</td>
+                <td><code>BookManagement</code><br><code>BorrowManagement</code></td>
+                <td><code>lowStockBooks.forEach(b -&gt; System.out.println(b.getTitle()))</code></td>
+            </tr>
+            <tr>
+                <td><code>sum()</code></td>
+                <td>Tính tổng toàn bộ các số trong luồng <code>DoubleStream</code> hoặc <code>IntStream</code>.</td>
+                <td><code>Program.java</code><br><code>BorrowDAO</code></td>
+                <td><code>.mapToDouble(BorrowRecord::getFineFee).sum()</code><br><em>Tổng doanh thu tiền phạt</em></td>
+            </tr>
+            <tr>
+                <td><code>count()</code></td>
+                <td>Đếm số lượng phần tử còn lại trên luồng (trả về kiểu <code>long</code>).</td>
+                <td><code>BookDAO</code><br><code>BorrowDAO</code></td>
+                <td><code>.filter(b -&gt; b.getQuantity() == 0).count()</code><br><em>Đếm số sách đã hết hàng</em></td>
+            </tr>
+            <tr>
+                <td><code>findFirst()</code></td>
+                <td>Lấy phần tử hợp lệ đầu tiên trên luồng (trả về <code>Optional&lt;T&gt;</code>).</td>
+                <td><code>BookDAO</code><br><code>MemberDAO</code></td>
+                <td><code>.filter(b -&gt; b.getBookId().equals(id)).findFirst()</code></td>
+            </tr>
+            <tr>
+                <td><code>orElse(defaultValue)</code></td>
+                <td>Dùng kèm với <code>findFirst()</code>: Trả về đối tượng nếu tìm thấy, hoặc giá trị mặc định.</td>
+                <td><code>BookDAO</code><br><code>MemberDAO</code></td>
+                <td><code>.findFirst().orElse(null)</code><br><em>Trả về null nếu không tìm thấy ID</em></td>
+            </tr>
+            <tr>
+                <td><code>anyMatch(Predicate)</code></td>
+                <td>Trả về <code>true</code> nếu có <strong>ít nhất 1 phần tử</strong> thỏa mãn điều kiện.</td>
+                <td><code>MemberDAO</code></td>
+                <td><code>.anyMatch(id -&gt; !ids.add(id))</code><br><em>Phát hiện trùng lặp mã độc giả</em></td>
+            </tr>
+            <tr>
+                <td><code>allMatch(Predicate)</code></td>
+                <td>Trả về <code>true</code> nếu <strong>tất cả các phần tử</strong> đều thỏa mãn điều kiện.</td>
+                <td><code>BorrowDAO</code></td>
+                <td><code>.allMatch(b -&gt; b.getQuantity() &gt; 0)</code><br><em>Kiểm tra tất cả sách mượn đều còn hàng</em></td>
+            </tr>
+            <tr>
+                <td><code>noneMatch(Predicate)</code></td>
+                <td>Trả về <code>true</code> nếu <strong>không có phần tử nào</strong> thỏa mãn điều kiện.</td>
+                <td><code>BorrowDAO</code></td>
+                <td><code>.noneMatch(r -&gt; r.getRecordId().equals(newId))</code></td>
+            </tr>
+            <tr>
+                <td><code>max(Comparator)</code></td>
+                <td>Tìm phần tử lớn nhất theo tiêu chuẩn so sánh (trả về <code>Optional&lt;T&gt;</code>).</td>
+                <td><code>Menu.java</code></td>
+                <td><code>values.stream().max(Integer::compareTo).orElse(0)</code><br><em>Tìm tồn kho lớn nhất vẽ biểu đồ</em></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>4. Minh Họa Đối Chiếu Trực Quan: Cách Cũ vs Stream API</h2>
+    <div class="code-block">
+<strong>Bài toán: Lọc độc giả VIP (Điểm >= 100), sắp xếp họ tên tăng dần, và lấy danh sách Tên:</strong>
+
+<span class="highlight">// CÁCH CŨ (23 dòng - Vòng lặp for & Anonymous Class):</span>
+List&lt;Member&gt; vip = new ArrayList&lt;&gt;();
+for (Member m : memberList) {
+    if (m.getReputationPoints() &gt;= 100) vip.add(m);
+}
+Collections.sort(vip, new Comparator&lt;Member&gt;() {
+    public int compare(Member m1, Member m2) {
+        return m1.getFullName().compareTo(m2.getFullName());
+    }
+});
+List&lt;String&gt; names = new ArrayList&lt;&gt;();
+for (Member m : vip) names.add(m.getFullName());
+
+<span style="color: #166534; font-weight: bold;">// CÁCH MỚI (Stream API + Lambda - 5 dòng súc tích):</span>
+return memberList.stream()
+        .filter(m -&gt; m.getReputationPoints() &gt;= 100)    // 1. Lọc điểm >= 100
+        .map(Member::getFullName)                      // 2. Ánh xạ lấy Tên trước (Tối ưu JVM!)
+        .sorted()                                      // 3. Sắp xếp thứ tự tự nhiên của String
+        .collect(Collectors.toList());                 // 4. Thu hoạch thành List
+    </div>
+
+    <div class="tip-box">
+        💡 <strong>Mẹo Trả Lời Vấn Đáp Điểm 10:</strong><br>
+        Khi thầy hỏi tại sao lại đảo <code>.map()</code> lên trước <code>.sorted()</code>? Trả lời: <em>"Dạ thưa thầy, đưa <code>.map()</code> lên trước giúp trích xuất chuỗi String ngay từ đầu. Hàm getter chỉ phải gọi đúng N lần. Sau đó thuật toán sắp xếp (TimSort) chỉ cần so sánh trực tiếp thứ tự tự nhiên của String, tránh việc liên tục gọi lại getter qua Comparator hàng trăm lần trong quá trình sort, giúp tối ưu hiệu năng JVM ạ!"</em>
+    </div>
+
+    <div class="footer">
+        Đồ Án Môn Học PRO192 — Đại Học FPT • Tài Liệu Phục Vụ Vấn Đáp Nội Bộ Nhóm 01
+    </div>
+
+</body>
+</html>
