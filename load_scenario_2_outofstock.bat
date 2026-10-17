@@ -13,6 +13,23 @@ echo.
 copy /y "testcases\Books_EdgeCases_OutOfStock.txt" "Books.txt" >nul
 copy /y "testcases\Members_Standard.txt" "Members.txt" >nul
 
-echo [SUCCESS] Loaded out-of-stock Books.txt for Reservation Queue testing!
+echo [SUCCESS] Testcase data loaded successfully into Books.txt and Members.txt!
 echo.
+echo [*] Compiling Java source files...
+if not exist "bin" mkdir bin
+javac -encoding UTF-8 -d bin BusinessObject\UI\*.java Core\Entities\*.java DataObjects\DAO\*.java Utilities\*.java
+if %errorlevel% neq 0 (
+    echo [ERROR] Compilation failed!
+    pause
+    exit /b %errorlevel%
+)
+
+echo [*] Starting Library Management System...
+echo ==============================================================================
+echo.
+java -cp bin BusinessObject.UI.Program
+
+echo.
+echo ==============================================================================
+echo [*] Program finished.
 pause

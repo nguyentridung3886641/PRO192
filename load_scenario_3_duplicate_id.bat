@@ -11,7 +11,23 @@ echo.
 
 copy /y "testcases\Members_Error_DuplicateID.txt" "Members.txt" >nul
 
-echo [SUCCESS] Loaded duplicate ID Members.txt!
-echo [*] When starting the application, MemberDAO will catch the duplicate ID.
+echo [SUCCESS] Testcase data loaded successfully into Members.txt!
 echo.
+echo [*] Compiling Java source files...
+if not exist "bin" mkdir bin
+javac -encoding UTF-8 -d bin BusinessObject\UI\*.java Core\Entities\*.java DataObjects\DAO\*.java Utilities\*.java
+if %errorlevel% neq 0 (
+    echo [ERROR] Compilation failed!
+    pause
+    exit /b %errorlevel%
+)
+
+echo [*] Starting Library Management System...
+echo ==============================================================================
+echo.
+java -cp bin BusinessObject.UI.Program
+
+echo.
+echo ==============================================================================
+echo [*] Program finished.
 pause
