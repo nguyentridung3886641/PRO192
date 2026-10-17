@@ -1,18 +1,25 @@
 package DataObjects.DAO;
 
 import Core.Entities.Member;
-import Core.Entities.User;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 /**
- * Lớp MemberDAO quản lý danh sách Độc giả trong bộ nhớ (ArrayList<Member>)
- * và đồng bộ lưu trữ với file Members.txt.
- * Toàn bộ các hàm tìm kiếm, lọc và sắp xếp đều viết bằng vòng lặp for và Comparator truyền thống.
+ * Lớp MemberDAO quản lý danh sách Độc giả (Member) trong bộ nhớ và đồng bộ với file Members.txt.
+ * Tích hợp:
+ * - Tính năng 1: Phân hạng thẻ độc giả (VIP, GOLD, SILVER) & sắp xếp theo Điểm uy tín.
+ * - Tính năng kiểm tra chống trùng lặp mã độc giả (Duplicate ID Check via HashSet).
+ * - Tách lớp MemberFileHandler chuyên trách File I/O theo nguyên lý SRP và NIO.2.
  * 
  * PRO192 - Phân hệ Độc giả & Người dùng (Member 1)
  */
@@ -35,9 +42,14 @@ public class MemberDAO implements IMemberDAO {
         }
     }
 
+    public MemberDAO(boolean loadSampleData) {
+        if (loadSampleData) {
+            initSampleData();
+        }
+    }
+
     public void initSampleData() {
         memberList.clear();
-        // Độc giả mẫu có đủ các hạng thẻ: VIP (>=100đ), GOLD (60-99đ), SILVER (<60đ)
         add(new Member("M001", "Nguyễn Trí Dũng", "0901234567",
                 LocalDate.of(2005, 5, 15), LocalDate.of(2026, 1, 10), true, 120)); // VIP
         add(new Member("M002", "Nguyễn Thiên Tuệ", "0912345678",
@@ -135,9 +147,6 @@ public class MemberDAO implements IMemberDAO {
         return result;
     }
 
-    /**
-     * Tính năng 1: Lọc danh sách độc giả theo Hạng thẻ (SILVER, GOLD, VIP) bằng vòng lặp for truyền thống.
-     */
     @Override
     public List<Member> filterByTier(String tier) {
         List<Member> result = new ArrayList<>();
@@ -182,9 +191,6 @@ public class MemberDAO implements IMemberDAO {
         return sorted;
     }
 
-    /**
-     * Tính năng 1: Sắp xếp độc giả theo Điểm uy tín giảm dần bằng Comparator truyền thống (if - else).
-     */
     @Override
     public List<Member> sortByReputationDescending() {
         List<Member> sorted = new ArrayList<>(memberList);
@@ -192,7 +198,7 @@ public class MemberDAO implements IMemberDAO {
             @Override
             public int compare(Member m1, Member m2) {
                 if (m1.getReputationPoints() < m2.getReputationPoints()) {
-                    return 1; // Đổi chỗ để điểm cao hơn lên trước
+                    return 1;
                 } else if (m1.getReputationPoints() > m2.getReputationPoints()) {
                     return -1;
                 } else {
@@ -203,6 +209,29 @@ public class MemberDAO implements IMemberDAO {
         return sorted;
     }
 
+    /**
+     * Nạp dữ liệu từ Path với cơ chế kiểm tra chống trùng lặp mã độc giả (Duplicate ID Check via HashSet).
+     */
+    public void loadToMemberList(Path filePath) throws IOException {
+        List<Member> loadedMemberList = MemberFileHandler.loadMembers(filePath);
+        Set<String> ids = new HashSet<>();
+        for (Member member : loadedMemberList) {
+            String id = member.getUserId().toLowerCase(Locale.ROOT);
+            if (!ids.add(id)) {
+                throw new IOException("Duplicate Member ID: " + id);
+            }
+        }
+        memberList.clear();
+        memberList.addAll(loadedMemberList);
+    }
+
+    /**
+     * Lưu danh sách thành viên ra Path qua MemberFileHandler.
+     */
+    public void saveToFile(Path filePath) throws IOException {
+        MemberFileHandler.saveMembers(memberList, filePath);
+    }
+
     @Override
     public boolean loadFromFile() {
         return loadFromFile(DEFAULT_FILE_PATH);
@@ -211,41 +240,12 @@ public class MemberDAO implements IMemberDAO {
     @Override
     public boolean loadFromFile(String filePath) {
         try {
-            List<String> lines = FileManager.readLines(filePath);
-            List<Member> loaded = new ArrayList<>();
-            for (int i = 0; i < lines.size(); i++) {
-                String line = lines.get(i);
-                String[] parts = line.split("\\|");
-                if (parts.length >= 5) {
-                    String id = parts[0].trim();
-                    String name = parts[1].trim();
-                    String phone = parts[2].trim();
-                    LocalDate dob = LocalDate.parse(parts[3].trim(), User.DATE_FORMAT);
-                    LocalDate reg = LocalDate.parse(parts[4].trim(), User.DATE_FORMAT);
-                    boolean active = true;
-                    if (parts.length >= 6) {
-                        active = parts[5].trim().equalsIgnoreCase("ACTIVE") || parts[5].trim().equalsIgnoreCase("true");
-                    }
-                    int points = 50;
-                    if (parts.length >= 7) {
-                        try {
-                            points = Integer.parseInt(parts[6].trim());
-                        } catch (NumberFormatException ex) {
-                            points = 50;
-                        }
-                    }
-                    loaded.add(new Member(id, name, phone, dob, reg, active, points));
-                }
-            }
-            if (!loaded.isEmpty()) {
-                memberList.clear();
-                memberList.addAll(loaded);
-                return true;
-            }
+            loadToMemberList(Paths.get(filePath));
+            return true;
         } catch (Exception e) {
             System.out.println(">> Cảnh báo đọc file Members.txt: " + e.getMessage());
+            return false;
         }
-        return false;
     }
 
     @Override
@@ -256,12 +256,7 @@ public class MemberDAO implements IMemberDAO {
     @Override
     public boolean saveToFile(String filePath) {
         try {
-            List<String> lines = new ArrayList<>();
-            lines.add("# Định dạng: MemberID|FullName|Phone|DateOfBirth(dd/MM/yyyy)|RegistrationDate(dd/MM/yyyy)|Status|ReputationPoints");
-            for (int i = 0; i < memberList.size(); i++) {
-                lines.add(memberList.get(i).toFileString());
-            }
-            FileManager.writeLines(filePath, lines);
+            saveToFile(Paths.get(filePath));
             return true;
         } catch (Exception e) {
             System.out.println(">> Lỗi ghi file Members.txt: " + e.getMessage());
