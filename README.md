@@ -209,7 +209,7 @@ try (Stream<String> stream = Files.lines(file.toPath(), StandardCharsets.UTF_8))
 ### Biên dịch:
 Từ thư mục dự án `Library Management`:
 ```bash
-javac -d bin BusinessObject/UI/*.java Core/Entities/*.java DataObjects/DAO/*.java Utilities/*.java
+javac -encoding UTF-8 -d bin BusinessObject/UI/*.java Core/Entities/*.java DataObjects/DAO/*.java Utilities/*.java
 ```
 
 ### Chạy chương trình:

@@ -109,7 +109,7 @@ public class BookManagement {
         System.out.println("  7. Polymorphic borrow fee simulator (Demonstrates dynamic method dispatch)                            ");
         System.out.println("  8. Manage Books.txt file storage (Save to file / Reload from file)                                    ");
         System.out.println("  9. Inventory statistical report & Total asset valuation                                               ");
-        System.out.println(" 10. Star rating (1-5 ⭐) & Smart book recommendations (Feature 3)                                      ");
+        System.out.println(" 10. Star rating (1-5 *) & Smart book recommendations (Feature 3)                                       ");
         System.out.println(" 11. Book reservation queue when out of stock (Feature 7)                                               ");
         System.out.println(" 12. Book inventory visual bar chart (Console ASCII Bar Chart - Feature 8)                              ");
         System.out.println("  0. Return to Main Menu / Exit                                                                         ");
@@ -684,9 +684,9 @@ public class BookManagement {
 
     private void rateAndRecommendSubMenu() {
         System.out.println("==========================================================================================");
-        System.out.println("            STAR RATING (1-5 ⭐) & SMART BOOK RECOMMENDATIONS (FEATURE 3)                  ");
+        System.out.println("            STAR RATING (1-5 *) & SMART BOOK RECOMMENDATIONS (FEATURE 3)                  ");
         System.out.println("==========================================================================================");
-        System.out.println("  1. Submit Star Rating (1-5 ⭐) for a book you have read");
+        System.out.println("  1. Submit Star Rating (1-5 *) for a book you have read");
         System.out.println("  2. Recommend Top 3 highest-rated related books");
         System.out.println("  3. View Book Leaderboard ranked by Star Rating");
         int subChoice = DataInput.getIntegerNumber(">> Select feature [1-3]: ");
@@ -727,7 +727,7 @@ public class BookManagement {
             System.out.println("\n--- MOST POPULAR BOOKS LEADERBOARD ---");
             IntStream.range(0, list.size()).forEach(i -> {
                 Book b = list.get(i);
-                System.out.printf("  Rank %d: [%s] %-36s | ⭐ %s | Price: %,.0f VND\n",
+                System.out.printf("  Rank %d: [%s] %-36s | Rating: %s | Price: %,.0f VND\n",
                         i + 1, b.getBookId(), b.getTitle(), b.getStarDisplay(), b.getPrice());
             });
         }

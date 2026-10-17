@@ -126,7 +126,7 @@ public abstract class Book {
     }
 
     public String getStarDisplay() {
-        return String.format("%.1f★ (%d)", rating, ratingCount);
+        return String.format("%.1f* (%d)", rating, ratingCount);
     }
 
     // ========================================================

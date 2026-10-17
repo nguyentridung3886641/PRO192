@@ -79,18 +79,18 @@ public class Program {
     }
 
     private static void printMainBanner() {
-        System.out.println("\n╔════════════════════════════════════════════════════════════════════════╗");
-        System.out.println("║                      LIBRARY MANAGEMENT SYSTEM                         ║");
-        System.out.println("║                   PRO192 PROJECT - FALL SEMESTER 2026                  ║");
-        System.out.println("╠════════════════════════════════════════════════════════════════════════╣");
-        System.out.println("║  1. Book & Inventory Management    (Polymorphism, Rating ⭐, Reserve)   ║");
-        System.out.println("║  2. Library Member Management      (Tiers VIP/GOLD/SILVER, Points)     ║");
-        System.out.println("║  3. Borrow & Return Transactions   (Extension, Damage Fee, Receipt)    ║");
-        System.out.println("║  4. System Summary & Visual Charts (Dashboard & ASCII Bar Charts)      ║");
-        System.out.println("║  5. Export Summary Report to File  (Library_Summary_Report.txt)        ║");
-        System.out.println("║  6. Backup All Data to Files       (Books / Members / BorrowRecords)   ║");
-        System.out.println("║  0. Save Data & Exit Program                                           ║");
-        System.out.println("╚════════════════════════════════════════════════════════════════════════╝");
+        System.out.println("\n==========================================================================");
+        System.out.println("                      LIBRARY MANAGEMENT SYSTEM                           ");
+        System.out.println("                   PRO192 PROJECT - FALL SEMESTER 2026                    ");
+        System.out.println("==========================================================================");
+        System.out.println("  1. Book & Inventory Management    (Polymorphism, Rating, Reserve)       ");
+        System.out.println("  2. Library Member Management      (Tiers VIP/GOLD/SILVER, Points)       ");
+        System.out.println("  3. Borrow & Return Transactions   (Extension, Damage Fee, Receipt)      ");
+        System.out.println("  4. System Summary & Visual Charts (Dashboard & ASCII Bar Charts)        ");
+        System.out.println("  5. Export Summary Report to File  (Library_Summary_Report.txt)          ");
+        System.out.println("  6. Backup All Data to Files       (Books / Members / BorrowRecords)     ");
+        System.out.println("  0. Save Data & Exit Program                                             ");
+        System.out.println("==========================================================================");
     }
 
     private static void displaySystemDashboard(IBookDAO bookDAO, IMemberDAO memberDAO, IBorrowDAO borrowDAO) {

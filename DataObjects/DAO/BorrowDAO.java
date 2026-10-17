@@ -200,7 +200,7 @@ public class BorrowDAO implements IBorrowDAO {
                 // Tính năng 7: Kiểm tra hàng đợi đặt trước của cuốn sách này
                 String nextWaitingMember = b.popNextReservation();
                 if (nextWaitingMember != null) {
-                    System.out.println("  🔔 [RESERVATION NOTIFICATION]: Book '" + b.getTitle()
+                    System.out.println("  >> [RESERVATION NOTIFICATION]: Book '" + b.getTitle()
                             + "' has been returned! Next waiting member in queue: " + nextWaitingMember);
                 }
             }

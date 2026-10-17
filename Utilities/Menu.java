@@ -54,19 +54,19 @@ public class Menu {
      *   3. Sinh chuỗi ký tự thanh bar: `"█".repeat(barLength)` gọn gàng và hiệu quả.
      */
     public static void printAsciiBarChart(String chartTitle, List<String> labels, List<Integer> values, String unit) {
-        System.out.println("\n  ┌──────────────────────────────────────────────────────────────────────────────────┐");
-        System.out.printf("  │ 📊 VISUAL BAR CHART: %-59s │\n", chartTitle);
-        System.out.println("  ├──────────────────────────────────────────────────────────────────────────────────┤");
+        System.out.println("\n  +----------------------------------------------------------------------------------+");
+        System.out.printf("  | VISUAL BAR CHART: %-62s |\n", chartTitle);
+        System.out.println("  +----------------------------------------------------------------------------------+");
 
         if (labels == null || values == null || labels.isEmpty() || labels.size() != values.size()) {
-            System.out.println("  │   (No data available to display chart)                                           │");
-            System.out.println("  └──────────────────────────────────────────────────────────────────────────────────┘");
+            System.out.println("  |   (No data available to display chart)                                           |");
+            System.out.println("  +----------------------------------------------------------------------------------+");
             return;
         }
 
         // Bước 1: Tìm giá trị lớn nhất (max) bằng Stream API IntStream max()
         int maxVal = values.stream().mapToInt(Integer::intValue).max().orElse(0);
-        int maxBarLength = 35; // Độ dài tối đa của thanh biểu đồ (35 ký tự █)
+        int maxBarLength = 35; // Độ dài tối đa của thanh biểu đồ (35 ký tự)
 
         // Bước 2: Duyệt từng phần tử và vẽ thanh bar bằng IntStream.range và biểu thức Lambda
         java.util.stream.IntStream.range(0, labels.size()).forEach(i -> {
@@ -83,10 +83,10 @@ public class Menu {
                 }
             }
 
-            String bar = "█".repeat(barLength);
-            System.out.printf("  │ %-26s │ %-35s %4d %-10s │\n",
+            String bar = "=".repeat(barLength);
+            System.out.printf("  | %-26s | %-35s %4d %-10s |\n",
                     label, bar, val, unit);
         });
-        System.out.println("  └──────────────────────────────────────────────────────────────────────────────────┘");
+        System.out.println("  +----------------------------------------------------------------------------------+");
     }
 }
