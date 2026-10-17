@@ -14,6 +14,7 @@ import Utilities.Menu;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Điểm khởi chạy chính của chương trình Quản lý Thư viện (Library Management System).
@@ -94,10 +95,9 @@ public class Program {
 
     private static void displaySystemDashboard(IBookDAO bookDAO, IMemberDAO memberDAO, IBorrowDAO borrowDAO) {
         List<Book> books = bookDAO.getBookList();
-        int totalQty = 0;
-        for (int i = 0; i < books.size(); i++) {
-            totalQty += books.get(i).getQuantity();
-        }
+        // [LAMBDA & STREAM API]: Tính tổng tồn kho kho sách bằng mapToInt và sum
+        int totalQty = books.stream().mapToInt(Book::getQuantity).sum();
+
         System.out.println("==========================================================================");
         System.out.println("                BẢNG TỔNG HỢP TOÀN HỆ THỐNG (SYSTEM DASHBOARD)            ");
         System.out.println("==========================================================================");
@@ -120,14 +120,14 @@ public class Program {
                 borrowDAO.calculateTotalCompensationRevenue());
         System.out.println("==========================================================================");
 
-        // Tính năng 8: Vẽ biểu đồ ASCII tồn kho trên Dashboard
-        List<String> labels = new ArrayList<>();
-        List<Integer> values = new ArrayList<>();
-        for (int i = 0; i < books.size(); i++) {
-            Book b = books.get(i);
-            labels.add("[" + b.getBookId() + "] " + b.getTitle());
-            values.add(b.getQuantity());
-        }
+        // [LAMBDA & STREAM API]: Tính năng 8 - Vẽ biểu đồ ASCII tồn kho trên Dashboard
+        List<String> labels = books.stream()
+                .map(b -> "[" + b.getBookId() + "] " + b.getTitle())
+                .collect(Collectors.toList());
+        List<Integer> values = books.stream()
+                .map(Book::getQuantity)
+                .collect(Collectors.toList());
+
         Menu.printAsciiBarChart("TỒN KHO SÁCH HIỆN TẠI", labels, values, "cuốn");
     }
 
@@ -140,10 +140,8 @@ public class Program {
         List<Book> books = bookDAO.getBookList();
         List<Member> members = memberDAO.getAll();
 
-        int totalQty = 0;
-        for (int i = 0; i < books.size(); i++) {
-            totalQty += books.get(i).getQuantity();
-        }
+        // [LAMBDA & STREAM API]: Tính tổng bản in tồn kho
+        int totalQty = books.stream().mapToInt(Book::getQuantity).sum();
 
         lines.add("==========================================================================");
         lines.add("          BÁO CÁO TỔNG KẾT HOẠT ĐỘNG HỆ THỐNG QUẢN LÝ THƯ VIỆN            ");

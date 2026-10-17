@@ -12,16 +12,21 @@ public class Menu {
     private Menu() {
     }
 
+    /**
+     * [LAMBDA & STREAM API]: Hiển thị chuỗi menu phân cách bởi ký tự '|'.
+     * Áp dụng Arrays.stream, map(String::trim) và forEach Lambda.
+     */
     public static void print(String menuString) {
-        List<String> menuItems = Arrays.asList(menuString.split("\\|"));
-        for (int i = 0; i < menuItems.size(); i++) {
-            String item = menuItems.get(i);
-            if (item.trim().equalsIgnoreCase("Select:") || item.trim().equalsIgnoreCase("Lựa chọn:")) {
-                System.out.print(item.trim() + " ");
-            } else {
-                System.out.println(item.trim());
-            }
-        }
+        if (menuString == null) return;
+        Arrays.stream(menuString.split("\\|"))
+                .map(String::trim)
+                .forEach(item -> {
+                    if (item.equalsIgnoreCase("Select:") || item.equalsIgnoreCase("Lựa chọn:")) {
+                        System.out.print(item + " ");
+                    } else {
+                        System.out.println(item);
+                    }
+                });
     }
 
     public static int getUserChoice() {
@@ -47,13 +52,14 @@ public class Menu {
     }
 
     /**
-     * Tính năng 8: Vẽ biểu đồ cột ngang bằng ký tự ASCII ngay trên Console.
-     * Viết bằng vòng lặp for truyền thống, trực quan và dễ hiểu.
-     *
-     * @param chartTitle Tiêu đề biểu đồ
-     * @param labels     Danh sách nhãn của từng cột
-     * @param values     Danh sách giá trị số nguyên tương ứng
-     * @param unit       Đơn vị tính (VD: "cuốn", "lượt", "độc giả")
+     * [LAMBDA & STREAM API]: Tính năng 8 - Vẽ biểu đồ cột ngang bằng ký tự ASCII trên Console.
+     * 
+     * So sánh:
+     * - Cách cũ: Dùng vòng for tìm maxVal và vòng for thứ 2 để in từng thanh.
+     * - Lambda/Stream:
+     *   1. Tìm giá trị lớn nhất: `values.stream().mapToInt(Integer::intValue).max().orElse(0)`
+     *   2. Duyệt song song nhãn và giá trị: `IntStream.range(0, labels.size()).forEach(i -> ...)`
+     *   3. Sinh chuỗi ký tự thanh bar: `"█".repeat(barLength)` gọn gàng và hiệu quả.
      */
     public static void printAsciiBarChart(String chartTitle, List<String> labels, List<Integer> values, String unit) {
         System.out.println("\n  ┌──────────────────────────────────────────────────────────────────────────────────┐");
@@ -66,18 +72,12 @@ public class Menu {
             return;
         }
 
-        // Bước 1: Tìm giá trị lớn nhất (max) bằng vòng lặp for truyền thống để tính tỉ lệ cột
-        int maxVal = 0;
-        for (int i = 0; i < values.size(); i++) {
-            if (values.get(i) > maxVal) {
-                maxVal = values.get(i);
-            }
-        }
-
+        // Bước 1: Tìm giá trị lớn nhất (max) bằng Stream API IntStream max()
+        int maxVal = values.stream().mapToInt(Integer::intValue).max().orElse(0);
         int maxBarLength = 35; // Độ dài tối đa của thanh biểu đồ (35 ký tự █)
 
-        // Bước 2: Duyệt qua từng phần tử và vẽ thanh bar bằng vòng lặp for
-        for (int i = 0; i < labels.size(); i++) {
+        // Bước 2: Duyệt từng phần tử và vẽ thanh bar bằng IntStream.range và biểu thức Lambda
+        java.util.stream.IntStream.range(0, labels.size()).forEach(i -> {
             String label = labels.get(i);
             if (label.length() > 26) {
                 label = label.substring(0, 23) + "...";
@@ -91,14 +91,10 @@ public class Menu {
                 }
             }
 
-            StringBuilder bar = new StringBuilder();
-            for (int j = 0; j < barLength; j++) {
-                bar.append("█");
-            }
-
+            String bar = "█".repeat(barLength);
             System.out.printf("  │ %-26s │ %-35s %4d %-10s │\n",
-                    label, bar.toString(), val, unit);
-        }
+                    label, bar, val, unit);
+        });
         System.out.println("  └──────────────────────────────────────────────────────────────────────────────────┘");
     }
 }

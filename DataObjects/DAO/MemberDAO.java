@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Lớp MemberDAO quản lý danh sách Độc giả (Member) trong bộ nhớ và đồng bộ với file Members.txt.
@@ -62,19 +63,24 @@ public class MemberDAO implements IMemberDAO {
                 LocalDate.of(2006, 2, 18), LocalDate.of(2026, 3, 1), false, -5));  // Bị khóa
     }
 
+    /**
+     * [LAMBDA & STREAM API]: Tìm kiếm độc giả theo mã định danh (User ID).
+     * 
+     * So sánh:
+     * - Cách cũ: Duyệt for loop `i = 0 -> memberList.size()`, so sánh chuỗi bằng if và return member.
+     * - Lambda/Stream: `filter(m -> m.getUserId().equalsIgnoreCase(targetId)).findFirst().orElse(null);`
+     *   -> Ngắn gọn, loại bỏ việc quản lý chỉ số index, tự động dừng quét khi tìm thấy (short-circuit).
+     */
     @Override
     public Member findById(String userId) {
         if (userId == null || userId.trim().isEmpty()) {
             return null;
         }
         String targetId = userId.trim();
-        for (int i = 0; i < memberList.size(); i++) {
-            Member member = memberList.get(i);
-            if (member.getUserId().equalsIgnoreCase(targetId)) {
-                return member;
-            }
-        }
-        return null;
+        return memberList.stream()
+                .filter(m -> m.getUserId().equalsIgnoreCase(targetId))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -115,98 +121,89 @@ public class MemberDAO implements IMemberDAO {
         return new ArrayList<>(memberList);
     }
 
+    /**
+     * [LAMBDA & STREAM API]: Tìm kiếm độc giả theo từ khóa họ tên.
+     * Sử dụng Stream filter kết hợp Lambda expression và Collectors.toList().
+     */
     @Override
     public List<Member> searchByName(String keyword) {
-        List<Member> result = new ArrayList<>();
         if (keyword == null) {
-            return result;
+            return new ArrayList<>();
         }
         String kw = keyword.trim().toLowerCase();
-        for (int i = 0; i < memberList.size(); i++) {
-            Member member = memberList.get(i);
-            if (member.getFullName().toLowerCase().contains(kw)) {
-                result.add(member);
-            }
-        }
-        return result;
+        return memberList.stream()
+                .filter(m -> m.getFullName().toLowerCase().contains(kw))
+                .collect(Collectors.toList());
     }
 
+    /**
+     * [LAMBDA & STREAM API]: Tìm kiếm độc giả theo số điện thoại.
+     */
     @Override
     public List<Member> searchByPhone(String phoneKeyword) {
-        List<Member> result = new ArrayList<>();
         if (phoneKeyword == null) {
-            return result;
+            return new ArrayList<>();
         }
         String kw = phoneKeyword.trim();
-        for (int i = 0; i < memberList.size(); i++) {
-            Member member = memberList.get(i);
-            if (member.getPhone().contains(kw)) {
-                result.add(member);
-            }
-        }
-        return result;
+        return memberList.stream()
+                .filter(m -> m.getPhone().contains(kw))
+                .collect(Collectors.toList());
     }
 
+    /**
+     * [LAMBDA & STREAM API]: Lọc danh sách độc giả theo Hạng thẻ (VIP / GOLD / SILVER).
+     */
     @Override
     public List<Member> filterByTier(String tier) {
-        List<Member> result = new ArrayList<>();
         if (tier == null) {
-            return result;
+            return new ArrayList<>();
         }
         String targetTier = tier.trim().toUpperCase();
-        for (int i = 0; i < memberList.size(); i++) {
-            Member member = memberList.get(i);
-            if (member.getMembershipTier().equalsIgnoreCase(targetTier)) {
-                result.add(member);
-            }
-        }
-        return result;
+        return memberList.stream()
+                .filter(m -> m.getMembershipTier().equalsIgnoreCase(targetTier))
+                .collect(Collectors.toList());
     }
 
+    /**
+     * [LAMBDA & COMPARATOR CHAINING]: Sắp xếp danh sách độc giả theo Họ tên (A -> Z).
+     * 
+     * So sánh:
+     * - Cách cũ: new Comparator<Member>() { public int compare(...) { ... } } với 15 dòng code ẩn danh.
+     * - Lambda/Stream: Sử dụng `Comparator.comparing(...).thenComparing(...)` cực kỳ tường minh:
+     *   - Tiêu chí 1: Họ tên không phân biệt hoa thường (`String.CASE_INSENSITIVE_ORDER`)
+     *   - Tiêu chí 2: Nếu trùng tên thì so sánh tiếp theo Mã độc giả (ID)
+     */
     @Override
     public List<Member> sortByNameAscending() {
-        List<Member> sorted = new ArrayList<>(memberList);
-        Collections.sort(sorted, new Comparator<Member>() {
-            @Override
-            public int compare(Member m1, Member m2) {
-                int cmp = m1.getFullName().compareToIgnoreCase(m2.getFullName());
-                if (cmp != 0) {
-                    return cmp;
-                }
-                return m1.getUserId().compareToIgnoreCase(m2.getUserId());
-            }
-        });
-        return sorted;
+        return memberList.stream()
+                .sorted(Comparator.comparing(Member::getFullName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Member::getUserId, String.CASE_INSENSITIVE_ORDER))
+                .collect(Collectors.toList());
     }
 
+    /**
+     * [LAMBDA & COMPARATOR]: Sắp xếp danh sách độc giả theo Mã ID (A -> Z).
+     */
     @Override
     public List<Member> sortByIdAscending() {
-        List<Member> sorted = new ArrayList<>(memberList);
-        Collections.sort(sorted, new Comparator<Member>() {
-            @Override
-            public int compare(Member m1, Member m2) {
-                return m1.getUserId().compareToIgnoreCase(m2.getUserId());
-            }
-        });
-        return sorted;
+        return memberList.stream()
+                .sorted(Comparator.comparing(Member::getUserId, String.CASE_INSENSITIVE_ORDER))
+                .collect(Collectors.toList());
     }
 
+    /**
+     * [LAMBDA & COMPARATOR CHAINING]: Sắp xếp danh sách độc giả theo Điểm uy tín giảm dần (Cao -> Thấp).
+     * 
+     * So sánh:
+     * - Lambda: `Comparator.comparingInt(Member::getReputationPoints).reversed().thenComparing(...)`
+     *   -> Giúp xếp hạng độc giả VIP lên đầu bảng một cách trực quan và tối ưu.
+     */
     @Override
     public List<Member> sortByReputationDescending() {
-        List<Member> sorted = new ArrayList<>(memberList);
-        Collections.sort(sorted, new Comparator<Member>() {
-            @Override
-            public int compare(Member m1, Member m2) {
-                if (m1.getReputationPoints() < m2.getReputationPoints()) {
-                    return 1;
-                } else if (m1.getReputationPoints() > m2.getReputationPoints()) {
-                    return -1;
-                } else {
-                    return m1.getFullName().compareToIgnoreCase(m2.getFullName());
-                }
-            }
-        });
-        return sorted;
+        return memberList.stream()
+                .sorted(Comparator.comparingInt(Member::getReputationPoints).reversed()
+                        .thenComparing(Member::getFullName, String.CASE_INSENSITIVE_ORDER))
+                .collect(Collectors.toList());
     }
 
     /**

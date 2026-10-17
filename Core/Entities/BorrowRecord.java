@@ -5,6 +5,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Thực thể BorrowRecord đại diện cho Phiếu Mượn - Trả sách.
@@ -192,17 +194,20 @@ public class BorrowRecord {
     }
 
     /**
-     * Tính tổng phí mượn gốc bằng vòng lặp for (Đa hình: gọi book.calculateBorrowFee).
+     * [LAMBDA & STREAM API]: Tính tổng phí mượn gốc (Đa hình: gọi book.calculateBorrowFee).
+     * 
+     * So sánh:
+     * - Cách cũ: Dùng biến accumulator `double total = 0;` và vòng lặp for i duyệt danh sách.
+     * - Lambda/Stream API: Chuyển đổi danh sách thành Stream, ánh xạ (mapToDouble) từng cuốn sách sang phí mượn
+     *   và dùng terminal operation `sum()` để cộng dồn.
+     *   -> Giúp code ngắn gọn, loại bỏ biến trạng thái có thể bị lỗi gán và tối ưu hóa xử lý.
      */
-    public double calculateTotalBorrowFee() {
-        int days = getBorrowDurationDays();
-        double total = 0;
-        for (int i = 0; i < borrowedBooks.size(); i++) {
-            Book b = borrowedBooks.get(i);
-            total += b.calculateBorrowFee(days);
-        }
-        return total;
-    }
+     public double calculateTotalBorrowFee() {
+         int days = getBorrowDurationDays();
+         return borrowedBooks.stream()
+                 .mapToDouble(b -> b.calculateBorrowFee(days))
+                 .sum();
+     }
 
     /**
      * Tính năng 1: Tính phí mượn sau khi đã giảm giá theo Hạng thẻ độc giả (VIP -25%, GOLD -10%).
@@ -234,19 +239,25 @@ public class BorrowRecord {
         return (extensionCount > 0) ? "Đang mượn (Đã GH)" : "Đang mượn";
     }
 
+    /**
+     * [LAMBDA & STREAM API]: Xuất định dạng chuỗi lưu trữ file.
+     * 
+     * So sánh:
+     * - Cách cũ: Dùng StringBuilder kết hợp vòng lặp for và `if (i > 0) append(",")` để nối ID sách.
+     * - Lambda/Stream: Dùng `borrowedBooks.stream().map(Book::getBookId).collect(Collectors.joining(","))`.
+     *   -> Sử dụng Method Reference `Book::getBookId` kết hợp Collector `Collectors.joining(",")`
+     *      tự động xử lý dấu phân cách mà không cần kiểm tra điều kiện phần tử đầu tiên.
+     */
     public String toFileString() {
-        StringBuilder bookIds = new StringBuilder();
-        for (int i = 0; i < borrowedBooks.size(); i++) {
-            if (i > 0) {
-                bookIds.append(",");
-            }
-            bookIds.append(borrowedBooks.get(i).getBookId());
-        }
+        String bookIds = borrowedBooks.stream()
+                .map(Book::getBookId)
+                .collect(Collectors.joining(","));
+
         String bDate = (borrowDate != null) ? borrowDate.format(DATE_FORMAT) : "01/01/2026";
         String dDate = (dueDate != null) ? dueDate.format(DATE_FORMAT) : "15/01/2026";
         String rDate = (returnDate != null) ? returnDate.format(DATE_FORMAT) : "NONE";
         return String.format("%s|%s|%s|%s|%s|%s|%s|%d|%.0f",
-                recordId, member.getUserId(), bookIds.toString(), bDate, dDate, rDate,
+                recordId, member.getUserId(), bookIds, bDate, dDate, rDate,
                 returned ? "RETURNED" : "BORROWING", extensionCount, compensationFee);
     }
 
@@ -270,10 +281,11 @@ public class BorrowRecord {
             sb.append(String.format(" | Đền bù sách: %,.0f VNĐ", compensationFee));
         }
         sb.append("\n  Danh sách sách mượn (").append(borrowedBooks.size()).append(" cuốn):\n");
-        for (int i = 0; i < borrowedBooks.size(); i++) {
+        // [LAMBDA & STREAM API]: Dùng IntStream.range kết hợp biểu thức Lambda để in chỉ số và tên sách
+        IntStream.range(0, borrowedBooks.size()).forEach(i -> {
             Book b = borrowedBooks.get(i);
             sb.append(String.format("    %d. [%s] %s\n", i + 1, b.getBookId(), b.getTitle()));
-        }
+        });
         return sb.toString();
     }
 }

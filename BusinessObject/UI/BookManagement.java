@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Giao diện điều khiển phân hệ Kho Tài liệu / Sách (Book Management UI).
@@ -139,10 +141,12 @@ public class BookManagement {
             return;
         }
 
-        int totalQty = 0;
-        double totalVal = 0.0;
+        // [LAMBDA & STREAM API]: Tính toán tổng số lượng và tổng trị giá bằng Stream API IntStream/DoubleStream
+        int totalQty = books.stream().mapToInt(Book::getQuantity).sum();
+        double totalVal = books.stream().mapToDouble(Book::calculateTotalValue).sum();
 
-        for (Book b : books) {
+        // [LAMBDA & STREAM API]: Hiển thị chi tiết từng dòng sách bằng forEach Lambda
+        books.forEach(b -> {
             String typeStr;
             String extraInfo;
 
@@ -176,10 +180,7 @@ public class BookManagement {
                     polyPrice,
                     borrowFee,
                     itemTotal);
-
-            totalQty += b.getQuantity();
-            totalVal += itemTotal;
-        }
+        });
 
         System.out.println(sep);
         String summaryPart1 = String.format("Tổng: %d đầu sách", books.size());
@@ -598,43 +599,22 @@ public class BookManagement {
     public void displayInventoryReport() {
         List<Book> all = bookDAO.getBookList();
         int totalTitles = all.size();
-        int textBookCount = 0;
-        int refBookCount = 0;
-        int textBookQty = 0;
-        int refBookQty = 0;
-        double textBookVal = 0.0;
-        double refBookVal = 0.0;
 
-        Book highestPriceBook = null;
-        Book lowestPriceBook = null;
-        Book highestQtyBook = null;
-        List<Book> lowStockBooks = new ArrayList<>();
+        // [LAMBDA & STREAM API]: Thống kê phân loại sách bằng Stream filter, count, mapToInt, mapToDouble
+        long textBookCount = all.stream().filter(b -> b instanceof TextBook).count();
+        long refBookCount = all.stream().filter(b -> b instanceof ReferenceBook).count();
+        int textBookQty = all.stream().filter(b -> b instanceof TextBook).mapToInt(Book::getQuantity).sum();
+        int refBookQty = all.stream().filter(b -> b instanceof ReferenceBook).mapToInt(Book::getQuantity).sum();
+        double textBookVal = all.stream().filter(b -> b instanceof TextBook).mapToDouble(Book::calculateTotalValue).sum();
+        double refBookVal = all.stream().filter(b -> b instanceof ReferenceBook).mapToDouble(Book::calculateTotalValue).sum();
 
-        for (Book b : all) {
-            double val = b.calculateTotalValue();
-            if (b instanceof TextBook) {
-                textBookCount++;
-                textBookQty += b.getQuantity();
-                textBookVal += val;
-            } else if (b instanceof ReferenceBook) {
-                refBookCount++;
-                refBookQty += b.getQuantity();
-                refBookVal += val;
-            }
+        // [LAMBDA & STREAM API]: Tìm cuốn sách max / min theo đơn giá và tồn kho bằng Comparator Lambda
+        Book highestPriceBook = all.stream().max(Comparator.comparingDouble(Book::getPrice)).orElse(null);
+        Book lowestPriceBook = all.stream().min(Comparator.comparingDouble(Book::getPrice)).orElse(null);
+        Book highestQtyBook = all.stream().max(Comparator.comparingInt(Book::getQuantity)).orElse(null);
 
-            if (highestPriceBook == null || b.getPrice() > highestPriceBook.getPrice()) {
-                highestPriceBook = b;
-            }
-            if (lowestPriceBook == null || b.getPrice() < lowestPriceBook.getPrice()) {
-                lowestPriceBook = b;
-            }
-            if (highestQtyBook == null || b.getQuantity() > highestQtyBook.getQuantity()) {
-                highestQtyBook = b;
-            }
-            if (b.getQuantity() < 5) {
-                lowStockBooks.add(b);
-            }
-        }
+        // [LAMBDA & STREAM API]: Lọc các sách có cảnh báo tồn kho thấp (< 5 cuốn)
+        List<Book> lowStockBooks = all.stream().filter(b -> b.getQuantity() < 5).collect(Collectors.toList());
 
         int totalQty = textBookQty + refBookQty;
         double totalVal = textBookVal + refBookVal;
@@ -740,31 +720,24 @@ public class BookManagement {
             }
             System.out.println("\n>> Dựa trên cuốn '" + target.getTitle() + "', hệ thống gợi ý Top 3 cuốn sách cùng nhóm có đánh giá cao nhất:");
             List<Book> recommended = bookDAO.getRecommendedBooks(bookId, 3);
-            for (int i = 0; i < recommended.size(); i++) {
+            // [LAMBDA & STREAM API]: Duyệt danh sách gợi ý bằng IntStream
+            IntStream.range(0, recommended.size()).forEach(i -> {
                 Book rec = recommended.get(i);
                 System.out.printf("   %d. [%s] %-35s | Tác giả: %-18s | Đánh giá: %s | Còn: %d cuốn\n",
                         i + 1, rec.getBookId(), rec.getTitle(), rec.getAuthor(), rec.getStarDisplay(), rec.getQuantity());
-            }
+            });
         } else if (subChoice == 3) {
             List<Book> list = bookDAO.getBookList();
-            Collections.sort(list, new Comparator<Book>() {
-                @Override
-                public int compare(Book b1, Book b2) {
-                    if (b1.getRating() < b2.getRating()) {
-                        return 1;
-                    } else if (b1.getRating() > b2.getRating()) {
-                        return -1;
-                    } else {
-                        return Integer.compare(b2.getRatingCount(), b1.getRatingCount());
-                    }
-                }
-            });
+            // [LAMBDA & COMPARATOR]: Sắp xếp bảng xếp hạng theo số Sao giảm dần, sau đó theo số lượt đánh giá
+            list.sort(Comparator.comparingDouble(Book::getRating).reversed()
+                    .thenComparing(Comparator.comparingInt(Book::getRatingCount).reversed()));
+
             System.out.println("\n--- BẢNG XẾP HẠNG SÁCH ĐƯỢC YÊU THÍCH NHẤT ---");
-            for (int i = 0; i < list.size(); i++) {
+            IntStream.range(0, list.size()).forEach(i -> {
                 Book b = list.get(i);
                 System.out.printf("  Hạng %d: [%s] %-36s | ⭐ %s | Giá: %,.0f VNĐ\n",
                         i + 1, b.getBookId(), b.getTitle(), b.getStarDisplay(), b.getPrice());
-            }
+            });
         }
     }
 
@@ -798,25 +771,26 @@ public class BookManagement {
                 return;
             }
             System.out.println("\n--- DANH SÁCH SÁCH ĐANG CÓ ĐỘC GIẢ ĐẶT TRƯỚC ---");
-            for (int i = 0; i < reservedBooks.size(); i++) {
+            // [LAMBDA & STREAM API]: In danh sách đặt trước bằng IntStream
+            IntStream.range(0, reservedBooks.size()).forEach(i -> {
                 Book b = reservedBooks.get(i);
                 System.out.printf("  %d. [%s] %-35s (Tồn kho: %d) -> Hàng đợi (%d người): %s\n",
                         i + 1, b.getBookId(), b.getTitle(), b.getQuantity(),
                         b.getReservationQueue().size(), b.getReservationQueue().toString());
-            }
+            });
         }
     }
 
     private void displayBookInventoryChart() {
         List<Book> books = bookDAO.getBookList();
-        List<String> labels = new ArrayList<>();
-        List<Integer> values = new ArrayList<>();
+        // [LAMBDA & STREAM API]: Ánh xạ nhãn và giá trị biểu đồ ASCII bằng map và Collectors.toList
+        List<String> labels = books.stream()
+                .map(b -> "[" + b.getBookId() + "] " + b.getTitle())
+                .collect(Collectors.toList());
+        List<Integer> values = books.stream()
+                .map(Book::getQuantity)
+                .collect(Collectors.toList());
 
-        for (int i = 0; i < books.size(); i++) {
-            Book b = books.get(i);
-            labels.add("[" + b.getBookId() + "] " + b.getTitle());
-            values.add(b.getQuantity());
-        }
         Menu.printAsciiBarChart("SỐ LƯỢNG TỒN KHO THEO TỪNG ĐẦU SÁCH", labels, values, "cuốn");
     }
 

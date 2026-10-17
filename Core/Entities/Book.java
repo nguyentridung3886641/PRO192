@@ -138,17 +138,23 @@ public abstract class Book {
     }
 
     /**
-     * Đăng ký đặt trước sách bằng vòng lặp kiểm tra trùng truyền thống.
+     * [LAMBDA & STREAM API]: Đăng ký đặt trước sách (Reservation Queue).
+     * 
+     * So sánh:
+     * - Cách cũ: Dùng vòng for duyệt từng phần tử `reservationQueue.get(i)` và so sánh equalsIgnoreCase.
+     * - Lambda/Stream: Dùng `reservationQueue.stream().anyMatch(cleanId::equalsIgnoreCase)`.
+     *   -> anyMatch là một short-circuiting terminal operation: nó dừng duyệt ngay khi tìm thấy phần tử trùng,
+     *      giúp mã nguồn súc tích, dễ đọc và tối ưu hóa hiệu năng.
      */
     public boolean addReservation(String memberId) {
         if (memberId == null || memberId.trim().isEmpty()) {
             return false;
         }
         String cleanId = memberId.trim().toUpperCase();
-        for (int i = 0; i < reservationQueue.size(); i++) {
-            if (reservationQueue.get(i).equalsIgnoreCase(cleanId)) {
-                return false; // Độc giả đã có tên trong hàng đợi
-            }
+        boolean alreadyReserved = reservationQueue.stream()
+                .anyMatch(cleanId::equalsIgnoreCase);
+        if (alreadyReserved) {
+            return false; // Độc giả đã có tên trong hàng đợi
         }
         reservationQueue.add(cleanId);
         return true;

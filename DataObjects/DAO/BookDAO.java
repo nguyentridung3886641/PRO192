@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -110,32 +111,43 @@ public class BookDAO implements IBookDAO {
         return bookList.remove(existing);
     }
 
+    /**
+     * [LAMBDA & STREAM API]: Tìm kiếm sách theo mã (Book ID).
+     * 
+     * So sánh:
+     * - Cách cũ: Duyệt vòng lặp for-each qua bookList, kiểm tra điều kiện bằng if và return.
+     * - Lambda/Stream: Dùng Stream pipeline `filter(...) -> findFirst() -> orElse(null)`.
+     *   -> filter nhận Predicate lambda: `b.getBookId() != null && b.getBookId().equalsIgnoreCase(cleanId)`
+     *   -> findFirst() dừng quét luồng ngay khi tìm thấy phần tử đầu tiên (short-circuiting).
+     */
     @Override
     public Book findBookById(String bookId) {
         if (bookId == null || bookId.trim().isEmpty()) {
             return null;
         }
-        for (Book b : bookList) {
-            if (b.getBookId() != null && b.getBookId().equalsIgnoreCase(bookId.trim())) {
-                return b;
-            }
-        }
-        return null;
+        String cleanId = bookId.trim();
+        return bookList.stream()
+                .filter(b -> b.getBookId() != null && b.getBookId().equalsIgnoreCase(cleanId))
+                .findFirst()
+                .orElse(null);
     }
 
+    /**
+     * [LAMBDA & STREAM API]: Tìm kiếm sách theo từ khóa tên sách.
+     * 
+     * So sánh:
+     * - Cách cũ: Khởi tạo ArrayList rỗng, duyệt vòng lặp for và add vào danh sách kết quả.
+     * - Lambda/Stream: Dùng Stream `filter` và đóng gói bằng `collect(Collectors.toList())`.
+     */
     @Override
     public List<Book> findBookByTitle(String title) {
-        List<Book> results = new ArrayList<>();
         if (title == null || title.trim().isEmpty()) {
-            return results;
+            return new ArrayList<>();
         }
         String keyword = title.trim().toLowerCase();
-        for (Book b : bookList) {
-            if (b.getTitle() != null && b.getTitle().toLowerCase().contains(keyword)) {
-                results.add(b);
-            }
-        }
-        return results;
+        return bookList.stream()
+                .filter(b -> b.getTitle() != null && b.getTitle().toLowerCase().contains(keyword))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -155,12 +167,14 @@ public class BookDAO implements IBookDAO {
         return bookList.size();
     }
 
+    /**
+     * [LAMBDA & STREAM API]: Tính tổng số bản sách trong kho.
+     * Áp dụng Method Reference `Book::getQuantity` và IntStream `sum()`.
+     */
     public int getTotalQuantity() {
-        int total = 0;
-        for (Book b : bookList) {
-            total += b.getQuantity();
-        }
-        return total;
+        return bookList.stream()
+                .mapToInt(Book::getQuantity)
+                .sum();
     }
 
     // ========================================================
@@ -168,21 +182,23 @@ public class BookDAO implements IBookDAO {
     // ========================================================
 
     /**
-     * Tính tổng giá trị lưu kho của toàn bộ sách.
-     * Áp dụng Upcasting: Các đối tượng TextBook và ReferenceBook được lưu trữ
-     * trong List<Book> và phương thức calculateTotalValue() được gọi đa hình.
+     * [LAMBDA & STREAM API & ĐA HÌNH]: Tính tổng giá trị lưu kho của toàn bộ sách.
+     * 
+     * So sánh:
+     * - Cách cũ: Vòng lặp for cộng dồn `sum += b.calculateTotalValue();`.
+     * - Lambda/Stream: `bookList.stream().mapToDouble(Book::calculateTotalValue).sum();`.
+     *   -> Áp dụng Method Reference đa hình: Tùy loại sách TextBook/ReferenceBook mà phương thức
+     *      tính giá trị kho tương ứng sẽ được gọi động trong DoubleStream!
      */
     @Override
     public double calculateTotalInventoryValue() {
-        double sum = 0.0;
-        for (Book b : bookList) {
-            sum += b.calculateTotalValue();
-        }
-        return sum;
+        return bookList.stream()
+                .mapToDouble(Book::calculateTotalValue)
+                .sum();
     }
 
     /**
-     * Tính tổng phí mượn cho một danh sách sách cụ thể theo số ngày mượn.
+     * [LAMBDA & STREAM API & ĐA HÌNH]: Tính tổng phí mượn cho một danh sách sách cụ thể theo số ngày mượn.
      * Áp dụng Upcasting & Polymorphism: Mỗi loại sách tự quyết định cách tính phí mượn riêng.
      */
     @Override
@@ -190,151 +206,159 @@ public class BookDAO implements IBookDAO {
         if (books == null || books.isEmpty()) {
             return 0.0;
         }
-        double totalFee = 0.0;
-        for (Book b : books) {
-            if (b != null) {
-                totalFee += b.calculateBorrowFee(days);
-            }
-        }
-        return totalFee;
+        return books.stream()
+                .filter(Objects::nonNull)
+                .mapToDouble(b -> b.calculateBorrowFee(days))
+                .sum();
     }
 
     // ========================================================
     // 3. Milestone 4: Tìm kiếm đa tiêu chí
     // ========================================================
 
+    /**
+     * [LAMBDA & STREAM API]: Tìm kiếm sách theo tác giả.
+     * Áp dụng filter kết hợp biểu thức Lambda kiểm tra chuỗi con không phân biệt hoa thường.
+     */
     @Override
     public List<Book> findBookByAuthor(String author) {
-        List<Book> results = new ArrayList<>();
         if (author == null || author.trim().isEmpty()) {
-            return results;
+            return new ArrayList<>();
         }
         String keyword = author.trim().toLowerCase();
-        for (Book b : bookList) {
-            if (b.getAuthor() != null && b.getAuthor().toLowerCase().contains(keyword)) {
-                results.add(b);
-            }
-        }
-        return results;
+        return bookList.stream()
+                .filter(b -> b.getAuthor() != null && b.getAuthor().toLowerCase().contains(keyword))
+                .collect(Collectors.toList());
     }
 
+    /**
+     * [LAMBDA & STREAM API]: Tìm kiếm sách theo khoảng đơn giá bìa.
+     */
     @Override
     public List<Book> findBookByPriceRange(double minPrice, double maxPrice) {
-        List<Book> results = new ArrayList<>();
         double lower = Math.min(minPrice, maxPrice);
         double upper = Math.max(minPrice, maxPrice);
-        for (Book b : bookList) {
-            if (b.getPrice() >= lower && b.getPrice() <= upper) {
-                results.add(b);
-            }
-        }
-        return results;
+        return bookList.stream()
+                .filter(b -> b.getPrice() >= lower && b.getPrice() <= upper)
+                .collect(Collectors.toList());
     }
 
+    /**
+     * [LAMBDA & STREAM API]: Tìm kiếm kết hợp đa tiêu chí (Multi-criteria Search).
+     * 
+     * So sánh:
+     * - Cách cũ: Khởi tạo biến boolean lồng nhau phức tạp bên trong vòng lặp for.
+     * - Lambda/Stream: Dùng pipeline các filter liên tiếp. Mỗi filter đảm nhận một tiêu chí độc lập,
+     *   tuân thủ nguyên tắc Single Responsibility và dễ dàng thêm bớt tiêu chí tìm kiếm.
+     */
     @Override
     public List<Book> searchMultiCriteria(String title, String author, Double minPrice, Double maxPrice, String bookType) {
-        List<Book> results = new ArrayList<>();
         String titleKey = (title != null) ? title.trim().toLowerCase() : "";
         String authorKey = (author != null) ? author.trim().toLowerCase() : "";
         String typeKey = (bookType != null) ? bookType.trim().toUpperCase() : "";
 
-        for (Book b : bookList) {
-            boolean matchTitle = titleKey.isEmpty() || (b.getTitle() != null && b.getTitle().toLowerCase().contains(titleKey));
-            boolean matchAuthor = authorKey.isEmpty() || (b.getAuthor() != null && b.getAuthor().toLowerCase().contains(authorKey));
-
-            boolean matchPrice = true;
-            if (minPrice != null && b.getPrice() < minPrice) {
-                matchPrice = false;
-            }
-            if (maxPrice != null && b.getPrice() > maxPrice) {
-                matchPrice = false;
-            }
-
-            boolean matchType = true;
-            if (!typeKey.isEmpty()) {
-                if (typeKey.contains("TEXT") && !(b instanceof TextBook)) {
-                    matchType = false;
-                } else if (typeKey.contains("REF") && !(b instanceof ReferenceBook)) {
-                    matchType = false;
-                }
-            }
-
-            if (matchTitle && matchAuthor && matchPrice && matchType) {
-                results.add(b);
-            }
-        }
-        return results;
+        return bookList.stream()
+                .filter(b -> titleKey.isEmpty() || (b.getTitle() != null && b.getTitle().toLowerCase().contains(titleKey)))
+                .filter(b -> authorKey.isEmpty() || (b.getAuthor() != null && b.getAuthor().toLowerCase().contains(authorKey)))
+                .filter(b -> minPrice == null || b.getPrice() >= minPrice)
+                .filter(b -> maxPrice == null || b.getPrice() <= maxPrice)
+                .filter(b -> {
+                    if (typeKey.isEmpty()) {
+                        return true;
+                    }
+                    if (typeKey.contains("TEXT")) {
+                        return b instanceof TextBook;
+                    }
+                    if (typeKey.contains("REF")) {
+                        return b instanceof ReferenceBook;
+                    }
+                    return true;
+                })
+                .collect(Collectors.toList());
     }
 
     // ========================================================
     // 4. Milestone 4: Thuật toán sắp xếp (Sorting Algorithms)
     // ========================================================
 
+    /**
+     * [LAMBDA & COMPARATOR]: Sắp xếp theo Tên sách (A-Z hoặc Z-A).
+     * Sử dụng Comparator.comparing với Method Reference Book::getTitle.
+     */
     @Override
     public List<Book> getSortedByTitle(boolean ascending) {
-        List<Book> list = getBookList();
-        list.sort((b1, b2) -> ascending
-                ? b1.getTitle().compareToIgnoreCase(b2.getTitle())
-                : b2.getTitle().compareToIgnoreCase(b1.getTitle()));
-        return list;
-    }
-
-    @Override
-    public List<Book> getSortedByAuthor(boolean ascending) {
-        List<Book> list = getBookList();
-        list.sort((b1, b2) -> ascending
-                ? b1.getAuthor().compareToIgnoreCase(b2.getAuthor())
-                : b2.getAuthor().compareToIgnoreCase(b1.getAuthor()));
-        return list;
-    }
-
-    @Override
-    public List<Book> getSortedByPrice(boolean ascending) {
-        List<Book> list = getBookList();
-        list.sort((b1, b2) -> ascending
-                ? Double.compare(b1.getPrice(), b2.getPrice())
-                : Double.compare(b2.getPrice(), b1.getPrice()));
-        return list;
-    }
-
-    @Override
-    public List<Book> getSortedByQuantity(boolean ascending) {
-        List<Book> list = getBookList();
-        list.sort((b1, b2) -> ascending
-                ? Integer.compare(b1.getQuantity(), b2.getQuantity())
-                : Integer.compare(b2.getQuantity(), b1.getQuantity()));
-        return list;
-    }
-
-    @Override
-    public List<Book> getSortedByTotalValue(boolean ascending) {
-        List<Book> list = getBookList();
-        list.sort((b1, b2) -> ascending
-                ? Double.compare(b1.calculateTotalValue(), b2.calculateTotalValue())
-                : Double.compare(b2.calculateTotalValue(), b1.calculateTotalValue()));
-        return list;
+        Comparator<Book> comp = Comparator.comparing(Book::getTitle, String.CASE_INSENSITIVE_ORDER);
+        return bookList.stream()
+                .sorted(ascending ? comp : comp.reversed())
+                .collect(Collectors.toList());
     }
 
     /**
-     * Cài đặt giải thuật Selection Sort thủ công để sắp xếp danh sách sách theo đơn giá.
-     * Minh họa tư duy tính toán (Computational Thinking) theo yêu cầu môn học.
-     * Độ phức tạp: O(n^2).
+     * [LAMBDA & COMPARATOR]: Sắp xếp theo Tác giả (Author).
+     */
+    @Override
+    public List<Book> getSortedByAuthor(boolean ascending) {
+        Comparator<Book> comp = Comparator.comparing(Book::getAuthor, String.CASE_INSENSITIVE_ORDER);
+        return bookList.stream()
+                .sorted(ascending ? comp : comp.reversed())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * [LAMBDA & COMPARATOR]: Sắp xếp theo Đơn giá bìa (Price).
+     * Sử dụng Comparator.comparingDouble để tránh boxing/unboxing overhead.
+     */
+    @Override
+    public List<Book> getSortedByPrice(boolean ascending) {
+        Comparator<Book> comp = Comparator.comparingDouble(Book::getPrice);
+        return bookList.stream()
+                .sorted(ascending ? comp : comp.reversed())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * [LAMBDA & COMPARATOR]: Sắp xếp theo Số lượng tồn kho (Quantity).
+     * Sử dụng Comparator.comparingInt.
+     */
+    @Override
+    public List<Book> getSortedByQuantity(boolean ascending) {
+        Comparator<Book> comp = Comparator.comparingInt(Book::getQuantity);
+        return bookList.stream()
+                .sorted(ascending ? comp : comp.reversed())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * [LAMBDA & COMPARATOR & ĐA HÌNH]: Sắp xếp theo Tổng giá trị lưu kho (Total Inventory Value).
+     * Method Reference Book::calculateTotalValue được kích hoạt đa hình cho từng phần tử.
+     */
+    @Override
+    public List<Book> getSortedByTotalValue(boolean ascending) {
+        Comparator<Book> comp = Comparator.comparingDouble(Book::calculateTotalValue);
+        return bookList.stream()
+                .sorted(ascending ? comp : comp.reversed())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * [LAMBDA & GIẢI THUẬT SELECTION SORT]:
+     * Cài đặt giải thuật Selection Sort thủ công kết hợp Lambda Comparator để tùy biến tiêu chí so sánh.
+     * Vừa đáp ứng tư duy giải thuật O(n^2) vừa áp dụng lập trình hàm hiện đại.
      */
     @Override
     public List<Book> sortByPriceAlgorithm(boolean ascending) {
         List<Book> list = getBookList();
         int n = list.size();
+        // Áp dụng biểu thức Lambda định nghĩa chiến lược so sánh
+        Comparator<Book> comp = ascending
+                ? Comparator.comparingDouble(Book::getPrice)
+                : Comparator.comparingDouble(Book::getPrice).reversed();
+
         for (int i = 0; i < n - 1; i++) {
             int targetIdx = i;
             for (int j = i + 1; j < n; j++) {
-                if (ascending) {
-                    if (list.get(j).getPrice() < list.get(targetIdx).getPrice()) {
-                        targetIdx = j;
-                    }
-                } else {
-                    if (list.get(j).getPrice() > list.get(targetIdx).getPrice()) {
-                        targetIdx = j;
-                    }
+                if (comp.compare(list.get(j), list.get(targetIdx)) < 0) {
+                    targetIdx = j;
                 }
             }
             if (targetIdx != i) {
@@ -347,19 +371,20 @@ public class BookDAO implements IBookDAO {
     }
 
     /**
-     * Cài đặt giải thuật Insertion Sort thủ công để sắp xếp danh sách sách theo tên (Title).
-     * Minh họa tư duy tính toán (Computational Thinking) theo yêu cầu môn học.
-     * Độ phức tạp: O(n^2).
+     * [LAMBDA & GIẢI THUẬT INSERTION SORT]:
+     * Cài đặt giải thuật Insertion Sort thủ công kết hợp Lambda Comparator theo tên sách.
      */
     @Override
     public List<Book> sortByTitleAlgorithm(boolean ascending) {
         List<Book> list = getBookList();
         int n = list.size();
+        Comparator<Book> comp = Comparator.comparing(Book::getTitle, String.CASE_INSENSITIVE_ORDER);
+
         for (int i = 1; i < n; i++) {
             Book key = list.get(i);
             int j = i - 1;
             while (j >= 0) {
-                int cmp = list.get(j).getTitle().compareToIgnoreCase(key.getTitle());
+                int cmp = comp.compare(list.get(j), key);
                 if ((ascending && cmp > 0) || (!ascending && cmp < 0)) {
                     list.set(j + 1, list.get(j));
                     j--;
@@ -509,7 +534,7 @@ public class BookDAO implements IBookDAO {
 
     // ========================================================
     // 6. Tính năng 3 & 7: Đánh giá Sao, Gợi ý Sách & Đặt trước
-    //    (Viết bằng vòng lặp for và Comparator truyền thống)
+    //    (Hiện thực hóa bằng Stream API & Biểu thức Lambda)
     // ========================================================
 
     @Override
@@ -524,56 +549,47 @@ public class BookDAO implements IBookDAO {
     }
 
     /**
-     * Tính năng 3: Gợi ý Top N cuốn sách liên quan có điểm đánh giá cao nhất và còn tồn kho.
-     * Sử dụng vòng lặp for truyền thống và Comparator ẩn danh.
+     * [LAMBDA & STREAM API PIPELINE]: Tính năng 3 - Gợi ý Top N cuốn sách liên quan có điểm đánh giá cao nhất.
+     * 
+     * So sánh:
+     * - Cách cũ: Dùng 3 bước riêng biệt: (1) for loop lọc, (2) Collections.sort với anonymous Comparator 25 dòng, (3) for loop cắt top N.
+     * - Lambda/Stream: Toàn bộ được thu gọn vào một Stream pipeline thông suốt và mang tính khai báo:
+     *   1. filter: Lọc bỏ chính cuốn sách đang xem và chỉ giữ lại sách còn hàng (quantity > 0)
+     *   2. sorted: Định nghĩa chiến lược sắp xếp bằng biểu thức Lambda đa tiêu chí:
+     *      - Tiêu chí 1: Ưu tiên cùng phân loại thực thể (TextBook / ReferenceBook)
+     *      - Tiêu chí 2: Điểm đánh giá sao giảm dần (High -> Low)
+     *      - Tiêu chí 3: Tên sách theo thứ tự bảng chữ cái A-Z
+     *   3. limit(topN): Giới hạn lấy tối đa N cuốn sách dẫn đầu (tích hợp sẵn, không lo IndexOutOfBoundsException)
+     *   4. collect(Collectors.toList()): Đóng gói luồng dữ liệu vào danh sách kết quả.
      */
     @Override
     public List<Book> getRecommendedBooks(String bookId, int topN) {
         Book target = findBookById(bookId);
-        List<Book> candidates = new ArrayList<>();
 
-        // Bước 1: Lọc các sách còn hàng và không trùng với cuốn đang xem bằng vòng lặp for
-        for (int i = 0; i < bookList.size(); i++) {
-            Book b = bookList.get(i);
-            if (target != null && b.getBookId().equalsIgnoreCase(target.getBookId())) {
-                continue;
-            }
-            if (b.getQuantity() > 0) {
-                candidates.add(b);
-            }
-        }
-
-        // Bước 2: Sắp xếp ưu tiên sách cùng loại (TextBook / ReferenceBook) và có điểm Sao cao nhất
-        Collections.sort(candidates, new Comparator<Book>() {
-            @Override
-            public int compare(Book b1, Book b2) {
-                if (target != null) {
-                    boolean b1SameType = b1.getClass().equals(target.getClass());
-                    boolean b2SameType = b2.getClass().equals(target.getClass());
-                    if (b1SameType && !b2SameType) {
-                        return -1; // b1 cùng loại -> ưu tiên lên trước
-                    } else if (!b1SameType && b2SameType) {
-                        return 1;
-                    }
-                }
-                // So sánh theo điểm đánh giá giảm dần (Cao -> Thấp)
-                if (b1.getRating() < b2.getRating()) {
+        // Biểu thức Lambda Comparator đa tiêu chí cho việc gợi ý sách
+        Comparator<Book> recommendationComparator = (b1, b2) -> {
+            if (target != null) {
+                boolean b1SameType = b1.getClass().equals(target.getClass());
+                boolean b2SameType = b2.getClass().equals(target.getClass());
+                if (b1SameType && !b2SameType) {
+                    return -1; // b1 cùng loại -> ưu tiên lên trước
+                } else if (!b1SameType && b2SameType) {
                     return 1;
-                } else if (b1.getRating() > b2.getRating()) {
-                    return -1;
-                } else {
-                    return b1.getTitle().compareToIgnoreCase(b2.getTitle());
                 }
             }
-        });
+            int ratingCompare = Double.compare(b2.getRating(), b1.getRating());
+            if (ratingCompare != 0) {
+                return ratingCompare;
+            }
+            return b1.getTitle().compareToIgnoreCase(b2.getTitle());
+        };
 
-        // Bước 3: Lấy tối đa topN cuốn đầu tiên bằng vòng lặp for
-        List<Book> result = new ArrayList<>();
-        int limit = Math.min(topN, candidates.size());
-        for (int i = 0; i < limit; i++) {
-            result.add(candidates.get(i));
-        }
-        return result;
+        return bookList.stream()
+                .filter(b -> target == null || !b.getBookId().equalsIgnoreCase(target.getBookId()))
+                .filter(b -> b.getQuantity() > 0)
+                .sorted(recommendationComparator)
+                .limit(Math.max(0, topN))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -588,15 +604,14 @@ public class BookDAO implements IBookDAO {
         return book.addReservation(memberId);
     }
 
+    /**
+     * [LAMBDA & STREAM API]: Lấy danh sách các cuốn sách đang có người chờ trong hàng đợi.
+     * Sử dụng filter kiểm tra !getReservationQueue().isEmpty() và thu thập kết quả.
+     */
     @Override
     public List<Book> getBooksWithReservations() {
-        List<Book> result = new ArrayList<>();
-        for (int i = 0; i < bookList.size(); i++) {
-            Book b = bookList.get(i);
-            if (!b.getReservationQueue().isEmpty()) {
-                result.add(b);
-            }
-        }
-        return result;
+        return bookList.stream()
+                .filter(b -> !b.getReservationQueue().isEmpty())
+                .collect(Collectors.toList());
     }
 }

@@ -110,15 +110,15 @@ public class MemberManagement {
         System.out.printf("| %-6s | %-22s | %-11s | %-10s | %-7s | %-8s | %-8s | %-8s | %-15s |\n",
                 "Mã ĐG", "Họ và Tên", "Số ĐT", "Ngày Sinh", "Điểm UT", "Hạng Thẻ", "Ưu Đãi", "Hạn Mức", "Trạng Thái");
         System.out.println("--------------------------------------------------------------------------------------------------------------------");
-        for (int i = 0; i < members.size(); i++) {
-            Member m = members.get(i);
+        // [LAMBDA & STREAM API]: Duyệt và hiển thị danh sách độc giả bằng forEach Lambda
+        members.forEach(m -> {
             String dob = (m.getDateOfBirth() != null) ? m.getDateOfBirth().format(User.DATE_FORMAT) : "N/A";
             String discountStr = String.format("-%.0f%%", m.getDiscountRate() * 100);
             String limitStr = m.getMaxBorrowLimit() + " cuốn";
             System.out.printf("| %-6s | %-22s | %-11s | %-10s | %5d đ | %-8s | %-8s | %-8s | %-15s |\n",
                     m.getUserId(), m.getFullName(), m.getPhone(), dob,
                     m.getReputationPoints(), m.getMembershipTier(), discountStr, limitStr, m.getStatusText());
-        }
+        });
         System.out.println("--------------------------------------------------------------------------------------------------------------------");
     }
 
@@ -282,27 +282,20 @@ public class MemberManagement {
         }
     }
 
+    /**
+     * [LAMBDA & STREAM API]: Thống kê phân bố hạng thẻ và tình trạng hoạt động bằng Stream filter và count.
+     * 
+     * So sánh:
+     * - Cách cũ: Khởi tạo 4 biến đếm rồi dùng vòng for lặp và nhiều câu lệnh if-else lồng nhau.
+     * - Lambda/Stream: Mỗi hạng thẻ được tính độc lập bằng `all.stream().filter(...).count()`,
+     *   loại bỏ logic kiểm tra if-else phức tạp và biến đếm đột biến (state mutation).
+     */
     private void displayMembershipTierAnalytics() {
         List<Member> all = memberDAO.getAll();
-        int vipCount = 0;
-        int goldCount = 0;
-        int silverCount = 0;
-        int lockedCount = 0;
-
-        for (int i = 0; i < all.size(); i++) {
-            Member m = all.get(i);
-            String tier = m.getMembershipTier();
-            if (tier.equals("VIP")) {
-                vipCount++;
-            } else if (tier.equals("GOLD")) {
-                goldCount++;
-            } else {
-                silverCount++;
-            }
-            if (!m.isActive()) {
-                lockedCount++;
-            }
-        }
+        long vipCount = all.stream().filter(m -> "VIP".equalsIgnoreCase(m.getMembershipTier())).count();
+        long goldCount = all.stream().filter(m -> "GOLD".equalsIgnoreCase(m.getMembershipTier())).count();
+        long silverCount = all.stream().filter(m -> "SILVER".equalsIgnoreCase(m.getMembershipTier())).count();
+        long lockedCount = all.stream().filter(m -> !m.isActive()).count();
 
         List<String> labels = new ArrayList<>();
         labels.add("Hạng VIP (>=100đ, -25%)");
@@ -311,10 +304,10 @@ public class MemberManagement {
         labels.add("Thẻ Đang Bị Khóa");
 
         List<Integer> values = new ArrayList<>();
-        values.add(vipCount);
-        values.add(goldCount);
-        values.add(silverCount);
-        values.add(lockedCount);
+        values.add((int) vipCount);
+        values.add((int) goldCount);
+        values.add((int) silverCount);
+        values.add((int) lockedCount);
 
         Menu.printAsciiBarChart("PHÂN BỐ HẠNG THẺ ĐỘC GIẢ THƯ VIỆN", labels, values, "độc giả");
     }

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Giao diện điều khiển phân hệ Quản lý Giao dịch Mượn - Trả sách (Borrow Management UI).
@@ -119,8 +120,8 @@ public class BorrowManagement {
         System.out.printf("| %-6s | %-18s | %-6s | %-4s | %-10s | %-10s | %-10s | %-18s | %-10s | %-11s |\n",
                 "Mã PM", "Tên Độc Giả", "Hạng", "SL", "Ngày Mượn", "Hạn Trả", "Ngày Trả", "Trạng Thái", "Phạt Trễ", "Tổng TT");
         System.out.println("--------------------------------------------------------------------------------------------------------------------");
-        for (int i = 0; i < records.size(); i++) {
-            BorrowRecord r = records.get(i);
+        // [LAMBDA & STREAM API]: Hiển thị danh sách phiếu mượn bằng forEach Lambda
+        records.forEach(r -> {
             String bDate = (r.getBorrowDate() != null) ? r.getBorrowDate().format(BorrowRecord.DATE_FORMAT) : "N/A";
             String dDate = (r.getDueDate() != null) ? r.getDueDate().format(BorrowRecord.DATE_FORMAT) : "N/A";
             String rDate = (r.getReturnDate() != null) ? r.getReturnDate().format(BorrowRecord.DATE_FORMAT) : "Chưa trả";
@@ -128,7 +129,7 @@ public class BorrowManagement {
                     r.getRecordId(), r.getMember().getFullName(), r.getMember().getMembershipTier(),
                     r.getBorrowedBooks().size(), bDate, dDate, rDate,
                     r.getStatusText(), r.calculateFine(), r.calculateFinalPayment());
-        }
+        });
         System.out.println("--------------------------------------------------------------------------------------------------------------------");
     }
 
@@ -194,13 +195,9 @@ public class BorrowManagement {
                     }
                     continue;
                 }
-                boolean alreadySelected = false;
-                for (int j = 0; j < selectedBooks.size(); j++) {
-                    if (selectedBooks.get(j).getBookId().equalsIgnoreCase(bookId)) {
-                        alreadySelected = true;
-                        break;
-                    }
-                }
+                // [LAMBDA & STREAM API]: Kiểm tra sách đã được chọn chưa bằng anyMatch
+                boolean alreadySelected = selectedBooks.stream()
+                        .anyMatch(b -> b.getBookId().equalsIgnoreCase(bookId));
                 if (alreadySelected) {
                     System.out.println("  >> Cuốn sách này đã có trong phiếu mượn!");
                     continue;
@@ -381,31 +378,29 @@ public class BorrowManagement {
         System.out.printf("  - Tổng tiền đền bù sách mất/hỏng     : %,.0f VNĐ\n", borrowDAO.calculateTotalCompensationRevenue());
         System.out.println("==========================================================================");
 
-        // Đếm số lượt mượn theo từng đầu sách bằng Map và vòng lặp for truyền thống
-        Map<String, Integer> bookCountMap = new HashMap<>();
-        Map<String, String> bookTitleMap = new HashMap<>();
-        for (int i = 0; i < all.size(); i++) {
-            BorrowRecord r = all.get(i);
-            List<Book> books = r.getBorrowedBooks();
-            for (int j = 0; j < books.size(); j++) {
-                Book b = books.get(j);
-                String id = b.getBookId();
-                Integer oldCount = bookCountMap.get(id);
-                if (oldCount == null) {
-                    bookCountMap.put(id, 1);
-                } else {
-                    bookCountMap.put(id, oldCount + 1);
-                }
-                bookTitleMap.put(id, "[" + id + "] " + b.getTitle());
-            }
-        }
+        // [LAMBDA & STREAM API]: Tính năng 8 - Thống kê số lượt mượn từng cuốn sách
+        // 
+        // So sánh:
+        // - Cách cũ: Dùng vòng lặp for lồng nhau 2 cấp (phiếu -> sách) kết hợp Map get/put thủ công.
+        // - Lambda/Stream:
+        //   1. all.stream(): Tạo luồng từ danh sách toàn bộ phiếu mượn
+        //   2. flatMap(r -> r.getBorrowedBooks().stream()): "Làm phẳng" danh sách sách của từng phiếu thành luồng phẳng
+        //   3. collect(Collectors.groupingBy(Book::getBookId, Collectors.counting())): Tự động phân nhóm theo ID và đếm số lần xuất hiện
+        Map<String, Long> bookBorrowCounts = all.stream()
+                .flatMap(r -> r.getBorrowedBooks().stream())
+                .collect(Collectors.groupingBy(Book::getBookId, Collectors.counting()));
 
-        List<String> chartLabels = new ArrayList<>();
-        List<Integer> chartValues = new ArrayList<>();
-        for (Map.Entry<String, Integer> entry : bookCountMap.entrySet()) {
-            chartLabels.add(bookTitleMap.get(entry.getKey()));
-            chartValues.add(entry.getValue());
-        }
+        // [LAMBDA & STREAM API]: Ánh xạ nhãn và giá trị biểu đồ từ Map bằng Stream API
+        List<String> chartLabels = bookBorrowCounts.keySet().stream()
+                .map(id -> {
+                    Book b = bookDAO.findBookById(id);
+                    return "[" + id + "] " + (b != null ? b.getTitle() : id);
+                })
+                .collect(Collectors.toList());
+
+        List<Integer> chartValues = bookBorrowCounts.values().stream()
+                .map(Long::intValue)
+                .collect(Collectors.toList());
 
         // Tính năng 8: Vẽ biểu đồ cột ASCII cho các sách được mượn
         Menu.printAsciiBarChart("THỐNG KÊ SỐ LƯỢT MƯỢN THEO ĐẦU SÁCH", chartLabels, chartValues, "lượt");

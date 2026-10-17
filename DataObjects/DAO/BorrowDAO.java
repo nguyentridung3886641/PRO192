@@ -7,6 +7,8 @@ import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Lớp BorrowDAO quản lý danh sách phiếu mượn (ArrayList<BorrowRecord>),
@@ -83,33 +85,49 @@ public class BorrowDAO implements IBorrowDAO {
         }
     }
 
+    /**
+     * [LAMBDA & STREAM API]: Tìm kiếm phiếu mượn theo mã phiếu (Record ID).
+     * 
+     * So sánh:
+     * - Cách cũ: Vòng lặp for duyệt từng phiếu mượn và if so sánh mã.
+     * - Lambda/Stream: Dùng `filter` kết hợp `findFirst()` và `orElse(null)`.
+     */
     @Override
     public BorrowRecord findById(String recordId) {
         if (recordId == null || recordId.trim().isEmpty()) {
             return null;
         }
         String target = recordId.trim();
-        for (int i = 0; i < recordList.size(); i++) {
-            BorrowRecord r = recordList.get(i);
-            if (r.getRecordId().equalsIgnoreCase(target)) {
-                return r;
-            }
-        }
-        return null;
+        return recordList.stream()
+                .filter(r -> r.getRecordId().equalsIgnoreCase(target))
+                .findFirst()
+                .orElse(null);
     }
 
+    /**
+     * [LAMBDA & STREAM API]: Đếm tổng số sách độc giả đang mượn nhưng chưa hoàn trả.
+     * 
+     * So sánh:
+     * - Cách cũ: Vòng for cộng dồn `count += r.getBorrowedBooks().size()`.
+     * - Lambda/Stream: `filter(!r.isReturned() && memberId) -> mapToInt -> sum()`.
+     */
     @Override
     public int countActiveBorrowedBooksByMember(String memberId) {
-        int count = 0;
-        for (int i = 0; i < recordList.size(); i++) {
-            BorrowRecord r = recordList.get(i);
-            if (!r.isReturned() && r.getMember().getUserId().equalsIgnoreCase(memberId)) {
-                count += r.getBorrowedBooks().size();
-            }
+        if (memberId == null || memberId.trim().isEmpty()) {
+            return 0;
         }
-        return count;
+        String cleanId = memberId.trim();
+        return recordList.stream()
+                .filter(r -> !r.isReturned() && r.getMember().getUserId().equalsIgnoreCase(cleanId))
+                .mapToInt(r -> r.getBorrowedBooks().size())
+                .sum();
     }
 
+    /**
+     * [LAMBDA & STREAM API]: Lập phiếu mượn sách mới.
+     * Áp dụng `books.stream().allMatch(b -> b.getQuantity() > 0)` để kiểm tra tồn kho
+     * và `books.forEach(...)` để cập nhật số lượng tồn kho theo phong cách hàm.
+     */
     @Override
     public boolean createBorrowRecord(BorrowRecord record) {
         if (record == null || findById(record.getRecordId()) != null) {
@@ -128,17 +146,14 @@ public class BorrowDAO implements IBorrowDAO {
         if (currentBorrowed + books.size() > m.getMaxBorrowLimit()) {
             return false;
         }
-        // Kiểm tra tồn kho
-        for (int i = 0; i < books.size(); i++) {
-            if (books.get(i).getQuantity() <= 0) {
-                return false;
-            }
+        // [LAMBDA & STREAM API]: Kiểm tra toàn bộ sách có tồn kho hợp lệ bằng allMatch
+        boolean allInStock = books.stream().allMatch(b -> b.getQuantity() > 0);
+        if (!allInStock) {
+            return false;
         }
-        // Trừ số lượng tồn kho
-        for (int i = 0; i < books.size(); i++) {
-            Book b = books.get(i);
-            b.setQuantity(b.getQuantity() - 1);
-        }
+        // [LAMBDA & STREAM API]: Trừ số lượng tồn kho bằng forEach
+        books.forEach(b -> b.setQuantity(b.getQuantity() - 1));
+
         bookDAO.saveToFile();
         recordList.add(record);
         saveToFile();
@@ -151,8 +166,12 @@ public class BorrowDAO implements IBorrowDAO {
     }
 
     /**
-     * Tính năng 1, 6, 7: Xử lý trả sách có kiểm tra sách mất/hỏng, cộng/trừ điểm uy tín
-     * và thông báo hàng đợi đặt trước.
+     * [LAMBDA & STREAM API]: Tính năng 1, 6, 7 - Xử lý trả sách, kiểm tra sách hỏng/mất,
+     * tính phạt 150%, cập nhật điểm uy tín và kích hoạt hàng đợi đặt trước.
+     * 
+     * So sánh:
+     * - Cách cũ: Vòng lặp lồng nhau duyệt sách và danh sách ID sách hỏng.
+     * - Lambda/Stream: Dùng `borrowed.forEach` kết hợp `lostOrDamagedBookIds.stream().anyMatch(...)`.
      */
     @Override
     public boolean returnBooksWithDamageCheck(String recordId, LocalDate actualReturnDate, List<String> lostOrDamagedBookIds) {
@@ -162,25 +181,16 @@ public class BorrowDAO implements IBorrowDAO {
         }
         record.markAsReturned(actualReturnDate);
 
-        double totalCompensation = 0.0;
         List<Book> borrowed = record.getBorrowedBooks();
+        double[] totalCompensation = {0.0}; // Mảng 1 phần tử phục vụ Lambda mutation
 
-        for (int i = 0; i < borrowed.size(); i++) {
-            Book b = borrowed.get(i);
-            boolean isDamaged = false;
-
-            if (lostOrDamagedBookIds != null) {
-                for (int j = 0; j < lostOrDamagedBookIds.size(); j++) {
-                    if (b.getBookId().equalsIgnoreCase(lostOrDamagedBookIds.get(j).trim())) {
-                        isDamaged = true;
-                        break;
-                    }
-                }
-            }
+        borrowed.forEach(b -> {
+            boolean isDamaged = (lostOrDamagedBookIds != null) &&
+                    lostOrDamagedBookIds.stream().anyMatch(id -> b.getBookId().equalsIgnoreCase(id.trim()));
 
             if (isDamaged) {
                 // Tính năng 6: Sách mất/hỏng không hoàn lại kho và phạt đền bù 150% giá trị thực
-                totalCompensation += b.calculatePrice() * 1.5;
+                totalCompensation[0] += b.calculatePrice() * 1.5;
             } else {
                 // Hoàn lại số lượng vào kho
                 b.setQuantity(b.getQuantity() + 1);
@@ -192,13 +202,13 @@ public class BorrowDAO implements IBorrowDAO {
                             + "' vừa được hoàn trả! Độc giả ưu tiên tiếp theo trong hàng đợi: " + nextWaitingMember);
                 }
             }
-        }
+        });
 
-        record.setCompensationFee(totalCompensation);
+        record.setCompensationFee(totalCompensation[0]);
 
         // Tính năng 1: Cập nhật điểm uy tín (Reputation Points) cho độc giả
         Member member = record.getMember();
-        if (totalCompensation > 0) {
+        if (totalCompensation[0] > 0) {
             member.addReputationPoints(-20); // Làm mất/hỏng sách: trừ 20 điểm
         } else if (record.isOverdue()) {
             member.addReputationPoints(-15); // Trả trễ hạn: trừ 15 điểm
@@ -284,6 +294,9 @@ public class BorrowDAO implements IBorrowDAO {
         }
     }
 
+    /**
+     * [LAMBDA & STREAM API]: Xóa phiếu mượn và hoàn trả tồn kho nếu phiếu chưa hoàn tất.
+     */
     @Override
     public boolean deleteBorrowRecord(String recordId) {
         BorrowRecord record = findById(recordId);
@@ -291,10 +304,7 @@ public class BorrowDAO implements IBorrowDAO {
             return false;
         }
         if (!record.isReturned()) {
-            for (int i = 0; i < record.getBorrowedBooks().size(); i++) {
-                Book b = record.getBorrowedBooks().get(i);
-                b.setQuantity(b.getQuantity() + 1);
-            }
+            record.getBorrowedBooks().forEach(b -> b.setQuantity(b.getQuantity() + 1));
             bookDAO.saveToFile();
         }
         boolean removed = recordList.remove(record);
@@ -309,70 +319,70 @@ public class BorrowDAO implements IBorrowDAO {
         return new ArrayList<>(recordList);
     }
 
+    /**
+     * [LAMBDA & STREAM API]: Lấy danh sách phiếu mượn theo mã độc giả.
+     */
     @Override
     public List<BorrowRecord> findByMemberId(String memberId) {
-        List<BorrowRecord> result = new ArrayList<>();
-        if (memberId == null) {
-            return result;
+        if (memberId == null || memberId.trim().isEmpty()) {
+            return new ArrayList<>();
         }
-        for (int i = 0; i < recordList.size(); i++) {
-            BorrowRecord r = recordList.get(i);
-            if (r.getMember().getUserId().equalsIgnoreCase(memberId.trim())) {
-                result.add(r);
-            }
-        }
-        return result;
+        String cleanId = memberId.trim();
+        return recordList.stream()
+                .filter(r -> r.getMember().getUserId().equalsIgnoreCase(cleanId))
+                .collect(Collectors.toList());
     }
 
+    /**
+     * [LAMBDA & STREAM API]: Lọc danh sách phiếu mượn quá hạn (Overdue Records).
+     * Áp dụng Method Reference `BorrowRecord::isOverdue`.
+     */
     @Override
     public List<BorrowRecord> getOverdueRecords() {
-        List<BorrowRecord> result = new ArrayList<>();
-        for (int i = 0; i < recordList.size(); i++) {
-            BorrowRecord r = recordList.get(i);
-            if (r.isOverdue()) {
-                result.add(r);
-            }
-        }
-        return result;
+        return recordList.stream()
+                .filter(BorrowRecord::isOverdue)
+                .collect(Collectors.toList());
     }
 
+    /**
+     * [LAMBDA & STREAM API]: Lọc danh sách phiếu mượn đang hoạt động (chưa trả).
+     */
     @Override
     public List<BorrowRecord> getActiveBorrowRecords() {
-        List<BorrowRecord> result = new ArrayList<>();
-        for (int i = 0; i < recordList.size(); i++) {
-            BorrowRecord r = recordList.get(i);
-            if (!r.isReturned()) {
-                result.add(r);
-            }
-        }
-        return result;
+        return recordList.stream()
+                .filter(r -> !r.isReturned())
+                .collect(Collectors.toList());
     }
 
+    /**
+     * [LAMBDA & STREAM API]: Tính tổng tiền phạt trễ hạn toàn thư viện.
+     * Áp dụng Method Reference `BorrowRecord::calculateFine` và `mapToDouble().sum()`.
+     */
     @Override
     public double calculateTotalFineRevenue() {
-        double total = 0;
-        for (int i = 0; i < recordList.size(); i++) {
-            total += recordList.get(i).calculateFine();
-        }
-        return total;
+        return recordList.stream()
+                .mapToDouble(BorrowRecord::calculateFine)
+                .sum();
     }
 
+    /**
+     * [LAMBDA & STREAM API]: Tính tổng doanh thu phí mượn sách sau ưu đãi hạng thẻ.
+     */
     @Override
     public double calculateTotalBorrowFeeRevenue() {
-        double total = 0;
-        for (int i = 0; i < recordList.size(); i++) {
-            total += recordList.get(i).calculateDiscountedBorrowFee();
-        }
-        return total;
+        return recordList.stream()
+                .mapToDouble(BorrowRecord::calculateDiscountedBorrowFee)
+                .sum();
     }
 
+    /**
+     * [LAMBDA & STREAM API]: Tính tổng tiền đền bù sách mất/hỏng.
+     */
     @Override
     public double calculateTotalCompensationRevenue() {
-        double total = 0;
-        for (int i = 0; i < recordList.size(); i++) {
-            total += recordList.get(i).getCompensationFee();
-        }
-        return total;
+        return recordList.stream()
+                .mapToDouble(BorrowRecord::getCompensationFee)
+                .sum();
     }
 
     @Override
@@ -441,14 +451,18 @@ public class BorrowDAO implements IBorrowDAO {
         return saveToFile(DEFAULT_FILE_PATH);
     }
 
+    /**
+     * [LAMBDA & STREAM API]: Lưu trữ toàn bộ dữ liệu phiếu mượn ra file.
+     * Áp dụng Method Reference `BorrowRecord::toFileString` để biến đổi đối tượng thành chuỗi lưu trữ.
+     */
     @Override
     public boolean saveToFile(String filePath) {
         try {
             List<String> lines = new ArrayList<>();
             lines.add("# Định dạng: RecordID|MemberID|BookIDs|BorrowDate|DueDate|ReturnDate|Status|ExtensionCount|CompensationFee");
-            for (int i = 0; i < recordList.size(); i++) {
-                lines.add(recordList.get(i).toFileString());
-            }
+            recordList.stream()
+                    .map(BorrowRecord::toFileString)
+                    .forEach(lines::add);
             FileManager.writeLines(filePath, lines);
             return true;
         } catch (Exception e) {
