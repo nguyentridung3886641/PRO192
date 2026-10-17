@@ -1,0 +1,8 @@
+# ==============================================================================
+# TESTCASE: Duplicate Member ID (Negative Test)
+# Expected: Throws IOException("Duplicate Member ID: m001") via Stream anyMatch in MemberDAO
+# Format: MemberID|FullName|Phone|DateOfBirth(dd/MM/yyyy)|RegistrationDate(dd/MM/yyyy)|Status|ReputationPoints
+# ==============================================================================
+M001|Nguyen Tri Dung|0901234567|15/05/2005|10/01/2026|ACTIVE|120
+M002|Nguyen Thien Tue|0912345678|20/08/2005|12/01/2026|ACTIVE|85
+m001|Duplicated Member Name|0999888777|01/01/2000|01/01/2026|ACTIVE|50

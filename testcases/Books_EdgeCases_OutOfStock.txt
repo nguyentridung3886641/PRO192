@@ -1,0 +1,10 @@
+# ==============================================================================
+# TESTCASE: Edge Cases for Books
+# Tests: Out-of-stock items (quantity = 0 to test reservation queue), low stock, high prices, boundary ratings
+# Format: BOOK_TYPE|BOOK_ID|TITLE|AUTHOR|PRICE|QUANTITY|GENRE_OR_PUBLISHER|RATING|RATING_COUNT
+# ==============================================================================
+TEXTBOOK|B101|Compiler Design & Construction|Alfred Aho|150000.00|0|Computer Science|4.90|5
+TEXTBOOK|B102|Quantum Computing Fundamentals|Nielsen & Chuang|220000.00|1|Quantum Physics|4.50|2
+REFERENCEBOOK|B103|Distributed Systems: Principles and Paradigms|Andrew S. Tanenbaum|350000.00|0|Pearson Education|5.00|8
+REFERENCEBOOK|B104|Cryptography and Network Security|William Stallings|280000.00|2|Prentice Hall|4.10|3
+TEXTBOOK|B105|Mobile Application Development with Flutter|Google Developers|80000.00|0|Software Engineering|4.00|1
