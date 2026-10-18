@@ -92,21 +92,23 @@ public class BorrowManagement {
     }
 
     private void printMenuHeader() {
-        System.out.println("\n==========================================================================================================");
+        System.out.println("\n" + "=".repeat(106));
         System.out.println("                      BORROW & RETURN TRANSACTIONS MANAGEMENT SYSTEM                                      ");
         System.out.println("==========================================================================================================");
-        System.out.println("  1. Display all borrow & return records (Includes Tier Discount, Fines & Damage Fees)");
-        System.out.println("  2. Create new borrow record (Applies Tier limits VIP/GOLD/SILVER & Book Reservation)");
-        System.out.println("  3. Process book return, report damage/loss (150%), update reputation points & export receipt");
-        System.out.println("  4. Extend loan period (+7 days for non-overdue records - Feature 5)");
-        System.out.println("  5. Search borrow records (By Record ID / Member ID / Active Records)");
-        System.out.println("  6. Filter OVERDUE records");
-        System.out.println("  7. Borrow statistics report & Top borrowed books ASCII chart (Feature 8)");
-        System.out.println("  8. Export transaction receipt to file Receipt_<RecordID>.txt (Feature 9)");
-        System.out.println("  9. Delete borrow record by ID");
-        System.out.println(" 10. Save borrow records to file (BorrowRecords.txt)");
-        System.out.println("  0. Save & return to Main Menu");
-        System.out.println("==========================================================================================================");
+        Menu.print(
+            "  1. Display all borrow & return records (Includes Tier Discount, Fines & Damage Fees)|" +
+            "  2. Create new borrow record (Applies Tier limits VIP/GOLD/SILVER & Book Reservation)|" +
+            "  3. Process book return, report damage/loss (150%), update reputation points & export receipt|" +
+            "  4. Extend loan period (+7 days for non-overdue records - Feature 5)|" +
+            "  5. Search borrow records (By Record ID / Member ID / Active Records)|" +
+            "  6. Filter OVERDUE records|" +
+            "  7. Borrow statistics report & Top borrowed books ASCII chart (Feature 8)|" +
+            "  8. Export transaction receipt to file Receipt_<RecordID>.txt (Feature 9)|" +
+            "  9. Delete borrow record by ID|" +
+            " 10. Save borrow records to file (BorrowRecords.txt)|" +
+            "  0. Save & return to Main Menu"
+        );
+        System.out.println("=".repeat(106));
     }
 
     public void displayBorrowRecords(List<BorrowRecord> records, String title) {

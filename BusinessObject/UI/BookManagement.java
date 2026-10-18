@@ -95,25 +95,26 @@ public class BookManagement {
     }
 
     private void printMenuHeader() {
-        System.out.println();
-        System.out.println("========================================================================================================");
+        System.out.println("\n" + "=".repeat(104));
         System.out.println("                      BOOK & DOCUMENT INVENTORY MANAGEMENT SYSTEM                                       ");
         System.out.println("                      PRO192 - Member 2: Nguyen Thien Tue (Milestones 3 & 4)                            ");
-        System.out.println("========================================================================================================");
-        System.out.println("  1. View all books (Detailed table, Polymorphism & Upcasting)                                          ");
-        System.out.println("  2. Add new book to inventory (TextBook / ReferenceBook, supports Author)                              ");
-        System.out.println("  3. Update book details by Book ID                                                                     ");
-        System.out.println("  4. Delete book from inventory                                                                         ");
-        System.out.println("  5. Multi-criteria search (By ID, Title, Author, Price Range, Combined)                                ");
-        System.out.println("  6. Sort book list (Multi-criteria: Title, Author, Price, Qty, Selection/Insertion Sort)              ");
-        System.out.println("  7. Polymorphic borrow fee simulator (Demonstrates dynamic method dispatch)                            ");
-        System.out.println("  8. Manage Books.txt file storage (Save to file / Reload from file)                                    ");
-        System.out.println("  9. Inventory statistical report & Total asset valuation                                               ");
-        System.out.println(" 10. Star rating (1-5 *) & Smart book recommendations (Feature 3)                                       ");
-        System.out.println(" 11. Book reservation queue when out of stock (Feature 7)                                               ");
-        System.out.println(" 12. Book inventory visual bar chart (Console ASCII Bar Chart - Feature 8)                              ");
-        System.out.println("  0. Return to Main Menu / Exit                                                                         ");
-        System.out.println("========================================================================================================");
+        System.out.println("=".repeat(104));
+        Menu.print(
+            "  1. View all books (Detailed table, Polymorphism & Upcasting)|" +
+            "  2. Add new book to inventory (TextBook / ReferenceBook, supports Author)|" +
+            "  3. Update book details by Book ID|" +
+            "  4. Delete book from inventory|" +
+            "  5. Multi-criteria search (By ID, Title, Author, Price Range, Combined)|" +
+            "  6. Sort book list (Multi-criteria: Title, Author, Price, Qty, Selection/Insertion Sort)|" +
+            "  7. Polymorphic borrow fee simulator (Demonstrates dynamic method dispatch)|" +
+            "  8. Manage Books.txt file storage (Save to file / Reload from file)|" +
+            "  9. Inventory statistical report & Total asset valuation|" +
+            " 10. Star rating (1-5 *) & Smart book recommendations (Feature 3)|" +
+            " 11. Book reservation queue when out of stock (Feature 7)|" +
+            " 12. Book inventory visual bar chart (Console ASCII Bar Chart - Feature 8)|" +
+            "  0. Return to Main Menu / Exit"
+        );
+        System.out.println("=".repeat(104));
     }
 
     /**

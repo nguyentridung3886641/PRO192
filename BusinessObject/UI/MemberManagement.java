@@ -82,20 +82,22 @@ public class MemberManagement {
     }
 
     private void printMenuHeader() {
-        System.out.println("\n==========================================================================================================");
+        System.out.println("\n" + "=".repeat(106));
         System.out.println("                         MEMBER & MEMBERSHIP TIER MANAGEMENT SYSTEM                                       ");
-        System.out.println("==========================================================================================================");
-        System.out.println("  1. Display all library members (Includes Tier, Reputation Points & Borrow Limits)");
-        System.out.println("  2. Add new member");
-        System.out.println("  3. Update member information");
-        System.out.println("  4. Delete member by ID");
-        System.out.println("  5. Search & filter members (By ID / Name / Phone / Membership Tier VIP-GOLD-SILVER)");
-        System.out.println("  6. Toggle member card status (Active / Locked)");
-        System.out.println("  7. Sort member list (By Reputation Points / Full Name / Member ID)");
-        System.out.println("  8. Membership Tier Distribution Chart (Console ASCII Bar Chart)");
-        System.out.println("  9. Save member list to file (Members.txt)");
-        System.out.println("  0. Save & return to Main Menu");
-        System.out.println("==========================================================================================================");
+        System.out.println("=".repeat(106));
+        Menu.print(
+            "  1. Display all library members (Includes Tier, Reputation Points & Borrow Limits)|" +
+            "  2. Add new member|" +
+            "  3. Update member information|" +
+            "  4. Delete member by ID|" +
+            "  5. Search & filter members (By ID / Name / Phone / Membership Tier VIP-GOLD-SILVER)|" +
+            "  6. Toggle member card status (Active / Locked)|" +
+            "  7. Sort member list (By Reputation Points / Full Name / Member ID)|" +
+            "  8. Membership Tier Distribution Chart (Console ASCII Bar Chart)|" +
+            "  9. Save member list to file (Members.txt)|" +
+            "  0. Save & return to Main Menu"
+        );
+        System.out.println("=".repeat(106));
     }
 
     public void displayMembers(List<Member> members, String title) {

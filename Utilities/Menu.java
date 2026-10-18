@@ -13,15 +13,17 @@ public class Menu {
     }
 
     /**
-     * [LAMBDA & STREAM API]: Hiển thị chuỗi menu phân cách bởi ký tự '|'.
-     * Áp dụng Arrays.stream, map(String::trim) và forEach Lambda.
+     * [LAMBDA & STREAM API]: Displays menu options separated by '|'.
+     * Uses Arrays.stream, map(String::trim), and forEach Lambda.
+     * Prompts ending with ':' or '?' are printed inline for seamless input.
      */
     public static void print(String menuString) {
         if (menuString == null) return;
         Arrays.stream(menuString.split("\\|"))
                 .map(String::trim)
+                .filter(item -> !item.isEmpty())
                 .forEach(item -> {
-                    if (item.equalsIgnoreCase("Select:") || item.equalsIgnoreCase("Lựa chọn:")) {
+                    if (item.endsWith(":") || item.endsWith("?")) {
                         System.out.print(item + " ");
                     } else {
                         System.out.println(item);
