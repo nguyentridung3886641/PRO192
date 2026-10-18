@@ -40,7 +40,7 @@ public final class DataValidation {
     }
 
     public static boolean isValidEmail(String email) {
-        return checkStringWithFormat(email, "^[A-Za-z0-9+_.-]+@(.+)$");
+        return checkStringWithFormat(email, "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
     }
 
     public static boolean isValidId(String id, String prefix) {

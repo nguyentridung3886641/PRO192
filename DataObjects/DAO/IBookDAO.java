@@ -71,33 +71,8 @@ public interface IBookDAO {
         return loadFromFile("Books.txt");
     }
 
-    // ==========================================
-    // Các aliases thuận tiện (Backwards Compatibility)
-    // ==========================================
-
-    default boolean add(Book book) {
-        return addBook(book);
-    }
-
-    default boolean update(Book book) {
-        return updateBook(book);
-    }
-
-    default boolean delete(String bookId) {
-        return deleteBook(bookId);
-    }
-
-    default Book findById(String bookId) {
-        return findBookById(bookId);
-    }
-
-    default List<Book> getAll() {
-        return getBookList();
-    }
-
-    default List<Book> searchByName(String keyword) {
-        return findBookByTitle(keyword);
-    }
+    int getTotalBooksCount();
+    int getTotalQuantity();
 
     // ==========================================
     // 6. Tính năng mở rộng: Đánh giá Sao, Gợi ý Sách & Đặt trước

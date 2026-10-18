@@ -101,14 +101,12 @@ public class Program {
 
     private static void displaySystemDashboard(IBookDAO bookDAO, IMemberDAO memberDAO, IBorrowDAO borrowDAO) {
         List<Book> books = bookDAO.getBookList();
-        // [LAMBDA & STREAM API]: Tính tổng tồn kho kho sách bằng mapToInt và sum
-        int totalQty = books.stream().mapToInt(Book::getQuantity).sum();
 
         System.out.println("==========================================================================");
         System.out.println("                      SYSTEM DASHBOARD SUMMARY                            ");
         System.out.println("==========================================================================");
         System.out.printf("  [1. BOOK INVENTORY]   Total Book Titles: %d titles (%d copies in stock)\n",
-                books.size(), totalQty);
+                bookDAO.getTotalBooksCount(), bookDAO.getTotalQuantity());
         System.out.printf("                        Total Inventory Asset Value: %,.0f VND\n",
                 bookDAO.calculateTotalInventoryValue());
         System.out.printf("  [2. MEMBERS]          Total Registered Members: %d (VIP: %d | GOLD: %d | SILVER: %d)\n",
@@ -143,19 +141,15 @@ public class Program {
     private static void exportSystemReportToFile(IBookDAO bookDAO, IMemberDAO memberDAO, IBorrowDAO borrowDAO) {
         String reportFile = "Library_Summary_Report.txt";
         List<String> lines = new ArrayList<>();
-        List<Book> books = bookDAO.getBookList();
         List<Member> members = memberDAO.getAll();
-
-        // [LAMBDA & STREAM API]: Tính tổng bản in tồn kho
-        int totalQty = books.stream().mapToInt(Book::getQuantity).sum();
 
         lines.add("==========================================================================");
         lines.add("              LIBRARY MANAGEMENT SYSTEM - SUMMARY REPORT                  ");
         lines.add("              Report Date: " + LocalDate.now().format(Core.Entities.User.DATE_FORMAT));
         lines.add("==========================================================================");
         lines.add("1. BOOK INVENTORY STATISTICS:");
-        lines.add("   - Total Book Titles          : " + books.size() + " titles");
-        lines.add("   - Total Copies in Stock      : " + totalQty + " copies");
+        lines.add("   - Total Book Titles          : " + bookDAO.getTotalBooksCount() + " titles");
+        lines.add("   - Total Copies in Stock      : " + bookDAO.getTotalQuantity() + " copies");
         lines.add(String.format("   - Total Inventory Asset Value: %,.0f VND", bookDAO.calculateTotalInventoryValue()));
         lines.add("--------------------------------------------------------------------------");
         lines.add("2. MEMBER & MEMBERSHIP TIER STATISTICS:");

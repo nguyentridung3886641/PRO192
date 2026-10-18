@@ -3,15 +3,8 @@ package DataObjects.DAO;
 import Core.Entities.Book;
 import Core.Entities.ReferenceBook;
 import Core.Entities.TextBook;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -163,6 +156,7 @@ public class BookDAO implements IBookDAO {
         return bookList.stream().filter(predicate).collect(Collectors.toList());
     }
 
+    @Override
     public int getTotalBooksCount() {
         return bookList.size();
     }
@@ -171,6 +165,7 @@ public class BookDAO implements IBookDAO {
      * [LAMBDA & STREAM API]: Tính tổng số bản sách trong kho.
      * Áp dụng Method Reference `Book::getQuantity` và IntStream `sum()`.
      */
+    @Override
     public int getTotalQuantity() {
         return bookList.stream()
                 .mapToInt(Book::getQuantity)
