@@ -12,15 +12,16 @@ import Utilities.DataValidation;
 import Utilities.Menu;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
- * Giao diện điều khiển phân hệ Quản lý Giao dịch Mượn - Trả sách (Borrow Management UI).
- * Tích hợp đầy đủ các Tính năng 1, 5, 6, 7, 8, 9 (Viết bằng vòng lặp for và if-else truyền thống).
+ * Giao diện điều khiển phân hệ Quản lý Giao dịch Mượn - Trả sách (Borrow
+ * Management UI).
+ * Tích hợp đầy đủ các Tính năng 1, 5, 6, 7, 8, 9 (Viết bằng vòng lặp for và
+ * if-else truyền thống).
  * 
  * PRO192 - Phân hệ Giao dịch Mượn - Trả (Member 3)
  */
@@ -75,7 +76,8 @@ public class BorrowManagement {
                     boolean bSaved = bookDAO.saveToFile();
                     boolean mSaved = memberDAO.saveToFile();
                     if (rSaved && bSaved && mSaved) {
-                        System.out.println(">> Successfully saved borrow records, book inventory, and member data to files!");
+                        System.out.println(
+                                ">> Successfully saved borrow records, book inventory, and member data to files!");
                     } else {
                         System.out.println(">> Warning: One or more data files failed to save!");
                     }
@@ -91,7 +93,8 @@ public class BorrowManagement {
                     borrowDAO.saveToFile();
                     bookDAO.saveToFile();
                     memberDAO.saveToFile();
-                    System.out.println(">> All borrow records and related inventory data saved. Returning to Main Menu!");
+                    System.out
+                            .println(">> All borrow records and related inventory data saved. Returning to Main Menu!");
                     running = false;
                     break;
                 default:
@@ -107,48 +110,57 @@ public class BorrowManagement {
 
     private void printMenuHeader() {
         System.out.println("\n" + Menu.repeat("=", 106));
-        System.out.println("                      BORROW & RETURN TRANSACTIONS MANAGEMENT SYSTEM                                      ");
-        System.out.println("==========================================================================================================");
+        System.out.println(
+                "                      BORROW & RETURN TRANSACTIONS MANAGEMENT SYSTEM                                      ");
+        System.out.println(
+                "==========================================================================================================");
         Menu.print(
-            "  1. Display all borrow & return records (Includes Tier Discount, Fines & Damage Fees)|" +
-            "  2. Create new borrow record (Applies Tier limits VIP/GOLD/SILVER & Book Reservation)|" +
-            "  3. Process book return, report damage/loss (150%), update reputation points & export receipt|" +
-            "  4. Extend loan period (+7 days for non-overdue records - Feature 5)|" +
-            "  5. Search borrow records (By Record ID / Member ID / Active Records)|" +
-            "  6. Filter OVERDUE records|" +
-            "  7. Borrow statistics report & Top borrowed books ASCII chart (Feature 8)|" +
-            "  8. Export transaction receipt to file Receipt_<RecordID>.txt (Feature 9)|" +
-            "  9. Delete borrow record by ID|" +
-            " 10. Save borrow records to file (BorrowRecords.txt)|" +
-            " 11. Exit without saving (discard changes on RAM)|" +
-            "  0. Save & return to Main Menu"
-        );
+                "  1. Display all borrow & return records (Includes Tier Discount, Fines & Damage Fees)|" +
+                        "  2. Create new borrow record (Applies Tier limits VIP/GOLD/SILVER & Book Reservation)|" +
+                        "  3. Process book return, report damage/loss (150%), update reputation points & export receipt|"
+                        +
+                        "  4. Extend loan period (+7 days for non-overdue records - Feature 5)|" +
+                        "  5. Search borrow records (By Record ID / Member ID / Active Records)|" +
+                        "  6. Filter OVERDUE records|" +
+                        "  7. Borrow statistics report & Top borrowed books ASCII chart (Feature 8)|" +
+                        "  8. Export transaction receipt to file Receipt_<RecordID>.txt (Feature 9)|" +
+                        "  9. Delete borrow record by ID|" +
+                        " 10. Save borrow records to file (BorrowRecords.txt)|" +
+                        " 11. Exit without saving (discard changes on RAM)|" +
+                        "  0. Save & return to Main Menu");
         System.out.println(Menu.repeat("=", 106));
     }
 
     public void displayBorrowRecords(List<BorrowRecord> records, String title) {
-        System.out.println("--------------------------------------------------------------------------------------------------------------------");
+        System.out.println(
+                "--------------------------------------------------------------------------------------------------------------------");
         System.out.println("  " + title + " (Total: " + records.size() + " records)");
-        System.out.println("--------------------------------------------------------------------------------------------------------------------");
+        System.out.println(
+                "--------------------------------------------------------------------------------------------------------------------");
         if (records.isEmpty()) {
             System.out.println("  >> No borrow records found in the list!");
-            System.out.println("--------------------------------------------------------------------------------------------------------------------");
+            System.out.println(
+                    "--------------------------------------------------------------------------------------------------------------------");
             return;
         }
         System.out.printf("| %-6s | %-18s | %-6s | %-4s | %-10s | %-10s | %-10s | %-18s | %-10s | %-11s |\n",
-                "ID", "Member Name", "Tier", "Qty", "BorrowDate", "Due Date", "Ret. Date", "Status", "Fine", "Total Pay");
-        System.out.println("--------------------------------------------------------------------------------------------------------------------");
+                "ID", "Member Name", "Tier", "Qty", "BorrowDate", "Due Date", "Ret. Date", "Status", "Fine",
+                "Total Pay");
+        System.out.println(
+                "--------------------------------------------------------------------------------------------------------------------");
         // [LAMBDA & STREAM API]: Hiển thị danh sách phiếu mượn bằng forEach Lambda
         records.forEach(r -> {
             String bDate = (r.getBorrowDate() != null) ? r.getBorrowDate().format(BorrowRecord.DATE_FORMAT) : "N/A";
             String dDate = (r.getDueDate() != null) ? r.getDueDate().format(BorrowRecord.DATE_FORMAT) : "N/A";
-            String rDate = (r.getReturnDate() != null) ? r.getReturnDate().format(BorrowRecord.DATE_FORMAT) : "Not returned";
+            String rDate = (r.getReturnDate() != null) ? r.getReturnDate().format(BorrowRecord.DATE_FORMAT)
+                    : "Not returned";
             System.out.printf("| %-6s | %-18s | %-6s | %-4d | %-10s | %-10s | %-10s | %-18s | %,10.0f | %,11.0f |\n",
                     r.getRecordId(), r.getMember().getFullName(), r.getMember().getMembershipTier(),
                     r.getBorrowedBooks().size(), bDate, dDate, rDate,
                     r.getStatusText(), r.calculateFine(), r.calculateFinalPayment());
         });
-        System.out.println("--------------------------------------------------------------------------------------------------------------------");
+        System.out.println(
+                "--------------------------------------------------------------------------------------------------------------------");
     }
 
     private void createNewBorrowRecord() {
@@ -174,8 +186,9 @@ public class BorrowManagement {
             return;
         }
         if (!member.isActive()) {
-            System.out.println(">> Error: Member " + member.getFullName() + "'s card is currently LOCKED (Reputation points: "
-                    + member.getReputationPoints() + " pts), cannot borrow books!");
+            System.out.println(
+                    ">> Error: Member " + member.getFullName() + "'s card is currently LOCKED (Reputation points: "
+                            + member.getReputationPoints() + " pts), cannot borrow books!");
             return;
         }
 
@@ -190,13 +203,15 @@ public class BorrowManagement {
         System.out.printf(">> Member: %s | Tier: %s (Discount -%.0f%%) | Remaining quota: %d book(s).\n",
                 member.getFullName(), member.getMembershipTier(), member.getDiscountRate() * 100, remainingQuota);
 
-        int numBooks = DataInput.getIntegerNumber("Enter number of book titles to borrow [1-" + remainingQuota + "]: ", 1, remainingQuota);
+        int numBooks = DataInput.getIntegerNumber("Enter number of book titles to borrow [1-" + remainingQuota + "]: ",
+                1, remainingQuota);
         List<Book> selectedBooks = new ArrayList<>();
 
         // [LAMBDA & STREAM API]: Duyệt từng lượt nhập sách bằng IntStream.rangeClosed
         IntStream.rangeClosed(1, numBooks).forEach(i -> {
             while (true) {
-                String bookId = DataInput.getNonEmptyString("  Enter book ID for item " + i + " (e.g. B001): ").toUpperCase();
+                String bookId = DataInput.getNonEmptyString("  Enter book ID for item " + i + " (e.g. B001): ")
+                        .toUpperCase();
                 Book book = bookDAO.findBookById(bookId);
                 if (book == null) {
                     System.out.println("  >> Book with ID " + bookId + " not found!");
@@ -207,7 +222,8 @@ public class BorrowManagement {
                     // Tính năng 7: Cho phép đặt trước ngay khi hết sách
                     if (DataInput.getBoolean("  >> Would you like to RESERVE this book?")) {
                         if (bookDAO.reserveBook(bookId, memberId)) {
-                            System.out.println("  >> Successfully placed member " + memberId + " in the priority queue for '" + book.getTitle() + "'!");
+                            System.out.println("  >> Successfully placed member " + memberId
+                                    + " in the priority queue for '" + book.getTitle() + "'!");
                         } else {
                             System.out.println("  >> Member is already in the reservation queue for this book!");
                         }
@@ -222,7 +238,8 @@ public class BorrowManagement {
                     continue;
                 }
                 selectedBooks.add(book);
-                System.out.println("  >> Selected: " + book.getTitle() + " (Remaining in stock: " + book.getQuantity() + ")");
+                System.out.println(
+                        "  >> Selected: " + book.getTitle() + " (Remaining in stock: " + book.getQuantity() + ")");
                 break;
             }
         });
@@ -241,7 +258,8 @@ public class BorrowManagement {
     }
 
     /**
-     * Features 1, 6, 7, 9: Return books, damage inspection, reputation points update & receipt generation.
+     * Features 1, 6, 7, 9: Return books, damage inspection, reputation points
+     * update & receipt generation.
      */
     private void processReturnBooks() {
         System.out.println("--- PROCESS BOOK RETURN, DAMAGE INSPECTION & RECEIPT GENERATION ---");
@@ -274,7 +292,8 @@ public class BorrowManagement {
         List<String> damagedBookIds = new ArrayList<>();
         if (DataInput.getBoolean("Are any books LOST or SEVERELY DAMAGED?")) {
             record.getBorrowedBooks().forEach(b -> {
-                boolean isLost = DataInput.getBoolean("  - Is book [" + b.getBookId() + "] '" + b.getTitle() + "' lost/damaged?");
+                boolean isLost = DataInput
+                        .getBoolean("  - Is book [" + b.getBookId() + "] '" + b.getTitle() + "' lost/damaged?");
                 if (isLost) {
                     damagedBookIds.add(b.getBookId());
                     System.out.printf("    -> 150%% Compensation Fee: %,.0f VND\n", b.calculatePrice() * 1.5);
@@ -329,7 +348,8 @@ public class BorrowManagement {
             return;
         }
         if (record.getExtensionCount() >= BorrowRecord.MAX_EXTENSIONS) {
-            System.out.println(">> Error: Maximum extension limit reached (Max " + BorrowRecord.MAX_EXTENSIONS + " time(s))!");
+            System.out.println(
+                    ">> Error: Maximum extension limit reached (Max " + BorrowRecord.MAX_EXTENSIONS + " time(s))!");
             return;
         }
 
@@ -390,19 +410,25 @@ public class BorrowManagement {
         System.out.printf("  - Active Records (Not Returned)      : %d records\n", active.size());
         System.out.printf("  - Completed Records (Returned)       : %d records\n", all.size() - active.size());
         System.out.printf("  - Overdue Records                    : %d records\n", overdue.size());
-        System.out.printf("  - Total Borrow Fee Revenue (Discount): %,.0f VND\n", borrowDAO.calculateTotalBorrowFeeRevenue());
-        System.out.printf("  - Total Overdue Fine Revenue         : %,.0f VND\n", borrowDAO.calculateTotalFineRevenue());
-        System.out.printf("  - Total Book Damage/Loss Fees        : %,.0f VND\n", borrowDAO.calculateTotalCompensationRevenue());
+        System.out.printf("  - Total Borrow Fee Revenue (Discount): %,.0f VND\n",
+                borrowDAO.calculateTotalBorrowFeeRevenue());
+        System.out.printf("  - Total Overdue Fine Revenue         : %,.0f VND\n",
+                borrowDAO.calculateTotalFineRevenue());
+        System.out.printf("  - Total Book Damage/Loss Fees        : %,.0f VND\n",
+                borrowDAO.calculateTotalCompensationRevenue());
         System.out.println("==========================================================================");
 
         // [LAMBDA & STREAM API]: Tính năng 8 - Thống kê số lượt mượn từng cuốn sách
-        // 
+        //
         // So sánh:
-        // - Cách cũ: Dùng vòng lặp for lồng nhau 2 cấp (phiếu -> sách) kết hợp Map get/put thủ công.
+        // - Cách cũ: Dùng vòng lặp for lồng nhau 2 cấp (phiếu -> sách) kết hợp Map
+        // get/put thủ công.
         // - Lambda/Stream:
-        //   1. all.stream(): Tạo luồng từ danh sách toàn bộ phiếu mượn
-        //   2. flatMap(r -> r.getBorrowedBooks().stream()): "Làm phẳng" danh sách sách của từng phiếu thành luồng phẳng
-        //   3. collect(Collectors.groupingBy(Book::getBookId, Collectors.counting())): Tự động phân nhóm theo ID và đếm số lần xuất hiện
+        // 1. all.stream(): Tạo luồng từ danh sách toàn bộ phiếu mượn
+        // 2. flatMap(r -> r.getBorrowedBooks().stream()): "Làm phẳng" danh sách sách
+        // của từng phiếu thành luồng phẳng
+        // 3. collect(Collectors.groupingBy(Book::getBookId, Collectors.counting())): Tự
+        // động phân nhóm theo ID và đếm số lần xuất hiện
         Map<String, Long> bookBorrowCounts = all.stream()
                 .flatMap(r -> r.getBorrowedBooks().stream())
                 .collect(Collectors.groupingBy(Book::getBookId, Collectors.counting()));
