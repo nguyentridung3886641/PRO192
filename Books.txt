@@ -1,17 +1,17 @@
 # Book Storage Repository (Library Management System - PRO192)
-# Format: BOOK_TYPE|BOOK_ID|TITLE|AUTHOR|PRICE|QUANTITY|GENRE_OR_PUBLISHER|RATING|RATING_COUNT
-TEXTBOOK|B001|Object-Oriented Programming with Java|Herbert Schildt|125000.00|35|Information Technology|4.80|12
-TEXTBOOK|B002|Data Structures & Algorithms in Java|Robert Lafore|98000.00|25|Computer Science|4.70|10
-TEXTBOOK|B003|Database System Concepts (SQL)|Abraham Silberschatz|85000.00|40|Information Systems|4.50|8
-TEXTBOOK|B004|Computer Networks Principles|Andrew S. Tanenbaum|110000.00|20|Telecommunications|4.30|6
-TEXTBOOK|B005|C/C++ Programming Techniques|Pham Van At|90000.00|15|Software Engineering|4.20|5
-TEXTBOOK|B006|Discrete Mathematics for Computing|Kenneth Rosen|95000.00|18|Applied Mathematics|4.60|9
-TEXTBOOK|B007|Operating System Concepts|Abraham Silberschatz|130000.00|22|Computer Science|4.90|15
-REFERENCEBOOK|B008|Clean Code: A Handbook of Agile Craftsmanship|Robert C. Martin|240000.00|20|O'Reilly Media|4.95|25
-REFERENCEBOOK|B009|Design Patterns: Elements of Reusable OO Software|Erich Gamma|320000.00|15|Addison-Wesley|4.90|18
-REFERENCEBOOK|B010|Refactoring: Improving the Design of Existing Code|Martin Fowler|280000.00|18|Addison-Wesley|4.85|14
-REFERENCEBOOK|B011|The Pragmatic Programmer|Andrew Hunt|260000.00|12|Pragmatic Bookshelf|4.75|11
-REFERENCEBOOK|B012|Head First Design Patterns|Eric Freeman|210000.00|25|O'Reilly Media|4.80|20
-REFERENCEBOOK|B013|Effective Java (3rd Edition)|Joshua Bloch|290000.00|16|Addison-Wesley|5.00|30
-REFERENCEBOOK|B014|Introduction to Algorithms (CLRS)|Thomas H. Cormen|450000.00|8|MIT Press|4.90|22
-REFERENCEBOOK|B015|Artificial Intelligence: A Modern Approach|Stuart Russell|380000.00|10|Pearson Education|4.80|16
+# Format: BOOK_TYPE|BOOK_ID|TITLE|AUTHOR|PRICE|QUANTITY|GENRE_OR_PUBLISHER
+TEXTBOOK|B001|Object-Oriented Programming with Java|Herbert Schildt|125000.00|35|Information Technology
+TEXTBOOK|B002|Data Structures & Algorithms in Java|Robert Lafore|98000.00|25|Computer Science
+TEXTBOOK|B003|Database System Concepts (SQL)|Abraham Silberschatz|85000.00|40|Information Systems
+TEXTBOOK|B004|Computer Networks Principles|Andrew S. Tanenbaum|110000.00|20|Telecommunications
+TEXTBOOK|B005|C/C++ Programming Techniques|Pham Van At|90000.00|15|Software Engineering
+TEXTBOOK|B006|Discrete Mathematics for Computing|Kenneth Rosen|95000.00|18|Applied Mathematics
+TEXTBOOK|B007|Operating System Concepts|Abraham Silberschatz|130000.00|22|Computer Science
+REFERENCEBOOK|B008|Clean Code: A Handbook of Agile Craftsmanship|Robert C. Martin|240000.00|20|O'Reilly Media
+REFERENCEBOOK|B009|Design Patterns: Elements of Reusable OO Software|Erich Gamma|320000.00|15|Addison-Wesley
+REFERENCEBOOK|B010|Refactoring: Improving the Design of Existing Code|Martin Fowler|280000.00|18|Addison-Wesley
+REFERENCEBOOK|B011|The Pragmatic Programmer|Andrew Hunt|260000.00|12|Pragmatic Bookshelf
+REFERENCEBOOK|B012|Head First Design Patterns|Eric Freeman|210000.00|25|O'Reilly Media
+REFERENCEBOOK|B013|Effective Java (3rd Edition)|Joshua Bloch|290000.00|16|Addison-Wesley
+REFERENCEBOOK|B014|Introduction to Algorithms (CLRS)|Thomas H. Cormen|450000.00|8|MIT Press
+REFERENCEBOOK|B015|Artificial Intelligence: A Modern Approach|Stuart Russell|380000.00|10|Pearson Education

@@ -83,12 +83,12 @@ public class Program {
      * Parses pipe-delimited menu options through an Arrays.stream pipeline.
      */
     private static void printMainBanner() {
-        System.out.println("\n" + "=".repeat(74));
+        System.out.println("\n" + Menu.repeat("=", 74));
         System.out.println("                      LIBRARY MANAGEMENT SYSTEM                           ");
         System.out.println("                   PRO192 PROJECT - FALL SEMESTER 2026                    ");
-        System.out.println("=".repeat(74));
+        System.out.println(Menu.repeat("=", 74));
         Menu.print(
-            "  1. Book & Inventory Management    (Polymorphism, Rating, Reserve)|" +
+            "  1. Book & Inventory Management    (Polymorphism, Reservation)|" +
             "  2. Library Member Management      (Tiers VIP/GOLD/SILVER, Points)|" +
             "  3. Borrow & Return Transactions   (Extension, Damage Fee, Receipt)|" +
             "  4. System Summary & Visual Charts (Dashboard & ASCII Bar Charts)|" +
@@ -96,7 +96,7 @@ public class Program {
             "  6. Backup All Data to Files       (Books / Members / BorrowRecords)|" +
             "  0. Save Data & Exit Program"
         );
-        System.out.println("=".repeat(74));
+        System.out.println(Menu.repeat("=", 74));
     }
 
     private static void displaySystemDashboard(IBookDAO bookDAO, IMemberDAO memberDAO, IBorrowDAO borrowDAO) {

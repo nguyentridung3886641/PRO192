@@ -40,7 +40,7 @@ public class BorrowManagement {
         boolean running = true;
         while (running) {
             printMenuHeader();
-            int choice = DataInput.getIntegerNumber(">> Enter your choice [0-10]: ");
+            int choice = DataInput.getIntegerNumber(">> Enter your choice [0-11]: ");
             System.out.println();
             switch (choice) {
                 case 1:
@@ -71,17 +71,31 @@ public class BorrowManagement {
                     deleteBorrowRecord();
                     break;
                 case 10:
-                    if (borrowDAO.saveToFile()) {
-                        System.out.println(">> Successfully saved borrow records to BorrowRecords.txt!");
+                    boolean rSaved = borrowDAO.saveToFile();
+                    boolean bSaved = bookDAO.saveToFile();
+                    boolean mSaved = memberDAO.saveToFile();
+                    if (rSaved && bSaved && mSaved) {
+                        System.out.println(">> Successfully saved borrow records, book inventory, and member data to files!");
+                    } else {
+                        System.out.println(">> Warning: One or more data files failed to save!");
                     }
+                    break;
+                case 11:
+                    borrowDAO.loadFromFile();
+                    bookDAO.loadFromFile();
+                    memberDAO.loadFromFile();
+                    System.out.println(">> Changes discarded from RAM. Returning to Main Menu!");
+                    running = false;
                     break;
                 case 0:
                     borrowDAO.saveToFile();
-                    System.out.println(">> Borrow records saved. Returning to Main Menu!");
+                    bookDAO.saveToFile();
+                    memberDAO.saveToFile();
+                    System.out.println(">> All borrow records and related inventory data saved. Returning to Main Menu!");
                     running = false;
                     break;
                 default:
-                    System.out.println(">> Invalid choice! Please select from 0 to 10.");
+                    System.out.println(">> Invalid choice! Please select from 0 to 11.");
                     break;
             }
             if (running) {
@@ -92,7 +106,7 @@ public class BorrowManagement {
     }
 
     private void printMenuHeader() {
-        System.out.println("\n" + "=".repeat(106));
+        System.out.println("\n" + Menu.repeat("=", 106));
         System.out.println("                      BORROW & RETURN TRANSACTIONS MANAGEMENT SYSTEM                                      ");
         System.out.println("==========================================================================================================");
         Menu.print(
@@ -106,9 +120,10 @@ public class BorrowManagement {
             "  8. Export transaction receipt to file Receipt_<RecordID>.txt (Feature 9)|" +
             "  9. Delete borrow record by ID|" +
             " 10. Save borrow records to file (BorrowRecords.txt)|" +
+            " 11. Exit without saving (discard changes on RAM)|" +
             "  0. Save & return to Main Menu"
         );
-        System.out.println("=".repeat(106));
+        System.out.println(Menu.repeat("=", 106));
     }
 
     public void displayBorrowRecords(List<BorrowRecord> records, String title) {

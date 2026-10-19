@@ -61,8 +61,6 @@ public abstract class User {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public abstract String getRole();
-
     @Override
     public String toString() {
         String dob = (dateOfBirth != null) ? dateOfBirth.format(DATE_FORMAT) : "N/A";

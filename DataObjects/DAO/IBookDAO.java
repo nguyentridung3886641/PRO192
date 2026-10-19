@@ -2,13 +2,12 @@ package DataObjects.DAO;
 
 import Core.Entities.Book;
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * Interface IBookDAO định nghĩa các thao tác quản lý dữ liệu Sách:
  * - CRUD cơ bản: thêm, sửa, xóa, tìm kiếm theo mã, tên
  * - Milestone 3: Nghiệp vụ đa hình, tính tổng trị giá kho và phí mượn
- * - Milestone 4: Tìm kiếm đa tiêu chí, thuật toán sắp xếp và đọc/ghi file Books.txt
+ * - Milestone 4: Tìm kiếm theo tiêu chí, thuật toán sắp xếp và đọc/ghi file Books.txt
  * 
  * PRO192 - Phân hệ Sách & Đa hình (Member 2: Nguyen Thien Tue)
  */
@@ -25,7 +24,6 @@ public interface IBookDAO {
     Book findBookById(String bookId);
     List<Book> findBookByTitle(String title);
     List<Book> getBookList();
-    List<Book> search(Predicate<Book> predicate);
 
     // ==========================================
     // 2. Milestone 3: Nghiệp vụ Đa hình & Upcasting
@@ -35,12 +33,11 @@ public interface IBookDAO {
     double calculateTotalBorrowFee(List<Book> books, int days);
 
     // ==========================================
-    // 3. Milestone 4: Tìm kiếm đa tiêu chí
+    // 3. Milestone 4: Tìm kiếm theo tiêu chí
     // ==========================================
 
     List<Book> findBookByAuthor(String author);
     List<Book> findBookByPriceRange(double minPrice, double maxPrice);
-    List<Book> searchMultiCriteria(String title, String author, Double minPrice, Double maxPrice, String bookType);
 
     // ==========================================
     // 4. Milestone 4: Thuật toán sắp xếp (Sorting)
@@ -75,12 +72,8 @@ public interface IBookDAO {
     int getTotalQuantity();
 
     // ==========================================
-    // 6. Tính năng mở rộng: Đánh giá Sao, Gợi ý Sách & Đặt trước
+    // 6. Tính năng mở rộng: Đặt trước sách khi hết hàng
     // ==========================================
-
-    boolean rateBook(String bookId, int stars);
-
-    List<Book> getRecommendedBooks(String bookId, int topN);
 
     boolean reserveBook(String bookId, String memberId);
 

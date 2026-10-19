@@ -39,9 +39,6 @@ public final class DataValidation {
         return checkStringWithFormat(phone, "0\\d{9}");
     }
 
-    public static boolean isValidEmail(String email) {
-        return checkStringWithFormat(email, "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
-    }
 
     public static boolean isValidId(String id, String prefix) {
         return checkStringWithFormat(id, "^" + prefix + "\\d{3,}$");

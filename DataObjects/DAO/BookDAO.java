@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -149,14 +148,6 @@ public class BookDAO implements IBookDAO {
     }
 
     @Override
-    public List<Book> search(Predicate<Book> predicate) {
-        if (predicate == null) {
-            return getBookList();
-        }
-        return bookList.stream().filter(predicate).collect(Collectors.toList());
-    }
-
-    @Override
     public int getTotalBooksCount() {
         return bookList.size();
     }
@@ -238,39 +229,6 @@ public class BookDAO implements IBookDAO {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * [LAMBDA & STREAM API]: Tìm kiếm kết hợp đa tiêu chí (Multi-criteria Search).
-     * 
-     * So sánh:
-     * - Cách cũ: Khởi tạo biến boolean lồng nhau phức tạp bên trong vòng lặp for.
-     * - Lambda/Stream: Dùng pipeline các filter liên tiếp. Mỗi filter đảm nhận một tiêu chí độc lập,
-     *   tuân thủ nguyên tắc Single Responsibility và dễ dàng thêm bớt tiêu chí tìm kiếm.
-     */
-    @Override
-    public List<Book> searchMultiCriteria(String title, String author, Double minPrice, Double maxPrice, String bookType) {
-        String titleKey = (title != null) ? title.trim().toLowerCase() : "";
-        String authorKey = (author != null) ? author.trim().toLowerCase() : "";
-        String typeKey = (bookType != null) ? bookType.trim().toUpperCase() : "";
-
-        return bookList.stream()
-                .filter(b -> titleKey.isEmpty() || (b.getTitle() != null && b.getTitle().toLowerCase().contains(titleKey)))
-                .filter(b -> authorKey.isEmpty() || (b.getAuthor() != null && b.getAuthor().toLowerCase().contains(authorKey)))
-                .filter(b -> minPrice == null || b.getPrice() >= minPrice)
-                .filter(b -> maxPrice == null || b.getPrice() <= maxPrice)
-                .filter(b -> {
-                    if (typeKey.isEmpty()) {
-                        return true;
-                    }
-                    if (typeKey.contains("TEXT")) {
-                        return b instanceof TextBook;
-                    }
-                    if (typeKey.contains("REF")) {
-                        return b instanceof ReferenceBook;
-                    }
-                    return true;
-                })
-                .collect(Collectors.toList());
-    }
 
     // ========================================================
     // 4. Milestone 4: Thuật toán sắp xếp (Sorting Algorithms)
@@ -414,16 +372,14 @@ public class BookDAO implements IBookDAO {
             extraInfo = "General";
         }
 
-        return String.format("%s|%s|%s|%s|%.2f|%d|%s|%.2f|%d",
+        return String.format("%s|%s|%s|%s|%.2f|%d|%s",
                 typeStr,
                 b.getBookId(),
                 b.getTitle(),
                 b.getAuthor(),
                 b.getPrice(),
                 b.getQuantity(),
-                extraInfo,
-                b.getRating(),
-                b.getRatingCount());
+                extraInfo);
     }
 
     /**
@@ -438,7 +394,7 @@ public class BookDAO implements IBookDAO {
         try {
             List<String> lines = new ArrayList<>();
             lines.add("# Book Storage Repository (Library Management System - PRO192)");
-            lines.add("# Format: BOOK_TYPE|BOOK_ID|TITLE|AUTHOR|PRICE|QUANTITY|GENRE_OR_PUBLISHER|RATING|RATING_COUNT");
+            lines.add("# Format: BOOK_TYPE|BOOK_ID|TITLE|AUTHOR|PRICE|QUANTITY|GENRE_OR_PUBLISHER");
             bookList.stream()
                     .filter(Objects::nonNull)
                     .map(BookDAO::toFileString)
@@ -491,10 +447,6 @@ public class BookDAO implements IBookDAO {
                 book = new ReferenceBook(id, title, author, price, quantity, extra);
             }
 
-            if (parts.length >= 9) {
-                book.setRating(Double.parseDouble(parts[7].trim()));
-                book.setRatingCount(Integer.parseInt(parts[8].trim()));
-            }
             return book;
         } catch (Exception ex) {
             System.err.println(">> Warning: Skipping invalid data line: " + line);
@@ -523,12 +475,9 @@ public class BookDAO implements IBookDAO {
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
 
-            if (!loadedList.isEmpty()) {
-                this.bookList.clear();
-                this.bookList.addAll(loadedList);
-                return true;
-            }
-            return false;
+            this.bookList.clear();
+            this.bookList.addAll(loadedList);
+            return true;
         } catch (IOException e) {
             System.err.println(">> Error reading file: " + e.getMessage());
             return false;
@@ -536,64 +485,8 @@ public class BookDAO implements IBookDAO {
     }
 
     // ========================================================
-    // 6. Tính năng 3 & 7: Đánh giá Sao, Gợi ý Sách & Đặt trước
-    //    (Hiện thực hóa bằng Stream API & Biểu thức Lambda)
+    // 6. Tính năng: Đặt trước sách khi hết hàng (Feature 7)
     // ========================================================
-
-    @Override
-    public boolean rateBook(String bookId, int stars) {
-        Book book = findBookById(bookId);
-        if (book == null || stars < 1 || stars > 5) {
-            return false;
-        }
-        book.addRating(stars);
-        saveToFile();
-        return true;
-    }
-
-    /**
-     * [LAMBDA & STREAM API PIPELINE]: Tính năng 3 - Gợi ý Top N cuốn sách liên quan có điểm đánh giá cao nhất.
-     * 
-     * So sánh:
-     * - Cách cũ: Dùng 3 bước riêng biệt: (1) for loop lọc, (2) Collections.sort với anonymous Comparator 25 dòng, (3) for loop cắt top N.
-     * - Lambda/Stream: Toàn bộ được thu gọn vào một Stream pipeline thông suốt và mang tính khai báo:
-     *   1. filter: Lọc bỏ chính cuốn sách đang xem và chỉ giữ lại sách còn hàng (quantity > 0)
-     *   2. sorted: Định nghĩa chiến lược sắp xếp bằng biểu thức Lambda đa tiêu chí:
-     *      - Tiêu chí 1: Ưu tiên cùng phân loại thực thể (TextBook / ReferenceBook)
-     *      - Tiêu chí 2: Điểm đánh giá sao giảm dần (High -> Low)
-     *      - Tiêu chí 3: Tên sách theo thứ tự bảng chữ cái A-Z
-     *   3. limit(topN): Giới hạn lấy tối đa N cuốn sách dẫn đầu (tích hợp sẵn, không lo IndexOutOfBoundsException)
-     *   4. collect(Collectors.toList()): Đóng gói luồng dữ liệu vào danh sách kết quả.
-     */
-    @Override
-    public List<Book> getRecommendedBooks(String bookId, int topN) {
-        Book target = findBookById(bookId);
-
-        // Biểu thức Lambda Comparator đa tiêu chí cho việc gợi ý sách
-        Comparator<Book> recommendationComparator = (b1, b2) -> {
-            if (target != null) {
-                boolean b1SameType = b1.getClass().equals(target.getClass());
-                boolean b2SameType = b2.getClass().equals(target.getClass());
-                if (b1SameType && !b2SameType) {
-                    return -1; // b1 cùng loại -> ưu tiên lên trước
-                } else if (!b1SameType && b2SameType) {
-                    return 1;
-                }
-            }
-            int ratingCompare = Double.compare(b2.getRating(), b1.getRating());
-            if (ratingCompare != 0) {
-                return ratingCompare;
-            }
-            return b1.getTitle().compareToIgnoreCase(b2.getTitle());
-        };
-
-        return bookList.stream()
-                .filter(b -> target == null || !b.getBookId().equalsIgnoreCase(target.getBookId()))
-                .filter(b -> b.getQuantity() > 0)
-                .sorted(recommendationComparator)
-                .limit(Math.max(0, topN))
-                .collect(Collectors.toList());
-    }
 
     /**
      * Tính năng 7: Đặt trước sách khi sách hết hàng (hoặc đăng ký vào hàng đợi).

@@ -62,23 +62,29 @@ public class BookManagement {
                     simulateBorrowFeePolymorphism();
                     break;
                 case 8:
-                    fileManagementSubMenu();
-                    break;
-                case 9:
                     displayInventoryReport();
                     break;
-                case 10:
-                    rateAndRecommendSubMenu();
-                    break;
-                case 11:
+                case 9:
                     reservationQueueSubMenu();
                     break;
-                case 12:
+                case 10:
                     displayBookInventoryChart();
                     break;
+                case 11:
+                    if (bookDAO.saveToFile()) {
+                        System.out.println(">> Successfully saved book inventory to Books.txt!");
+                    } else {
+                        System.out.println(">> Failed to save book inventory!");
+                    }
+                    break;
+                case 12:
+                    bookDAO.loadFromFile();
+                    System.out.println(">> Changes discarded from RAM. Returning to Main Menu!");
+                    running = false;
+                    break;
                 case 0:
-                    System.out.println(">> Saving data and exiting Book Management subsystem. See you again!");
                     bookDAO.saveToFile();
+                    System.out.println(">> Book inventory saved. Returning to Main Menu!");
                     running = false;
                     break;
                 default:
@@ -93,26 +99,26 @@ public class BookManagement {
     }
 
     private void printMenuHeader() {
-        System.out.println("\n" + "=".repeat(104));
+        System.out.println("\n" + Menu.repeat("=", 104));
         System.out.println("                      BOOK & DOCUMENT INVENTORY MANAGEMENT SYSTEM                                       ");
         System.out.println("                      PRO192 - Member 2: Nguyen Thien Tue (Milestones 3 & 4)                            ");
-        System.out.println("=".repeat(104));
+        System.out.println(Menu.repeat("=", 104));
         Menu.print(
             "  1. View all books (Detailed table, Polymorphism & Upcasting)|" +
             "  2. Add new book to inventory (TextBook / ReferenceBook, supports Author)|" +
             "  3. Update book details by Book ID|" +
             "  4. Delete book from inventory|" +
-            "  5. Multi-criteria search (By ID, Title, Author, Price Range, Combined)|" +
-            "  6. Sort book list (Multi-criteria: Title, Author, Price, Qty, Selection/Insertion Sort)|" +
+            "  5. Search book list (By ID, Title, Author, Price Range)|" +
+            "  6. Sort book list (Multi-criteria: Title, Author, Price, Qty, Total Value, Selection/Insertion Sort)|" +
             "  7. Polymorphic borrow fee simulator (Demonstrates dynamic method dispatch)|" +
-            "  8. Manage Books.txt file storage (Save to file / Reload from file)|" +
-            "  9. Inventory statistical report & Total asset valuation|" +
-            " 10. Star rating (1-5 *) & Smart book recommendations (Feature 3)|" +
-            " 11. Book reservation queue when out of stock (Feature 7)|" +
-            " 12. Book inventory visual bar chart (Console ASCII Bar Chart - Feature 8)|" +
-            "  0. Return to Main Menu / Exit"
+            "  8. Inventory statistical report & Total asset valuation|" +
+            "  9. Book reservation queue when out of stock (Feature 7)|" +
+            " 10. Book inventory visual bar chart (Console ASCII Bar Chart - Feature 8)|" +
+            " 11. Save book inventory to file (Books.txt)|" +
+            " 12. Exit without saving (discard changes on RAM)|" +
+            "  0. Save & return to Main Menu"
         );
-        System.out.println("=".repeat(104));
+        System.out.println(Menu.repeat("=", 104));
     }
 
     /**
@@ -228,8 +234,7 @@ public class BookManagement {
 
         boolean success = bookDAO.addBook(newBook);
         if (success) {
-            bookDAO.saveToFile();
-            System.out.println("\n>> SUCCESS: Added new book and synchronized to Books.txt!");
+            System.out.println("\n>> SUCCESS: Added new book to inventory!");
             List<Book> single = new ArrayList<>();
             single.add(newBook);
             printBookTable(single, "NEWLY ADDED BOOK DETAILS");
@@ -308,8 +313,7 @@ public class BookManagement {
 
         boolean ok = bookDAO.updateBook(current);
         if (ok) {
-            bookDAO.saveToFile();
-            System.out.println("\n>> SUCCESS: Book information updated and synchronized to Books.txt!");
+            System.out.println("\n>> SUCCESS: Book information updated!");
             printBookTable(preview, "BOOK INFORMATION AFTER UPDATE");
         } else {
             System.out.println("\n>> FAILED: Updating book information failed!");
@@ -334,8 +338,7 @@ public class BookManagement {
         if (confirm) {
             boolean ok = bookDAO.deleteBook(bookId);
             if (ok) {
-                bookDAO.saveToFile();
-                System.out.println(">> SUCCESS: Removed book with ID '" + bookId + "' and synchronized to Books.txt!");
+                System.out.println(">> SUCCESS: Removed book with ID '" + bookId + "'!");
             } else {
                 System.out.println(">> FAILED: Unable to remove book!");
             }
@@ -349,15 +352,14 @@ public class BookManagement {
     // ========================================================
 
     public void searchBooksSubMenu() {
-        System.out.println("\n--- [ MULTI-CRITERIA BOOK SEARCH (MILESTONE 4) ] ---");
+        System.out.println("\n--- [ BOOK SEARCH BY CRITERIA (MILESTONE 4) ] ---");
         System.out.println("  1. Search by Book ID");
         System.out.println("  2. Search by Book Title");
         System.out.println("  3. Search by Author");
         System.out.println("  4. Search by Listed Price Range");
-        System.out.println("  5. Combined Multi-Criteria Search (Title + Author + Price + Classification)");
         System.out.println("  0. Back");
 
-        int choice = DataInput.getIntegerNumber(">> Select search criteria [0-5]: ", 0, 5);
+        int choice = DataInput.getIntegerNumber(">> Select search criteria [0-4]: ", 0, 4);
         switch (choice) {
             case 1:
                 findBookById();
@@ -370,9 +372,6 @@ public class BookManagement {
                 break;
             case 4:
                 searchBooksByPriceRange();
-                break;
-            case 5:
-                searchBooksCombinedMultiCriteria();
                 break;
             default:
                 break;
@@ -421,42 +420,6 @@ public class BookManagement {
             printBookTable(results, title);
         } else {
             System.out.printf(">> No books found within price range [%,.0f - %,.0f VND]%n", minPrice, maxPrice);
-        }
-    }
-
-    public void searchBooksCombinedMultiCriteria() {
-        System.out.println("\n--- [ COMBINED MULTI-CRITERIA SEARCH ] ---");
-        System.out.println(">> Note: Press Enter to skip any criteria.");
-
-        String title = DataInput.getString("1. Book Title keyword: ");
-        String author = DataInput.getString("2. Author keyword: ");
-
-        String minStr = DataInput.getString("3. Minimum Price (VND): ");
-        Double minPrice = null;
-        if (!minStr.trim().isEmpty()) {
-            try { minPrice = Double.parseDouble(minStr.trim()); } catch (NumberFormatException ignored) {}
-        }
-
-        String maxStr = DataInput.getString("4. Maximum Price (VND): ");
-        Double maxPrice = null;
-        if (!maxStr.trim().isEmpty()) {
-            try { maxPrice = Double.parseDouble(maxStr.trim()); } catch (NumberFormatException ignored) {}
-        }
-
-        System.out.println("5. Book Classification: (1) TextBook, (2) ReferenceBook, (Enter for all)");
-        String typeInput = DataInput.getString(">> Select classification: ");
-        String bookType = "";
-        if ("1".equals(typeInput.trim())) {
-            bookType = "TEXT";
-        } else if ("2".equals(typeInput.trim())) {
-            bookType = "REF";
-        }
-
-        List<Book> results = bookDAO.searchMultiCriteria(title, author, minPrice, maxPrice, bookType);
-        if (!results.isEmpty()) {
-            printBookTable(results, "COMBINED MULTI-CRITERIA SEARCH RESULTS (" + results.size() + " results)");
-        } else {
-            System.out.println(">> No books found matching all specified criteria.");
         }
     }
 
@@ -562,40 +525,6 @@ public class BookManagement {
         System.out.println("==========================================================================");
     }
 
-    // ========================================================
-    // Milestone 4: Books.txt file storage management
-    // ========================================================
-
-    public void fileManagementSubMenu() {
-        System.out.println("\n--- [ BOOKS.TXT FILE STORAGE MANAGEMENT (MILESTONE 4) ] ---");
-        System.out.println("  1. Save current book list to Books.txt");
-        System.out.println("  2. Reload/Sync book list from Books.txt");
-        System.out.println("  0. Back");
-
-        int choice = DataInput.getIntegerNumber(">> Select operation [0-2]: ", 0, 2);
-        switch (choice) {
-            case 1:
-                boolean saved = bookDAO.saveToFile();
-                if (saved) {
-                    System.out.println(">> SUCCESS: Saved all book data to Books.txt in UTF-8 format!");
-                } else {
-                    System.out.println(">> FAILED: An error occurred while writing to file!");
-                }
-                break;
-            case 2:
-                boolean loaded = bookDAO.loadFromFile();
-                if (loaded) {
-                    System.out.println(">> SUCCESS: Successfully loaded book data from Books.txt!");
-                    printAllBooks();
-                } else {
-                    System.out.println(">> FAILED: Books.txt does not exist or contains invalid data!");
-                }
-                break;
-            default:
-                break;
-        }
-    }
-
     public void displayInventoryReport() {
         List<Book> all = bookDAO.getBookList();
         int totalTitles = all.size();
@@ -659,7 +588,7 @@ public class BookManagement {
     // --- Helper methods căn chỉnh hiển thị bảng biểu ---
 
     private static String makeLine(char ch, int length) {
-        return String.valueOf(ch).repeat(Math.max(0, length));
+        return Menu.repeat(String.valueOf(ch), Math.max(0, length));
     }
 
     private static String centerText(String text, int width) {
@@ -668,7 +597,7 @@ public class BookManagement {
         int totalPad = width - text.length();
         int leftPad = totalPad / 2;
         int rightPad = totalPad - leftPad;
-        return " ".repeat(leftPad) + text + " ".repeat(rightPad);
+        return Menu.repeat(" ", leftPad) + text + Menu.repeat(" ", rightPad);
     }
 
     private static String truncate(String text, int maxLength) {
@@ -678,59 +607,8 @@ public class BookManagement {
     }
 
     // ========================================================
-    // Features 3, 7, 8: Star Rating & Book Recommendations, Reservation Queue, ASCII Chart
+    // Features 7, 8: Reservation Queue & Visual Bar Chart
     // ========================================================
-
-    private void rateAndRecommendSubMenu() {
-        System.out.println("==========================================================================================");
-        System.out.println("            STAR RATING (1-5 *) & SMART BOOK RECOMMENDATIONS (FEATURE 3)                  ");
-        System.out.println("==========================================================================================");
-        System.out.println("  1. Submit Star Rating (1-5 *) for a book you have read");
-        System.out.println("  2. Recommend Top 3 highest-rated related books");
-        System.out.println("  3. View Book Leaderboard ranked by Star Rating");
-        int subChoice = DataInput.getIntegerNumber(">> Select feature [1-3]: ");
-
-        if (subChoice == 1) {
-            String bookId = DataInput.getNonEmptyString("Enter Book ID to rate (e.g. B001): ").toUpperCase();
-            Book book = bookDAO.findBookById(bookId);
-            if (book == null) {
-                System.out.println(">> No book found with ID: " + bookId);
-                return;
-            }
-            System.out.println("Selected book: " + book.getTitle() + " | Current Rating: " + book.getStarDisplay());
-            int stars = DataInput.getIntegerNumber("Enter rating stars [1-5]: ", 1, 5);
-            if (bookDAO.rateBook(bookId, stars)) {
-                System.out.println(">> Thank you for rating! New rating for '" + book.getTitle() + "': " + book.getStarDisplay());
-            }
-        } else if (subChoice == 2) {
-            String bookId = DataInput.getNonEmptyString("Enter Book ID of interest (e.g. B001): ").toUpperCase();
-            Book target = bookDAO.findBookById(bookId);
-            if (target == null) {
-                System.out.println(">> No book found with ID: " + bookId);
-                return;
-            }
-            System.out.println("\n>> Based on '" + target.getTitle() + "', recommended Top 3 highest-rated books in the same group:");
-            List<Book> recommended = bookDAO.getRecommendedBooks(bookId, 3);
-            // [LAMBDA & STREAM API]: Duyệt danh sách gợi ý bằng IntStream
-            IntStream.range(0, recommended.size()).forEach(i -> {
-                Book rec = recommended.get(i);
-                System.out.printf("   %d. [%s] %-35s | Author: %-18s | Rating: %s | In Stock: %d copies\n",
-                        i + 1, rec.getBookId(), rec.getTitle(), rec.getAuthor(), rec.getStarDisplay(), rec.getQuantity());
-            });
-        } else if (subChoice == 3) {
-            List<Book> list = bookDAO.getBookList();
-            // [LAMBDA & COMPARATOR]: Sắp xếp bảng xếp hạng theo số Sao giảm dần, sau đó theo số lượt đánh giá
-            list.sort(Comparator.comparingDouble(Book::getRating).reversed()
-                    .thenComparing(Comparator.comparingInt(Book::getRatingCount).reversed()));
-
-            System.out.println("\n--- MOST POPULAR BOOKS LEADERBOARD ---");
-            IntStream.range(0, list.size()).forEach(i -> {
-                Book b = list.get(i);
-                System.out.printf("  Rank %d: [%s] %-36s | Rating: %s | Price: %,.0f VND\n",
-                        i + 1, b.getBookId(), b.getTitle(), b.getStarDisplay(), b.getPrice());
-            });
-        }
-    }
 
     private void reservationQueueSubMenu() {
         System.out.println("==========================================================================================");

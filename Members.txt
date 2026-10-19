@@ -1,4 +1,8 @@
+# ==============================================================================
+# TESTCASE: Standard Members across all Tiers
+# Tests: VIP (points >= 100), GOLD (60-99), SILVER (< 60), LOCKED (< 0)
 # Format: MemberID|FullName|Phone|DateOfBirth(dd/MM/yyyy)|RegistrationDate(dd/MM/yyyy)|Status|ReputationPoints
+# ==============================================================================
 M001|Nguyen Tri Dung|0901234567|15/05/2005|10/01/2026|ACTIVE|150
 M002|Nguyen Thien Tue|0912345678|20/08/2005|12/01/2026|ACTIVE|110
 M003|Tran Minh Quan|0987654321|25/03/2005|01/02/2026|ACTIVE|95

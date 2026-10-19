@@ -6,8 +6,7 @@ import java.util.List;
 /**
  * Lớp trừu tượng Book đại diện cho thông tin chung của sách trong thư viện.
  * Bổ sung:
- * - Tính năng 3: Đánh giá Sao (Rating 1-5 ⭐) phục vụ gợi ý sách thông minh.
- * - Tính năng 7: Hàng đợi Đặt trước sách (Reservation Queue) khi sách hết hàng.
+ * - Tính năng Đặt trước sách (Reservation Queue) khi sách hết hàng.
  * 
  * PRO192 - Phân hệ Sách & Đa hình (Member 2: Nguyen Thien Tue)
  */
@@ -17,8 +16,6 @@ public abstract class Book {
     protected String author;
     protected double price;
     protected int quantity;
-    protected double rating;
-    protected int ratingCount;
     protected List<String> reservationQueue;
 
     public Book(String bookId, String title, String author, double price, int quantity) {
@@ -27,8 +24,6 @@ public abstract class Book {
         setAuthor(author);
         setPrice(price);
         setQuantity(quantity);
-        this.rating = 4.5;
-        this.ratingCount = 1;
         this.reservationQueue = new ArrayList<>();
     }
 
@@ -92,42 +87,6 @@ public abstract class Book {
         this.quantity = quantity;
     }
 
-    // ========================================================
-    // Feature 3: Rating (1 - 5 stars)
-    // ========================================================
-
-    public double getRating() {
-        return rating;
-    }
-
-    public void setRating(double rating) {
-        if (rating >= 1.0 && rating <= 5.0) {
-            this.rating = rating;
-        }
-    }
-
-    public int getRatingCount() {
-        return ratingCount;
-    }
-
-    public void setRatingCount(int ratingCount) {
-        if (ratingCount >= 0) {
-            this.ratingCount = ratingCount;
-        }
-    }
-
-    public void addRating(int stars) {
-        if (stars < 1 || stars > 5) {
-            throw new IllegalArgumentException("Rating must be between 1 and 5 stars!");
-        }
-        double totalScore = this.rating * this.ratingCount + stars;
-        this.ratingCount = this.ratingCount + 1;
-        this.rating = totalScore / this.ratingCount;
-    }
-
-    public String getStarDisplay() {
-        return String.format("%.1f* (%d)", rating, ratingCount);
-    }
 
     // ========================================================
     // Feature 7: Reservation Queue
@@ -176,7 +135,7 @@ public abstract class Book {
 
     @Override
     public String toString() {
-        return String.format("ID: %-6s | Title: %-25s | Author: %-16s | Price: %-8.0f | Qty: %-3d | Rating: %s",
-                bookId, title, author, price, quantity, getStarDisplay());
+        return String.format("ID: %-6s | Title: %-25s | Author: %-16s | Price: %-8.0f | Qty: %-3d",
+                bookId, title, author, price, quantity);
     }
 }

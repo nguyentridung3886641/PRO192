@@ -35,13 +35,22 @@ public class Menu {
         return DataInput.getIntegerNumber("");
     }
 
+    public static String repeat(String str, int count) {
+        if (str == null || count <= 0) return "";
+        StringBuilder sb = new StringBuilder(str.length() * count);
+        for (int i = 0; i < count; i++) {
+            sb.append(str);
+        }
+        return sb.toString();
+    }
+
     public static void printHeader(String title) {
         int width = 60;
-        String border = "=".repeat(width);
+        String border = repeat("=", width);
 
         System.out.println("\n" + border);
         int padding = Math.max(0, (width - title.length()) / 2);
-        System.out.println(" ".repeat(padding) + title.toUpperCase());
+        System.out.println(repeat(" ", padding) + title.toUpperCase());
         System.out.println(border);
     }
 
@@ -53,7 +62,7 @@ public class Menu {
      * - Lambda/Stream:
      *   1. Tìm giá trị lớn nhất: `values.stream().mapToInt(Integer::intValue).max().orElse(0)`
      *   2. Duyệt song song nhãn và giá trị: `IntStream.range(0, labels.size()).forEach(i -> ...)`
-     *   3. Sinh chuỗi ký tự thanh bar: `"█".repeat(barLength)` gọn gàng và hiệu quả.
+     *   3. Sinh chuỗi ký tự thanh bar gọn gàng và hiệu quả.
      */
     public static void printAsciiBarChart(String chartTitle, List<String> labels, List<Integer> values, String unit) {
         System.out.println("\n  +----------------------------------------------------------------------------------+");
@@ -85,7 +94,7 @@ public class Menu {
                 }
             }
 
-            String bar = "=".repeat(barLength);
+            String bar = repeat("=", barLength);
             System.out.printf("  | %-26s | %-35s %4d %-10s |\n",
                     label, bar, val, unit);
         });

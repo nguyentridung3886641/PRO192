@@ -156,9 +156,7 @@ public class BorrowDAO implements IBorrowDAO {
         // [LAMBDA & STREAM API]: Trừ số lượng tồn kho bằng forEach
         books.forEach(b -> b.setQuantity(b.getQuantity() - 1));
 
-        bookDAO.saveToFile();
         recordList.add(record);
-        saveToFile();
         return true;
     }
 
@@ -218,9 +216,6 @@ public class BorrowDAO implements IBorrowDAO {
             member.addReputationPoints(10);  // Trả đúng hạn và nguyên vẹn: thưởng +10 điểm
         }
 
-        memberDAO.saveToFile();
-        bookDAO.saveToFile();
-        saveToFile();
         return true;
     }
 
@@ -233,11 +228,7 @@ public class BorrowDAO implements IBorrowDAO {
         if (record == null) {
             return false;
         }
-        boolean extended = record.extendDueDate(extraDays);
-        if (extended) {
-            saveToFile();
-        }
-        return extended;
+        return record.extendDueDate(extraDays);
     }
 
     /**
@@ -309,13 +300,8 @@ public class BorrowDAO implements IBorrowDAO {
         }
         if (!record.isReturned()) {
             record.getBorrowedBooks().forEach(b -> b.setQuantity(b.getQuantity() + 1));
-            bookDAO.saveToFile();
         }
-        boolean removed = recordList.remove(record);
-        if (removed) {
-            saveToFile();
-        }
-        return removed;
+        return recordList.remove(record);
     }
 
     @Override
@@ -460,15 +446,13 @@ public class BorrowDAO implements IBorrowDAO {
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
 
-            if (!loaded.isEmpty()) {
-                recordList.clear();
-                recordList.addAll(loaded);
-                return true;
-            }
+            recordList.clear();
+            recordList.addAll(loaded);
+            return true;
         } catch (Exception e) {
             System.out.println(">> Warning reading file BorrowRecords.txt: " + e.getMessage());
+            return false;
         }
-        return false;
     }
 
     @Override

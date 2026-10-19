@@ -52,18 +52,22 @@ public class MemberManagement {
                     searchMemberSubMenu();
                     break;
                 case 6:
-                    toggleMemberStatus();
-                    break;
-                case 7:
                     sortMemberSubMenu();
                     break;
-                case 8:
+                case 7:
                     displayMembershipTierAnalytics();
                     break;
-                case 9:
+                case 8:
                     if (memberDAO.saveToFile()) {
                         System.out.println(">> Successfully saved member list to Members.txt!");
+                    } else {
+                        System.out.println(">> Failed to save member list!");
                     }
+                    break;
+                case 9:
+                    memberDAO.loadFromFile();
+                    System.out.println(">> Changes discarded from RAM. Returning to Main Menu!");
+                    running = false;
                     break;
                 case 0:
                     memberDAO.saveToFile();
@@ -82,22 +86,22 @@ public class MemberManagement {
     }
 
     private void printMenuHeader() {
-        System.out.println("\n" + "=".repeat(106));
+        System.out.println("\n" + Menu.repeat("=", 106));
         System.out.println("                         MEMBER & MEMBERSHIP TIER MANAGEMENT SYSTEM                                       ");
-        System.out.println("=".repeat(106));
+        System.out.println(Menu.repeat("=", 106));
         Menu.print(
             "  1. Display all library members (Includes Tier, Reputation Points & Borrow Limits)|" +
             "  2. Add new member|" +
-            "  3. Update member information|" +
+            "  3. Update member information (Includes Status Active / Locked)|" +
             "  4. Delete member by ID|" +
             "  5. Search & filter members (By ID / Name / Phone / Membership Tier VIP-GOLD-SILVER)|" +
-            "  6. Toggle member card status (Active / Locked)|" +
-            "  7. Sort member list (By Reputation Points / Full Name / Member ID)|" +
-            "  8. Membership Tier Distribution Chart (Console ASCII Bar Chart)|" +
-            "  9. Save member list to file (Members.txt)|" +
+            "  6. Sort member list (By Reputation Points / Full Name / Member ID)|" +
+            "  7. Membership Tier Distribution Chart (Console ASCII Bar Chart)|" +
+            "  8. Save member list to file (Members.txt)|" +
+            "  9. Exit without saving (discard changes on RAM)|" +
             "  0. Save & return to Main Menu"
         );
-        System.out.println("=".repeat(106));
+        System.out.println(Menu.repeat("=", 106));
     }
 
     public void displayMembers(List<Member> members, String title) {
@@ -164,7 +168,6 @@ public class MemberManagement {
         try {
             Member member = new Member(userId, fullName, phone, dob, registrationDate, true, initialPoints);
             if (memberDAO.add(member)) {
-                memberDAO.saveToFile();
                 System.out.println(">> Successfully added new member! Tier: " + member.getMembershipTier()
                         + " (Borrow limit: " + member.getMaxBorrowLimit() + " books)");
             } else {
@@ -194,9 +197,21 @@ public class MemberManagement {
         }
         LocalDate newDob = DataInput.getDate("New date of birth");
 
+        System.out.println("Update member card status? (1: Active, 2: Locked, Enter to keep current [" + member.getStatusText() + "])");
+        String statusChoice = DataInput.getString(">> Your choice: ");
+        if ("1".equals(statusChoice.trim())) {
+            member.setActive(true);
+            if (member.getReputationPoints() < 0) {
+                member.setReputationPoints(50);
+            }
+            System.out.println(">> Card status set to Active.");
+        } else if ("2".equals(statusChoice.trim())) {
+            member.setActive(false);
+            System.out.println(">> Card status set to Locked.");
+        }
+
         try {
             if (memberDAO.update(member, newName, newPhone, newDob)) {
-                memberDAO.saveToFile();
                 System.out.println(">> Member information updated successfully!");
             }
         } catch (Exception e) {
@@ -215,28 +230,11 @@ public class MemberManagement {
         System.out.println("Member information: " + member);
         if (DataInput.getBoolean("Are you sure you want to delete this member?")) {
             if (memberDAO.delete(member)) {
-                memberDAO.saveToFile();
                 System.out.println(">> Member deleted successfully!");
             }
         } else {
             System.out.println(">> Delete operation cancelled.");
         }
-    }
-
-    private void toggleMemberStatus() {
-        System.out.println("--- TOGGLE MEMBER STATUS (LOCK / UNLOCK) ---");
-        String userId = DataInput.getNonEmptyString("Enter Member ID: ");
-        Member member = memberDAO.findById(userId);
-        if (member == null) {
-            System.out.println(">> No member found with ID: " + userId);
-            return;
-        }
-        member.toggleStatus();
-        if (member.isActive() && member.getReputationPoints() < 0) {
-            member.setReputationPoints(50); // Khôi phục điểm mặc định khi mở khóa thẻ
-        }
-        memberDAO.saveToFile();
-        System.out.println(">> Changed status of member " + member.getFullName() + " to: " + member.getStatusText());
     }
 
     private void searchMemberSubMenu() {

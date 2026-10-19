@@ -16,7 +16,7 @@ copy /y "testcases\BorrowRecords_Standard.txt" "BorrowRecords.txt" >nul
 
 echo [SUCCESS] Testcase data loaded successfully into Books.txt, Members.txt, BorrowRecords.txt!
 echo.
-echo [*] Compiling Java source files...
+set "PATH=C:\Program Files\Java\jdk1.8.0_202\bin;%PATH%"
 if not exist "bin" mkdir bin
 javac -encoding UTF-8 -d bin BusinessObject\UI\*.java Core\Entities\*.java DataObjects\DAO\*.java Utilities\*.java
 if %errorlevel% neq 0 (

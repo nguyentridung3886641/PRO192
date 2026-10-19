@@ -131,15 +131,6 @@ public class Member extends User {
         }
     }
 
-    public void toggleStatus() {
-        this.active = !this.active;
-    }
-
-    @Override
-    public String getRole() {
-        return "Member (" + getMembershipTier() + ")";
-    }
-
     public String toFileString() {
         String dob = (dateOfBirth != null) ? dateOfBirth.format(DATE_FORMAT) : "01/01/2000";
         String reg = (registrationDate != null) ? registrationDate.format(DATE_FORMAT) : LocalDate.now().format(DATE_FORMAT);
