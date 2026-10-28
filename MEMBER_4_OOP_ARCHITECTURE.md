@@ -6,12 +6,15 @@
 ---
 
 ## 📑 MỤC LỤC
-1. [Bốn trụ cột OOP được thể hiện ở đâu trong Milestone 4](#1-bốn-trụ-cột-oop-được-thể-hiện-ở-đâu-trong-milestone-4)
-2. [Nguyên lý SOLID trong thiết kế của Member 4](#2-nguyên-lý-solid-trong-thiết-kế-của-member-4)
-3. [Các mẫu thiết kế (Design Patterns) đã vận dụng](#3-các-mẫu-thiết-kế-design-patterns-đã-vận-dụng)
+1. [Bốn trụ cột OOP được thể hiện ở đâu trong Milestone 4](#sec-4-pillars)
+2. [Nguyên lý SOLID trong thiết kế của Member 4](#sec-solid)
+3. [Các mẫu thiết kế (Design Patterns) đã vận dụng](#sec-patterns)
 
 ---
 
+<a id="sec-4-pillars"></a>
+<a id="1-bon-tru-cot-oop-duoc-the-hien-o-dau-trong-milestone-4"></a>
+<a id="1-bốn-trụ-cột-oop-được-thể-hiện-ở-đâu-trong-milestone-4"></a>
 # 1. BỐN TRỤ CỘT OOP ĐƯỢC THỂ HIỆN Ở ĐÂU TRONG MILESTONE 4
 
 ### 💎 Trụ cột 1: Encapsulation (Tính đóng gói)
@@ -65,6 +68,9 @@
 
 ---
 
+<a id="sec-solid"></a>
+<a id="2-nguyen-ly-solid-trong-thiet-ke-cua-member-4"></a>
+<a id="2-nguyên-lý-solid-trong-thiết-kế-của-member-4"></a>
 # 2. NGUYÊN LÝ SOLID TRONG THIẾT KẾ CỦA MEMBER 4
 
 Khi thầy hỏi: *"Em hiểu thế nào về SOLID và áp dụng vào phần code của em như thế nào?"*, hãy trả lời tự tin 3 nguyên lý nổi bật nhất:
@@ -102,6 +108,9 @@ Khi thầy hỏi: *"Em hiểu thế nào về SOLID và áp dụng vào phần c
 
 ---
 
+<a id="sec-patterns"></a>
+<a id="3-cac-mau-thiet-ke-design-patterns-da-van-dung"></a>
+<a id="3-các-mẫu-thiết-kế-design-patterns-đã-vận-dụng"></a>
 # 3. CÁC MẪU THIẾT KẾ (DESIGN PATTERNS) ĐÃ VẬN DỤNG
 
 ### 🎯 1. Facade Pattern (Mẫu thiết kế Mặt tiền)

@@ -6,14 +6,17 @@
 ---
 
 ## 📑 MỤC LỤC
-1. [Tại sao tách/gộp các hàm nhập liệu trong DataInput](#1-tại-sao-táchgộp-các-hàm-nhập-liệu-trong-datainput)
-2. [Tại sao tách riêng DataInput và DataValidation](#2-tại-sao-tách-riêng-datainput-và-datavalidation)
-3. [Quyết định thiết kế Menu dạng chuỗi phân cách và Biểu đồ ASCII](#3-quyết-định-thiết-kế-menu-dạng-chuỗi-phân-cách-và-biểu-đồ-ascii)
-4. [Chiến lược lưu trữ: RAM-First kết hợp Disk Persistence](#4-chiến-lược-lưu-trữ-ram-first-kết-hợp-disk-persistence)
-5. [Luồng dữ liệu nghiệp vụ toàn hệ thống (End-to-End Data Flow)](#5-luồng-dữ-liệu-nghiệp-vụ-toàn-hệ-thống-end-to-end-data-flow)
+1. [Tại sao tách/gộp các hàm nhập liệu trong DataInput](#sec-input-design)
+2. [Tại sao tách riêng DataInput và DataValidation](#sec-separate-val)
+3. [Quyết định thiết kế Menu dạng chuỗi phân cách và Biểu đồ ASCII](#sec-menu-design)
+4. [Chiến lược lưu trữ: RAM-First kết hợp Disk Persistence](#sec-storage)
+5. [Luồng dữ liệu nghiệp vụ toàn hệ thống (End-to-End Data Flow)](#sec-dataflow)
 
 ---
 
+<a id="sec-input-design"></a>
+<a id="1-tai-sao-tachgop-cac-ham-nhap-lieu-trong-datainput"></a>
+<a id="1-tại-sao-táchgộp-các-hàm-nhập-liệu-trong-datainput"></a>
 # 1. TẠI SAO TÁCH/GỘP CÁC HÀM NHẬP LIỆU TRONG `DataInput`
 
 ### ❓ Câu 1: Tại sao không gộp `getString` và `getNonEmptyString` lại làm một hàm duy nhất?
@@ -65,6 +68,9 @@
 
 ---
 
+<a id="sec-separate-val"></a>
+<a id="2-tai-sao-tach-rieng-datainput-va-datavalidation"></a>
+<a id="2-tại-sao-tách-riêng-datainput-và-datavalidation"></a>
 # 2. TẠI SAO TÁCH RIÊNG `DataInput` VÀ `DataValidation`
 
 ### ❓ Câu 5: Tại sao không viết các hàm kiểm tra regex số điện thoại, kiểm tra rỗng trực tiếp vào trong `DataInput` luôn mà phải tách ra lớp `DataValidation`?
@@ -77,6 +83,9 @@
 
 ---
 
+<a id="sec-menu-design"></a>
+<a id="3-quyet-dinh-thiet-ke-menu-dang-chuoi-phan-cach-va-bieu-do-ascii"></a>
+<a id="3-quyết-định-thiết-kế-menu-dạng-chuỗi-phân-cách-và-biểu-đồ-ascii"></a>
 # 3. QUYẾT ĐỊNH THIẾT KẾ MENU CHUỖI PHÂN CÁCH VÀ BIỂU ĐỒ ASCII
 
 ### ❓ Câu 6: Tại sao phương thức `Menu.print` lại dùng chuỗi phân cách dấu `|` thay vì truyền vào một mảng `String[]` hay `List<String>`?
@@ -110,6 +119,9 @@
 
 ---
 
+<a id="sec-storage"></a>
+<a id="4-chien-luoc-luu-tru-ram-first-ket-hop-disk-persistence"></a>
+<a id="4-chiến-lược-lưu-trữ-ram-first-kết-hợp-disk-persistence"></a>
 # 4. CHIẾN LƯỢC LƯU TRỮ: RAM-FIRST KẾT HỢP DISK PERSISTENCE
 
 ### ❓ Câu 8: Hãy giải thích cơ chế lưu trữ dữ liệu của đồ án: Dữ liệu được đọc và ghi vào lúc nào?
@@ -127,6 +139,9 @@
 
 ---
 
+<a id="sec-dataflow"></a>
+<a id="5-luong-du-lieu-nghiep-vu-toan-he-thong-end-to-end-data-flow"></a>
+<a id="5-luồng-dữ-liệu-nghiệp-vụ-toàn-hệ-thống-end-to-end-data-flow"></a>
 # 5. LUỒNG DỮ LIỆU NGHIỆP VỤ TOÀN HỆ THỐNG (END-TO-END DATA FLOW)
 
 ### ❓ Câu 9: Trình bày luồng đi của dữ liệu từ khi người dùng thao tác cho đến khi dữ liệu được ghi xuống file?

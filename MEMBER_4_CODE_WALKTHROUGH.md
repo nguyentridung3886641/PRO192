@@ -6,14 +6,17 @@
 ---
 
 ## 📑 MỤC LỤC TRA CỨU NHANH
-1. [Bẫy dòng lệnh trong DataInput.java](#1-bẫy-dòng-lệnh-trong-datainputjava)
-2. [Bẫy dòng lệnh trong DataValidation.java](#2-bẫy-dòng-lệnh-trong-datavalidationjava)
-3. [Bẫy dòng lệnh trong Menu.java](#3-bẫy-dòng-lệnh-trong-menujava)
-4. [Bẫy dòng lệnh trong FileManager.java](#4-bẫy-dòng-lệnh-trong-filemanagerjava)
-5. [Bẫy dòng lệnh trong Program.java](#5-bẫy-dòng-lệnh-trong-programjava)
+1. [Bẫy dòng lệnh trong DataInput.java](#sec-datainput)
+2. [Bẫy dòng lệnh trong DataValidation.java](#sec-datavalidation)
+3. [Bẫy dòng lệnh trong Menu.java](#sec-menu)
+4. [Bẫy dòng lệnh trong FileManager.java](#sec-filemanager)
+5. [Bẫy dòng lệnh trong Program.java](#sec-program)
 
 ---
 
+<a id="sec-datainput"></a>
+<a id="1-bay-dong-lenh-trong-datainputjava"></a>
+<a id="1-bẫy-dòng-lệnh-trong-datainputjava"></a>
 # 1. BẪY DÒNG LỆNH TRONG `DataInput.java` (97 dòng)
 
 ### 📌 Câu hỏi 1: Dòng 10 `private static final Scanner scanner = new Scanner(System.in);`
@@ -98,6 +101,9 @@
 
 ---
 
+<a id="sec-datavalidation"></a>
+<a id="2-bay-dong-lenh-trong-datavalidationjava"></a>
+<a id="2-bẫy-dòng-lệnh-trong-datavalidationjava"></a>
 # 2. BẪY DÒNG LỆNH TRONG `DataValidation.java` (45 dòng)
 
 ### 📌 Câu hỏi 6: Dòng 6 & 8-9 `public final class DataValidation { private DataValidation() {} }`
@@ -131,6 +137,9 @@
 
 ---
 
+<a id="sec-menu"></a>
+<a id="3-bay-dong-lenh-trong-menujava"></a>
+<a id="3-bẫy-dòng-lệnh-trong-menujava"></a>
 # 3. BẪY DÒNG LỆNH TRONG `Menu.java` (84 dòng)
 
 ### 📌 Câu hỏi 9: Dòng 13-25 `Menu.print(String menuString)`
@@ -158,6 +167,9 @@
 
 ---
 
+<a id="sec-filemanager"></a>
+<a id="4-bay-dong-lenh-trong-filemanagerjava"></a>
+<a id="4-bẫy-dòng-lệnh-trong-filemanagerjava"></a>
 # 4. BẪY DÒNG LỆNH TRONG `FileManager.java` (59 dòng)
 
 ### 📌 Câu hỏi 11: Dòng 39-50 `readLines(String filePath)`
@@ -201,6 +213,9 @@
 
 ---
 
+<a id="sec-program"></a>
+<a id="5-bay-dong-lenh-trong-programjava"></a>
+<a id="5-bẫy-dòng-lệnh-trong-programjava"></a>
 # 5. BẪY DÒNG LỆNH TRONG `Program.java` (174 dòng)
 
 ### 📌 Câu hỏi 13: Dòng 23-29 Khởi tạo kiến trúc phân tầng trong `main()`
