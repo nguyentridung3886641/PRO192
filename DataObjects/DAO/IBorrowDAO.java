@@ -1,13 +1,10 @@
 package DataObjects.DAO;
 
+// Milestone 3 - Thieu Quang Tuan - Borrow DAO Interface
 import Core.Entities.BorrowRecord;
 import java.time.LocalDate;
 import java.util.List;
 
-/**
- * Interface IBorrowDAO định nghĩa các thao tác quản lý giao dịch Mượn - Trả sách.
- * PRO192 - Phân hệ Giao dịch Mượn - Trả (Member 3)
- */
 public interface IBorrowDAO {
 
     boolean createBorrowRecord(BorrowRecord record);

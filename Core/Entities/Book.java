@@ -1,15 +1,9 @@
 package Core.Entities;
 
+// Milestone 1 - Nguyen Thien Tue - Abstract Book Entity
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Lớp trừu tượng Book đại diện cho thông tin chung của sách trong thư viện.
- * Bổ sung:
- * - Tính năng Đặt trước sách (Reservation Queue) khi sách hết hàng.
- * 
- * PRO192 - Phân hệ Sách & Đa hình (Member 2: Nguyen Thien Tue)
- */
 public abstract class Book {
     protected String bookId;
     protected String title;
@@ -87,18 +81,10 @@ public abstract class Book {
         this.quantity = quantity;
     }
 
-
-    // ========================================================
-    // Feature 7: Reservation Queue
-    // ========================================================
-
     public List<String> getReservationQueue() {
         return reservationQueue;
     }
 
-    /**
-     * [LAMBDA & STREAM API]: Đăng ký đặt trước sách (Reservation Queue).
-     */
     public boolean addReservation(String memberId) {
         if (memberId == null || memberId.trim().isEmpty()) {
             return false;
@@ -113,19 +99,12 @@ public abstract class Book {
         return true;
     }
 
-    /**
-     * Lấy mã độc giả đầu tiên trong hàng đợi (FIFO).
-     */
     public String popNextReservation() {
         if (reservationQueue.isEmpty()) {
             return null;
         }
         return reservationQueue.remove(0);
     }
-
-    // ========================================================
-    // Polymorphic Methods
-    // ========================================================
 
     public abstract double calculateTotalValue();
 

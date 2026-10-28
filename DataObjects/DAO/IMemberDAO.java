@@ -1,13 +1,10 @@
 package DataObjects.DAO;
 
+// Milestone 2 - Tran Ly Viet Tung - Member DAO Interface
 import Core.Entities.Member;
 import java.time.LocalDate;
 import java.util.List;
 
-/**
- * Interface IMemberDAO định nghĩa các thao tác quản lý Độc giả (Member).
- * PRO192 - Phân hệ Độc giả & Người dùng (Member 1)
- */
 public interface IMemberDAO {
 
     boolean add(Member member);

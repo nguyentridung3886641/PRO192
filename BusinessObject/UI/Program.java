@@ -1,5 +1,6 @@
 package BusinessObject.UI;
 
+// Milestone 4 - Nguyen Tri Dung - Main Program Coordinator
 import Core.Entities.Book;
 import Core.Entities.Member;
 import DataObjects.DAO.BookDAO;
@@ -16,13 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Điểm khởi chạy chính của chương trình Quản lý Thư viện (Library Management System).
- * Điều phối toàn bộ 3 phân hệ: Sách (Book), Độc giả (Member), Mượn - Trả (BorrowRecord)
- * kèm Biểu đồ trực quan ASCII (Tính năng 8) và Xuất báo cáo tổng hợp (Tính năng 9).
- * 
- * PRO192 - Tầng Điều phối & Tiện ích (Member 4)
- */
 public class Program {
 
     public static void main(String[] args) {
@@ -78,10 +72,6 @@ public class Program {
         }
     }
 
-    /**
-     * [LAMBDA & STREAM API]: Refactored to utilize Menu.print()
-     * Parses pipe-delimited menu options through an Arrays.stream pipeline.
-     */
     private static void printMainBanner() {
         System.out.println("\n" + Menu.repeat("=", 74));
         System.out.println("                      LIBRARY MANAGEMENT SYSTEM                           ");
@@ -124,7 +114,6 @@ public class Program {
                 borrowDAO.calculateTotalCompensationRevenue());
         System.out.println("==========================================================================");
 
-        // [LAMBDA & STREAM API]: Tính năng 8 - Vẽ biểu đồ ASCII tồn kho trên Dashboard
         List<String> labels = books.stream()
                 .map(b -> "[" + b.getBookId() + "] " + b.getTitle())
                 .collect(Collectors.toList());
@@ -135,9 +124,6 @@ public class Program {
         Menu.printAsciiBarChart("CURRENT BOOK INVENTORY", labels, values, "copies");
     }
 
-    /**
-     * Tính năng 9: Xuất báo cáo tổng hợp toàn thư viện ra file Library_Summary_Report.txt
-     */
     private static void exportSystemReportToFile(IBookDAO bookDAO, IMemberDAO memberDAO, IBorrowDAO borrowDAO) {
         String reportFile = "Library_Summary_Report.txt";
         List<String> lines = new ArrayList<>();

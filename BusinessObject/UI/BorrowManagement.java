@@ -1,5 +1,6 @@
 package BusinessObject.UI;
 
+// Milestone 3 - Thieu Quang Tuan - Borrow Management UI
 import Core.Entities.Book;
 import Core.Entities.BorrowRecord;
 import Core.Entities.Member;
@@ -17,14 +18,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-/**
- * Giao diện điều khiển phân hệ Quản lý Giao dịch Mượn - Trả sách (Borrow
- * Management UI).
- * Tích hợp đầy đủ các Tính năng 1, 5, 6, 7, 8, 9 (Viết bằng vòng lặp for và
- * if-else truyền thống).
- * 
- * PRO192 - Phân hệ Giao dịch Mượn - Trả (Member 3)
- */
 public class BorrowManagement {
 
     private final IBorrowDAO borrowDAO;
@@ -93,8 +86,7 @@ public class BorrowManagement {
                     borrowDAO.saveToFile();
                     bookDAO.saveToFile();
                     memberDAO.saveToFile();
-                    System.out
-                            .println(">> All borrow records and related inventory data saved. Returning to Main Menu!");
+                    System.out.println(">> All borrow records and related inventory data saved. Returning to Main Menu!");
                     running = false;
                     break;
                 default:
@@ -117,8 +109,7 @@ public class BorrowManagement {
         Menu.print(
                 "  1. Display all borrow & return records (Includes Tier Discount, Fines & Damage Fees)|" +
                         "  2. Create new borrow record (Applies Tier limits VIP/GOLD/SILVER & Book Reservation)|" +
-                        "  3. Process book return, report damage/loss (150%), update reputation points & export receipt|"
-                        +
+                        "  3. Process book return, report damage/loss (150%), update reputation points & export receipt|" +
                         "  4. Extend loan period (+7 days for non-overdue records - Feature 5)|" +
                         "  5. Search borrow records (By Record ID / Member ID / Active Records)|" +
                         "  6. Filter OVERDUE records|" +
@@ -148,7 +139,6 @@ public class BorrowManagement {
                 "Total Pay");
         System.out.println(
                 "--------------------------------------------------------------------------------------------------------------------");
-        // [LAMBDA & STREAM API]: Hiển thị danh sách phiếu mượn bằng forEach Lambda
         records.forEach(r -> {
             String bDate = (r.getBorrowDate() != null) ? r.getBorrowDate().format(BorrowRecord.DATE_FORMAT) : "N/A";
             String dDate = (r.getDueDate() != null) ? r.getDueDate().format(BorrowRecord.DATE_FORMAT) : "N/A";
@@ -207,7 +197,6 @@ public class BorrowManagement {
                 1, remainingQuota);
         List<Book> selectedBooks = new ArrayList<>();
 
-        // [LAMBDA & STREAM API]: Duyệt từng lượt nhập sách bằng IntStream.rangeClosed
         IntStream.rangeClosed(1, numBooks).forEach(i -> {
             while (true) {
                 String bookId = DataInput.getNonEmptyString("  Enter book ID for item " + i + " (e.g. B001): ")
@@ -219,7 +208,6 @@ public class BorrowManagement {
                 }
                 if (book.getQuantity() <= 0) {
                     System.out.println("  >> Book '" + book.getTitle() + "' is currently OUT OF STOCK (Qty = 0)!");
-                    // Tính năng 7: Cho phép đặt trước ngay khi hết sách
                     if (DataInput.getBoolean("  >> Would you like to RESERVE this book?")) {
                         if (bookDAO.reserveBook(bookId, memberId)) {
                             System.out.println("  >> Successfully placed member " + memberId
@@ -230,7 +218,6 @@ public class BorrowManagement {
                     }
                     continue;
                 }
-                // [LAMBDA & STREAM API]: Kiểm tra sách đã được chọn chưa bằng anyMatch
                 boolean alreadySelected = selectedBooks.stream()
                         .anyMatch(b -> b.getBookId().equalsIgnoreCase(bookId));
                 if (alreadySelected) {
@@ -257,10 +244,6 @@ public class BorrowManagement {
         }
     }
 
-    /**
-     * Features 1, 6, 7, 9: Return books, damage inspection, reputation points
-     * update & receipt generation.
-     */
     private void processReturnBooks() {
         System.out.println("--- PROCESS BOOK RETURN, DAMAGE INSPECTION & RECEIPT GENERATION ---");
         String recordId = DataInput.getNonEmptyString("Enter borrow record ID to return (e.g. BR002): ").toUpperCase();
@@ -288,7 +271,6 @@ public class BorrowManagement {
             return;
         }
 
-        // Tính năng 6: Kiểm tra xem có cuốn sách nào bị làm mất hoặc hư hỏng không
         List<String> damagedBookIds = new ArrayList<>();
         if (DataInput.getBoolean("Are any books LOST or SEVERELY DAMAGED?")) {
             record.getBorrowedBooks().forEach(b -> {
@@ -321,16 +303,12 @@ public class BorrowManagement {
                     m.getReputationPoints(), m.getMembershipTier());
             System.out.println("===============================================================");
 
-            // Tính năng 9: Tự động xuất biên lai ra file Receipt_<MãPhiếu>.txt
             if (borrowDAO.exportReceiptToFile(recordId)) {
                 System.out.println(">> Receipt automatically exported to file: Receipt_" + recordId + ".txt!");
             }
         }
     }
 
-    /**
-     * Feature 5: Extend loan period (+7 days).
-     */
     private void extendLoanPeriod() {
         System.out.println("--- EXTEND LOAN PERIOD (FEATURE 5) ---");
         String recordId = DataInput.getNonEmptyString("Enter borrow record ID to extend (e.g. BR001): ").toUpperCase();
@@ -418,22 +396,10 @@ public class BorrowManagement {
                 borrowDAO.calculateTotalCompensationRevenue());
         System.out.println("==========================================================================");
 
-        // [LAMBDA & STREAM API]: Tính năng 8 - Thống kê số lượt mượn từng cuốn sách
-        //
-        // So sánh:
-        // - Cách cũ: Dùng vòng lặp for lồng nhau 2 cấp (phiếu -> sách) kết hợp Map
-        // get/put thủ công.
-        // - Lambda/Stream:
-        // 1. all.stream(): Tạo luồng từ danh sách toàn bộ phiếu mượn
-        // 2. flatMap(r -> r.getBorrowedBooks().stream()): "Làm phẳng" danh sách sách
-        // của từng phiếu thành luồng phẳng
-        // 3. collect(Collectors.groupingBy(Book::getBookId, Collectors.counting())): Tự
-        // động phân nhóm theo ID và đếm số lần xuất hiện
         Map<String, Long> bookBorrowCounts = all.stream()
                 .flatMap(r -> r.getBorrowedBooks().stream())
                 .collect(Collectors.groupingBy(Book::getBookId, Collectors.counting()));
 
-        // [LAMBDA & STREAM API]: Ánh xạ nhãn và giá trị biểu đồ từ Map bằng Stream API
         List<String> chartLabels = bookBorrowCounts.keySet().stream()
                 .map(id -> {
                     Book b = bookDAO.findBookById(id);
@@ -445,7 +411,6 @@ public class BorrowManagement {
                 .map(Long::intValue)
                 .collect(Collectors.toList());
 
-        // Tính năng 8: Vẽ biểu đồ cột ASCII cho các sách được mượn
         Menu.printAsciiBarChart("BORROW COUNT BY BOOK TITLE", chartLabels, chartValues, "loans");
     }
 

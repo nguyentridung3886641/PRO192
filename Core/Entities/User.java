@@ -1,5 +1,6 @@
 package Core.Entities;
 
+// Milestone 1 - Tran Ly Viet Tung - User Entity
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -55,15 +56,13 @@ public abstract class User {
     }
 
     public void setDateOfBirth(LocalDate dateOfBirth) {
-        if (dateOfBirth != null && dateOfBirth.isAfter(LocalDate.now())) {
-            throw new IllegalArgumentException("Error: Date of birth cannot be in the future!");
-        }
         this.dateOfBirth = dateOfBirth;
     }
 
     @Override
     public String toString() {
         String dob = (dateOfBirth != null) ? dateOfBirth.format(DATE_FORMAT) : "N/A";
-        return String.format("ID: %-8s | Name: %-20s | Phone: %-11s | DOB: %s", userId, fullName, phone, dob);
+        return String.format("ID: %-8s | Name: %-22s | Phone: %-11s | DOB: %-10s",
+                userId, fullName, phone, dob);
     }
 }

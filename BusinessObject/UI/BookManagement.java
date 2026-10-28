@@ -1,5 +1,6 @@
 package BusinessObject.UI;
 
+// Milestone 3 - Nguyen Thien Tue - Book Management UI
 import Core.Entities.Book;
 import Core.Entities.ReferenceBook;
 import Core.Entities.TextBook;
@@ -13,14 +14,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-/**
- * Giao diện điều khiển phân hệ Kho Tài liệu / Sách (Book Management UI).
- * Thể hiện đầy đủ:
- * - Milestone 3: Hiện thực hóa Đa hình (Polymorphism) và Upcasting trên danh sách sách.
- * - Milestone 4: Tích hợp đọc/ghi file Books.txt, tìm kiếm đa tiêu chí, thuật toán sắp xếp.
- * 
- * PRO192 - Phân hệ Sách & Đa hình (Member 2: Nguyen Thien Tue)
- */
 public class BookManagement {
 
     private final IBookDAO bookDAO;
@@ -121,13 +114,6 @@ public class BookManagement {
         System.out.println(Menu.repeat("=", 104));
     }
 
-    /**
-     * In danh sách sách dưới dạng bảng biểu chi tiết.
-     * Minh họa rõ nét tính Đa hình (Polymorphism) và Upcasting trong danh sách List<Book>:
-     * - calculatePrice(): Đơn giá ưu đãi/sau thuế của từng loại sách
-     * - calculateBorrowFee(1): Phí mượn theo ngày riêng biệt
-     * - calculateTotalValue(): Tổng giá trị lưu kho
-     */
     public void printBookTable(List<Book> books, String tableTitle) {
         String sep = "+----------+----------------------------------+----------------------+-----------------+------------------------+-----+----------------+----------------+----------------+----------------+";
         int totalWidth = sep.length();
@@ -146,16 +132,13 @@ public class BookManagement {
             return;
         }
 
-        // [LAMBDA & STREAM API]: Tính toán tổng số lượng và tổng trị giá bằng Stream API IntStream/DoubleStream
         int totalQty = books.stream().mapToInt(Book::getQuantity).sum();
         double totalVal = books.stream().mapToDouble(Book::calculateTotalValue).sum();
 
-        // [LAMBDA & STREAM API]: Hiển thị chi tiết từng dòng sách bằng forEach Lambda
         books.forEach(b -> {
             String typeStr;
             String extraInfo;
 
-            // Áp dụng Upcasting & Dynamic Method Dispatch
             if (b instanceof TextBook) {
                 typeStr = "TextBook";
                 extraInfo = ((TextBook) b).getGenre();
@@ -347,10 +330,6 @@ public class BookManagement {
         }
     }
 
-    // ========================================================
-    // Milestone 4: Multi-criteria search menu
-    // ========================================================
-
     public void searchBooksSubMenu() {
         System.out.println("\n--- [ BOOK SEARCH BY CRITERIA (MILESTONE 4) ] ---");
         System.out.println("  1. Search by Book ID");
@@ -423,10 +402,6 @@ public class BookManagement {
         }
     }
 
-    // ========================================================
-    // Milestone 4: Sorting algorithms menu
-    // ========================================================
-
     public void sortBooksSubMenu() {
         System.out.println("\n--- [ SORT BOOK LIST (MILESTONE 4) ] ---");
         System.out.println("  1. Sort by Title (A -> Z) [Insertion Sort Algorithm]");
@@ -483,11 +458,6 @@ public class BookManagement {
         printBookTable(list, title);
     }
 
-    // ========================================================
-    // ========================================================
-    // Milestone 3: Simulate borrow fee calculation via Polymorphism
-    // ========================================================
-
     public void simulateBorrowFeePolymorphism() {
         System.out.println("\n--- [ SIMULATE BORROW FEE VIA POLYMORPHISM (MILESTONE 3) ] ---");
         System.out.println(">> Polymorphism & Upcasting Mechanism:");
@@ -529,7 +499,6 @@ public class BookManagement {
         List<Book> all = bookDAO.getBookList();
         int totalTitles = all.size();
 
-        // [LAMBDA & STREAM API]: Thống kê phân loại sách bằng Stream filter, count, mapToInt, mapToDouble
         long textBookCount = all.stream().filter(b -> b instanceof TextBook).count();
         long refBookCount = all.stream().filter(b -> b instanceof ReferenceBook).count();
         int textBookQty = all.stream().filter(b -> b instanceof TextBook).mapToInt(Book::getQuantity).sum();
@@ -537,12 +506,10 @@ public class BookManagement {
         double textBookVal = all.stream().filter(b -> b instanceof TextBook).mapToDouble(Book::calculateTotalValue).sum();
         double refBookVal = all.stream().filter(b -> b instanceof ReferenceBook).mapToDouble(Book::calculateTotalValue).sum();
 
-        // [LAMBDA & STREAM API]: Tìm cuốn sách max / min theo đơn giá và tồn kho bằng Comparator Lambda
         Book highestPriceBook = all.stream().max(Comparator.comparingDouble(Book::getPrice)).orElse(null);
         Book lowestPriceBook = all.stream().min(Comparator.comparingDouble(Book::getPrice)).orElse(null);
         Book highestQtyBook = all.stream().max(Comparator.comparingInt(Book::getQuantity)).orElse(null);
 
-        // [LAMBDA & STREAM API]: Lọc các sách có cảnh báo tồn kho thấp (< 5 cuốn)
         List<Book> lowStockBooks = all.stream().filter(b -> b.getQuantity() < 5).collect(Collectors.toList());
 
         int totalQty = textBookQty + refBookQty;
@@ -585,8 +552,6 @@ public class BookManagement {
         System.out.println("==========================================================================================");
     }
 
-    // --- Helper methods căn chỉnh hiển thị bảng biểu ---
-
     private static String makeLine(char ch, int length) {
         return Menu.repeat(String.valueOf(ch), Math.max(0, length));
     }
@@ -605,10 +570,6 @@ public class BookManagement {
         if (text.length() <= maxLength) return text;
         return text.substring(0, maxLength - 3) + "...";
     }
-
-    // ========================================================
-    // Features 7, 8: Reservation Queue & Visual Bar Chart
-    // ========================================================
 
     private void reservationQueueSubMenu() {
         System.out.println("==========================================================================================");
@@ -640,7 +601,6 @@ public class BookManagement {
                 return;
             }
             System.out.println("\n--- BOOKS WITH ACTIVE RESERVATION QUEUES ---");
-            // [LAMBDA & STREAM API]: In danh sách đặt trước bằng IntStream
             IntStream.range(0, reservedBooks.size()).forEach(i -> {
                 Book b = reservedBooks.get(i);
                 System.out.printf("  %d. [%s] %-35s (Stock: %d) -> Queue (%d members): %s\n",
@@ -652,7 +612,6 @@ public class BookManagement {
 
     private void displayBookInventoryChart() {
         List<Book> books = bookDAO.getBookList();
-        // [LAMBDA & STREAM API]: Ánh xạ nhãn và giá trị biểu đồ ASCII bằng map và Collectors.toList
         List<String> labels = books.stream()
                 .map(b -> "[" + b.getBookId() + "] " + b.getTitle())
                 .collect(Collectors.toList());

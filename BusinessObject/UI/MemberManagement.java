@@ -1,5 +1,6 @@
 package BusinessObject.UI;
 
+// Milestone 2 - Tran Ly Viet Tung - Member Management UI
 import Core.Entities.Member;
 import Core.Entities.User;
 import DataObjects.DAO.IMemberDAO;
@@ -11,12 +12,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Giao diện điều khiển phân hệ Quản lý Độc giả & Người dùng (Member Management UI).
- * Tích hợp Tính năng 1 (Hạng thẻ & Điểm uy tín) và Tính năng 8 (Biểu đồ ASCII).
- * 
- * PRO192 - Phân hệ Độc giả & Người dùng (Member 1)
- */
 public class MemberManagement {
 
     private final IMemberDAO memberDAO;
@@ -116,7 +111,6 @@ public class MemberManagement {
         System.out.printf("| %-6s | %-22s | %-11s | %-10s | %-8s | %-8s | %-8s | %-8s | %-15s |\n",
                 "ID", "Full Name", "Phone", "DOB", "Points", "Tier", "Discount", "Limit", "Status");
         System.out.println("--------------------------------------------------------------------------------------------------------------------");
-        // [LAMBDA & STREAM API]: Duyệt và hiển thị danh sách độc giả bằng forEach Lambda
         members.forEach(m -> {
             String dob = (m.getDateOfBirth() != null) ? m.getDateOfBirth().format(User.DATE_FORMAT) : "N/A";
             String discountStr = String.format("-%.0f%%", m.getDiscountRate() * 100);
@@ -282,14 +276,6 @@ public class MemberManagement {
         }
     }
 
-    /**
-     * [LAMBDA & STREAM API]: Thống kê phân bố hạng thẻ và tình trạng hoạt động bằng Stream filter và count.
-     * 
-     * So sánh:
-     * - Cách cũ: Khởi tạo 4 biến đếm rồi dùng vòng for lặp và nhiều câu lệnh if-else lồng nhau.
-     * - Lambda/Stream: Mỗi hạng thẻ được tính độc lập bằng `all.stream().filter(...).count()`,
-     *   loại bỏ logic kiểm tra if-else phức tạp và biến đếm đột biến (state mutation).
-     */
     private void displayMembershipTierAnalytics() {
         List<Member> all = memberDAO.getAll();
         long vipCount = all.stream().filter(m -> "VIP".equalsIgnoreCase(m.getMembershipTier())).count();

@@ -1,5 +1,6 @@
 package DataObjects.DAO;
 
+// Milestone 2 - Tran Ly Viet Tung - Member DAO Implementation
 import Core.Entities.Member;
 import java.io.File;
 import java.io.IOException;
@@ -14,19 +15,6 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Lớp MemberDAO quản lý danh sách Độc giả (Member) trong bộ nhớ và đồng bộ với
- * file Members.txt.
- * Tích hợp:
- * - Tính năng 1: Phân hạng thẻ độc giả (VIP, GOLD, SILVER) & sắp xếp theo Điểm
- * uy tín.
- * - Tính năng kiểm tra chống trùng lặp mã độc giả (Duplicate ID Check via
- * HashSet).
- * - Tách lớp MemberFileHandler chuyên trách File I/O theo nguyên lý SRP và
- * NIO.2.
- * 
- * PRO192 - Phân hệ Độc giả & Người dùng (Member 1)
- */
 public class MemberDAO implements IMemberDAO {
 
     public static final String DEFAULT_FILE_PATH = "Members.txt";
@@ -55,28 +43,17 @@ public class MemberDAO implements IMemberDAO {
     public void initSampleData() {
         memberList.clear();
         add(new Member("M001", "Nguyen Tri Dung", "0901234567",
-                LocalDate.of(2005, 5, 15), LocalDate.of(2026, 1, 10), true, 120)); // VIP
+                LocalDate.of(2005, 5, 15), LocalDate.of(2026, 1, 10), true, 120));
         add(new Member("M002", "Nguyen Thien Tue", "0912345678",
-                LocalDate.of(2005, 8, 20), LocalDate.of(2026, 1, 12), true, 85)); // GOLD
+                LocalDate.of(2005, 8, 20), LocalDate.of(2026, 1, 12), true, 85));
         add(new Member("M003", "Tran Minh Quan", "0987654321",
-                LocalDate.of(2005, 3, 25), LocalDate.of(2026, 2, 1), true, 65)); // GOLD
+                LocalDate.of(2005, 3, 25), LocalDate.of(2026, 2, 1), true, 65));
         add(new Member("M004", "Le Hoang Nam", "0933445566",
-                LocalDate.of(2005, 11, 5), LocalDate.of(2026, 2, 15), true, 50)); // SILVER
+                LocalDate.of(2005, 11, 5), LocalDate.of(2026, 2, 15), true, 50));
         add(new Member("M005", "Pham Thu Ha", "0977889900",
-                LocalDate.of(2006, 2, 18), LocalDate.of(2026, 3, 1), false, -5)); // Locked
+                LocalDate.of(2006, 2, 18), LocalDate.of(2026, 3, 1), false, -5));
     }
 
-    /**
-     * [LAMBDA & STREAM API]: Tìm kiếm độc giả theo mã định danh (User ID).
-     * 
-     * So sánh:
-     * - Cách cũ: Duyệt for loop `i = 0 -> memberList.size()`, so sánh chuỗi bằng if
-     * và return member.
-     * - Lambda/Stream: `filter(m ->
-     * m.getUserId().equalsIgnoreCase(targetId)).findFirst().orElse(null);`
-     * -> Ngắn gọn, loại bỏ việc quản lý chỉ số index, tự động dừng quét khi tìm
-     * thấy (short-circuit).
-     */
     @Override
     public Member findById(String userId) {
         if (userId == null || userId.trim().isEmpty()) {
@@ -127,10 +104,6 @@ public class MemberDAO implements IMemberDAO {
         return new ArrayList<>(memberList);
     }
 
-    /**
-     * [LAMBDA & STREAM API]: Tìm kiếm độc giả theo từ khóa họ tên.
-     * Sử dụng Stream filter kết hợp Lambda expression và Collectors.toList().
-     */
     @Override
     public List<Member> searchByName(String keyword) {
         if (keyword == null) {
@@ -142,9 +115,6 @@ public class MemberDAO implements IMemberDAO {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * [LAMBDA & STREAM API]: Tìm kiếm độc giả theo số điện thoại.
-     */
     @Override
     public List<Member> searchByPhone(String phoneKeyword) {
         if (phoneKeyword == null) {
@@ -156,10 +126,6 @@ public class MemberDAO implements IMemberDAO {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * [LAMBDA & STREAM API]: Lọc danh sách độc giả theo Hạng thẻ (VIP / GOLD /
-     * SILVER).
-     */
     @Override
     public List<Member> filterByTier(String tier) {
         if (tier == null) {
@@ -171,19 +137,6 @@ public class MemberDAO implements IMemberDAO {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * [LAMBDA & COMPARATOR CHAINING]: Sắp xếp danh sách độc giả theo Họ tên (A ->
-     * Z).
-     * 
-     * So sánh:
-     * - Cách cũ: new Comparator<Member>() { public int compare(...) { ... } } với
-     * 15 dòng code ẩn danh.
-     * - Lambda/Stream: Sử dụng `Comparator.comparing(...).thenComparing(...)` cực
-     * kỳ tường minh:
-     * - Tiêu chí 1: Họ tên không phân biệt hoa thường
-     * (`String.CASE_INSENSITIVE_ORDER`)
-     * - Tiêu chí 2: Nếu trùng tên thì so sánh tiếp theo Mã độc giả (ID)
-     */
     @Override
     public List<Member> sortByNameAscending() {
         return memberList.stream()
@@ -192,9 +145,6 @@ public class MemberDAO implements IMemberDAO {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * [LAMBDA & COMPARATOR]: Sắp xếp danh sách độc giả theo Mã ID (A -> Z).
-     */
     @Override
     public List<Member> sortByIdAscending() {
         return memberList.stream()
@@ -202,15 +152,6 @@ public class MemberDAO implements IMemberDAO {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * [LAMBDA & COMPARATOR CHAINING]: Sắp xếp danh sách độc giả theo Điểm uy tín
-     * giảm dần (Cao -> Thấp).
-     * 
-     * So sánh:
-     * - Lambda:
-     * `Comparator.comparingInt(Member::getReputationPoints).reversed().thenComparing(...)`
-     * -> Giúp xếp hạng độc giả VIP lên đầu bảng một cách trực quan và tối ưu.
-     */
     @Override
     public List<Member> sortByReputationDescending() {
         return memberList.stream()
@@ -219,10 +160,6 @@ public class MemberDAO implements IMemberDAO {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * [LAMBDA & STREAM API]: Nạp dữ liệu từ Path với cơ chế kiểm tra chống trùng
-     * lặp mã độc giả qua Stream anyMatch & HashSet.
-     */
     public void loadToMemberList(Path filePath) throws IOException {
         List<Member> loadedMemberList = MemberFileHandler.loadMembers(filePath);
         Set<String> ids = new HashSet<>();
@@ -236,9 +173,6 @@ public class MemberDAO implements IMemberDAO {
         memberList.addAll(loadedMemberList);
     }
 
-    /**
-     * Lưu danh sách thành viên ra Path qua MemberFileHandler.
-     */
     public void saveToFile(Path filePath) throws IOException {
         MemberFileHandler.saveMembers(memberList, filePath);
     }

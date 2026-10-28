@@ -1,5 +1,6 @@
 package DataObjects.DAO;
 
+// Milestone 4 - Tran Ly Viet Tung - Member File Storage
 import Core.Entities.Member;
 import Core.Entities.User;
 import java.io.IOException;
@@ -13,12 +14,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Lớp MemberFileHandler chuyên trách đọc/ghi dữ liệu Độc giả (Member) theo nguyên lý Đơn trách nhiệm (SRP).
- * Áp dụng Java NIO.2 (Files, Path) kết hợp Stream API & Biểu thức Lambda với chuẩn mã hóa UTF-8.
- * 
- * PRO192 - Milestone 4: File I/O & Exception Handling
- */
 public class MemberFileHandler {
 
     public static String toFileString(Member member) {
@@ -81,11 +76,6 @@ public class MemberFileHandler {
         return new Member(userId, fullName, phone, dob, registrationDate, active, points);
     }
 
-    /**
-     * [LAMBDA & STREAM API]: Lưu danh sách độc giả ra file.
-     * Áp dụng Stream filter loại bỏ phần tử null, map sang chuỗi bằng Method Reference
-     * và gom lại thành danh sách ghi file.
-     */
     public static void saveMembers(List<Member> memberList, Path filePath) throws IOException {
         List<String> lines = new ArrayList<>();
         lines.add("# Format: MemberID|FullName|Phone|DateOfBirth(dd/MM/yyyy)|RegistrationDate(dd/MM/yyyy)|Status|ReputationPoints");
@@ -101,18 +91,6 @@ public class MemberFileHandler {
         Files.write(filePath, lines, StandardCharsets.UTF_8);
     }
 
-    /**
-     * [LAMBDA & STREAM API]: Nạp danh sách độc giả từ file với Java NIO.2 Files.lines.
-     * 
-     * So sánh:
-     * - Cách cũ: Đọc Files.readAllLines vào bộ nhớ rồi dùng vòng for lặp từng dòng.
-     * - Lambda/Stream: Dùng Files.lines trả về Stream<String> lười (lazy evaluation), kết hợp:
-     *   - map(String::trim): Chuẩn hóa khoảng trắng đầu cuối
-     *   - filter: Loại bỏ dòng trống và dòng chú thích (#)
-     *   - map(MemberFileHandler::fromFileString): Parse chuỗi thành đối tượng Member
-     *   - filter(Objects::nonNull): Loại bỏ đối tượng không hợp lệ
-     *   - collect(Collectors.toList()): Thu thập danh sách Member hoàn chỉnh.
-     */
     public static List<Member> loadMembers(Path filePath) throws IOException {
         if (Files.notExists(filePath)) {
             return new ArrayList<>();

@@ -1,5 +1,6 @@
 package Core.Entities;
 
+// Milestone 3 - Thieu Quang Tuan - BorrowRecord Entity
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -9,15 +10,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-/**
- * Thực thể BorrowRecord đại diện cho Phiếu Mượn - Trả sách.
- * Tích hợp:
- * - Tính năng 1: Tính chiết khấu phí mượn theo Hạng thẻ độc giả (VIP -25%, GOLD -10%).
- * - Tính năng 5: Gia hạn phiếu mượn (extendDueDate, tối đa 1 lần +7 ngày).
- * - Tính năng 6: Xử lý đền bù làm mất / hư hỏng sách (compensationFee = 150% giá sách).
- * 
- * PRO192 - Phân hệ Giao dịch Mượn - Trả (Member 3)
- */
 public class BorrowRecord {
     private String recordId;
     private Member member;
@@ -30,8 +22,8 @@ public class BorrowRecord {
     private double compensationFee;
 
     public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    public static final double FINE_PER_DAY = 5000.0; // 5.000 VNĐ mỗi ngày trễ hạn
-    public static final int MAX_EXTENSIONS = 1;       // Tối đa gia hạn 1 lần cho mỗi phiếu
+    public static final double FINE_PER_DAY = 5000.0;
+    public static final int MAX_EXTENSIONS = 1;
 
     public BorrowRecord(String recordId, Member member, LocalDate borrowDate, int borrowPeriodDays) {
         setRecordId(recordId);
@@ -149,10 +141,6 @@ public class BorrowRecord {
         this.compensationFee = Math.max(0, compensationFee);
     }
 
-    /**
-     * Tính năng 5: Gia hạn thêm số ngày mượn sách (Loan Extension).
-     * Điều kiện: Phiếu chưa trả, chưa bị quá hạn và số lần gia hạn < MAX_EXTENSIONS.
-     */
     public boolean extendDueDate(int extraDays) {
         if (returned || isOverdue() || extensionCount >= MAX_EXTENSIONS || extraDays <= 0) {
             return false;
@@ -194,26 +182,14 @@ public class BorrowRecord {
         return (int) Math.max(1, days);
     }
 
-    /**
-     * [LAMBDA & STREAM API]: Tính tổng phí mượn gốc (Đa hình: gọi book.calculateBorrowFee).
-     * 
-     * So sánh:
-     * - Cách cũ: Dùng biến accumulator `double total = 0;` và vòng lặp for i duyệt danh sách.
-     * - Lambda/Stream API: Chuyển đổi danh sách thành Stream, ánh xạ (mapToDouble) từng cuốn sách sang phí mượn
-     *   và dùng terminal operation `sum()` để cộng dồn.
-     *   -> Giúp code ngắn gọn, loại bỏ biến trạng thái có thể bị lỗi gán và tối ưu hóa xử lý.
-     */
-     public double calculateTotalBorrowFee() {
-         int days = getBorrowDurationDays();
-         return borrowedBooks.stream()
-                 .filter(Objects::nonNull)
-                 .mapToDouble(b -> b.calculateBorrowFee(days))
-                 .sum();
-     }
+    public double calculateTotalBorrowFee() {
+        int days = getBorrowDurationDays();
+        return borrowedBooks.stream()
+                .filter(Objects::nonNull)
+                .mapToDouble(b -> b.calculateBorrowFee(days))
+                .sum();
+    }
 
-    /**
-     * Tính năng 1: Tính phí mượn sau khi đã giảm giá theo Hạng thẻ độc giả (VIP -25%, GOLD -10%).
-     */
     public double calculateDiscountedBorrowFee() {
         double rawFee = calculateTotalBorrowFee();
         double discountRate = (member != null) ? member.getDiscountRate() : 0.0;
@@ -224,9 +200,6 @@ public class BorrowRecord {
         return getOverdueDays() * FINE_PER_DAY;
     }
 
-    /**
-     * Tổng số tiền thanh toán cuối cùng = Phí mượn sau giảm giá + Tiền phạt trễ hạn + Tiền đền bù hỏng/mất sách.
-     */
     public double calculateFinalPayment() {
         return calculateDiscountedBorrowFee() + calculateFine() + compensationFee;
     }
@@ -241,15 +214,6 @@ public class BorrowRecord {
         return (extensionCount > 0) ? "Borrowing (Ext.)" : "Borrowing";
     }
 
-    /**
-     * [LAMBDA & STREAM API]: Xuất định dạng chuỗi lưu trữ file.
-     * 
-     * So sánh:
-     * - Cách cũ: Dùng StringBuilder kết hợp vòng lặp for và `if (i > 0) append(",")` để nối ID sách.
-     * - Lambda/Stream: Dùng `borrowedBooks.stream().filter(Objects::nonNull).map(Book::getBookId).collect(Collectors.joining(","))`.
-     *   -> Sử dụng Method Reference `Book::getBookId` kết hợp Collector `Collectors.joining(",")`
-     *      tự động xử lý dấu phân cách mà không cần kiểm tra điều kiện phần tử đầu tiên.
-     */
     public String toFileString() {
         String bookIds = borrowedBooks.stream()
                 .filter(Objects::nonNull)
@@ -284,7 +248,6 @@ public class BorrowRecord {
             sb.append(String.format(" | Compensation: %,.0f VND", compensationFee));
         }
         sb.append("\n  Borrowed Books (").append(borrowedBooks.size()).append(" item(s)):\n");
-        // [LAMBDA & STREAM API]: Dùng IntStream.range kết hợp biểu thức Lambda để in chỉ số và tên sách
         IntStream.range(0, borrowedBooks.size()).forEach(i -> {
             Book b = borrowedBooks.get(i);
             if (b != null) {

@@ -1,14 +1,6 @@
 package Core.Entities;
 
-/**
- * Lớp TextBook (Sách giáo trình) kế thừa từ lớp Book.
- * Cài đặt các phương thức đa hình riêng biệt:
- * - calculatePrice(): Trợ giá sinh viên giảm 10% đơn giá bìa.
- * - calculateBorrowFee(days): Phí mượn ưu đãi học tập 2.000 VNĐ / ngày.
- * - calculateTotalValue(): Tổng giá trị lưu kho bằng đơn giá nhân số lượng.
- * 
- * PRO192 - Phân hệ Sách & Đa hình (Member 2: Nguyen Thien Tue)
- */
+// Milestone 3 - Nguyen Thien Tue - TextBook Entity
 public class TextBook extends Book {
     private String genre;
 
@@ -29,26 +21,17 @@ public class TextBook extends Book {
         this.genre = (genre != null && !genre.trim().isEmpty()) ? genre.trim() : "General";
     }
 
-    /**
-     * Textbooks are subsidized with a 10% discount on cover price for students.
-     */
     @Override
     public double calculatePrice() {
         return getPrice() * 0.90;
     }
 
-    /**
-     * Borrow fee for textbooks: 2,000 VND / day.
-     */
     @Override
     public double calculateBorrowFee(int days) {
         int validDays = (days > 0) ? days : 1;
         return validDays * 2000.0;
     }
 
-    /**
-     * Total inventory value = Cover price * Quantity.
-     */
     @Override
     public double calculateTotalValue() {
         return getPrice() * getQuantity();

@@ -1,5 +1,6 @@
 package DataObjects.DAO;
 
+// Milestone 2 - Nguyen Thien Tue - Book DAO Implementation
 import Core.Entities.Book;
 import Core.Entities.ReferenceBook;
 import Core.Entities.TextBook;
@@ -11,25 +12,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-/**
- * Lớp BookDAO hiện thực hóa IBookDAO quản lý danh sách sách trong bộ nhớ
- * (ArrayList<Book>)
- * và đồng bộ lưu trữ với file Books.txt.
- * 
- * Milestone 3: Áp dụng Đa hình (Polymorphism) và Upcasting trong danh sách
- * sách.
- * Milestone 4: Tích hợp đọc/ghi file Books.txt, tìm kiếm đa tiêu chí, cài đặt
- * thuật toán sắp xếp.
- * 
- * PRO192 - Phân hệ Sách & Đa hình (Member 2: Nguyen Thien Tue)
- */
 public class BookDAO implements IBookDAO {
 
     public static final String DEFAULT_FILE_PATH = "Books.txt";
     private final List<Book> bookList = new ArrayList<>();
 
     public BookDAO() {
-        // Tự động kiểm tra nạp dữ liệu từ file Books.txt
         File file = new File(DEFAULT_FILE_PATH);
         if (file.exists() && file.length() > 0) {
             boolean loaded = loadFromFile(DEFAULT_FILE_PATH);
@@ -49,9 +37,6 @@ public class BookDAO implements IBookDAO {
         }
     }
 
-    /**
-     * Khởi tạo dữ liệu mẫu ban đầu gồm cả Sách giáo trình và Sách tham khảo.
-     */
     public void initSampleData() {
         bookList.clear();
         addBook(new TextBook("B001", "Object-Oriented Programming with Java", "Herbert Schildt", 125000, 30,
@@ -71,17 +56,13 @@ public class BookDAO implements IBookDAO {
         addBook(new ReferenceBook("B008", "Head First Design Patterns", "Eric Freeman", 210000, 22, "O'Reilly Media"));
     }
 
-    // ========================================================
-    // 1. Thao tác CRUD cơ bản
-    // ========================================================
-
     @Override
     public boolean addBook(Book book) {
         if (book == null || book.getBookId() == null || book.getBookId().trim().isEmpty()) {
             return false;
         }
         if (findBookById(book.getBookId()) != null) {
-            return false; // Trùng mã sách
+            return false;
         }
         return bookList.add(book);
     }
@@ -112,19 +93,6 @@ public class BookDAO implements IBookDAO {
         return bookList.remove(existing);
     }
 
-    /**
-     * [LAMBDA & STREAM API]: Tìm kiếm sách theo mã (Book ID).
-     * 
-     * So sánh:
-     * - Cách cũ: Duyệt vòng lặp for-each qua bookList, kiểm tra điều kiện bằng if
-     * và return.
-     * - Lambda/Stream: Dùng Stream pipeline `filter(...) -> findFirst() ->
-     * orElse(null)`.
-     * -> filter nhận Predicate lambda: `b.getBookId() != null &&
-     * b.getBookId().equalsIgnoreCase(cleanId)`
-     * -> findFirst() dừng quét luồng ngay khi tìm thấy phần tử đầu tiên
-     * (short-circuiting).
-     */
     @Override
     public Book findBookById(String bookId) {
         if (bookId == null || bookId.trim().isEmpty()) {
@@ -137,15 +105,6 @@ public class BookDAO implements IBookDAO {
                 .orElse(null);
     }
 
-    /**
-     * [LAMBDA & STREAM API]: Tìm kiếm sách theo từ khóa tên sách.
-     * 
-     * So sánh:
-     * - Cách cũ: Khởi tạo ArrayList rỗng, duyệt vòng lặp for và add vào danh sách
-     * kết quả.
-     * - Lambda/Stream: Dùng Stream `filter` và đóng gói bằng
-     * `collect(Collectors.toList())`.
-     */
     @Override
     public List<Book> findBookByTitle(String title) {
         if (title == null || title.trim().isEmpty()) {
@@ -167,10 +126,6 @@ public class BookDAO implements IBookDAO {
         return bookList.size();
     }
 
-    /**
-     * [LAMBDA & STREAM API]: Tính tổng số bản sách trong kho.
-     * Áp dụng Method Reference `Book::getQuantity` và IntStream `sum()`.
-     */
     @Override
     public int getTotalQuantity() {
         return bookList.stream()
@@ -178,21 +133,6 @@ public class BookDAO implements IBookDAO {
                 .sum();
     }
 
-    // ========================================================
-    // 2. Milestone 3: Nghiệp vụ Đa hình & Upcasting
-    // ========================================================
-
-    /**
-     * [LAMBDA & STREAM API & ĐA HÌNH]: Tính tổng giá trị lưu kho của toàn bộ sách.
-     * 
-     * So sánh:
-     * - Cách cũ: Vòng lặp for cộng dồn `sum += b.calculateTotalValue();`.
-     * - Lambda/Stream:
-     * `bookList.stream().mapToDouble(Book::calculateTotalValue).sum();`.
-     * -> Áp dụng Method Reference đa hình: Tùy loại sách TextBook/ReferenceBook mà
-     * phương thức
-     * tính giá trị kho tương ứng sẽ được gọi động trong DoubleStream!
-     */
     @Override
     public double calculateTotalInventoryValue() {
         return bookList.stream()
@@ -200,12 +140,6 @@ public class BookDAO implements IBookDAO {
                 .sum();
     }
 
-    /**
-     * [LAMBDA & STREAM API & ĐA HÌNH]: Tính tổng phí mượn cho một danh sách sách cụ
-     * thể theo số ngày mượn.
-     * Áp dụng Upcasting & Polymorphism: Mỗi loại sách tự quyết định cách tính phí
-     * mượn riêng.
-     */
     @Override
     public double calculateTotalBorrowFee(List<Book> books, int days) {
         if (books == null || books.isEmpty()) {
@@ -217,15 +151,6 @@ public class BookDAO implements IBookDAO {
                 .sum();
     }
 
-    // ========================================================
-    // 3. Milestone 4: Tìm kiếm đa tiêu chí
-    // ========================================================
-
-    /**
-     * [LAMBDA & STREAM API]: Tìm kiếm sách theo tác giả.
-     * Áp dụng filter kết hợp biểu thức Lambda kiểm tra chuỗi con không phân biệt
-     * hoa thường.
-     */
     @Override
     public List<Book> findBookByAuthor(String author) {
         if (author == null || author.trim().isEmpty()) {
@@ -237,9 +162,6 @@ public class BookDAO implements IBookDAO {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * [LAMBDA & STREAM API]: Tìm kiếm sách theo khoảng đơn giá bìa.
-     */
     @Override
     public List<Book> findBookByPriceRange(double minPrice, double maxPrice) {
         double lower = Math.min(minPrice, maxPrice);
@@ -249,14 +171,6 @@ public class BookDAO implements IBookDAO {
                 .collect(Collectors.toList());
     }
 
-    // ========================================================
-    // 4. Milestone 4: Thuật toán sắp xếp (Sorting Algorithms)
-    // ========================================================
-
-    /**
-     * [LAMBDA & COMPARATOR]: Sắp xếp theo Tên sách (A-Z hoặc Z-A).
-     * Sử dụng Comparator.comparing với Method Reference Book::getTitle.
-     */
     @Override
     public List<Book> getSortedByTitle(boolean ascending) {
         Comparator<Book> comp = Comparator.comparing(Book::getTitle, String.CASE_INSENSITIVE_ORDER);
@@ -265,9 +179,6 @@ public class BookDAO implements IBookDAO {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * [LAMBDA & COMPARATOR]: Sắp xếp theo Tác giả (Author).
-     */
     @Override
     public List<Book> getSortedByAuthor(boolean ascending) {
         Comparator<Book> comp = Comparator.comparing(Book::getAuthor, String.CASE_INSENSITIVE_ORDER);
@@ -276,10 +187,6 @@ public class BookDAO implements IBookDAO {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * [LAMBDA & COMPARATOR]: Sắp xếp theo Đơn giá bìa (Price).
-     * Sử dụng Comparator.comparingDouble để tránh boxing/unboxing overhead.
-     */
     @Override
     public List<Book> getSortedByPrice(boolean ascending) {
         Comparator<Book> comp = Comparator.comparingDouble(Book::getPrice);
@@ -288,10 +195,6 @@ public class BookDAO implements IBookDAO {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * [LAMBDA & COMPARATOR]: Sắp xếp theo Số lượng tồn kho (Quantity).
-     * Sử dụng Comparator.comparingInt.
-     */
     @Override
     public List<Book> getSortedByQuantity(boolean ascending) {
         Comparator<Book> comp = Comparator.comparingInt(Book::getQuantity);
@@ -300,12 +203,6 @@ public class BookDAO implements IBookDAO {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * [LAMBDA & COMPARATOR & ĐA HÌNH]: Sắp xếp theo Tổng giá trị lưu kho (Total
-     * Inventory Value).
-     * Method Reference Book::calculateTotalValue được kích hoạt đa hình cho từng
-     * phần tử.
-     */
     @Override
     public List<Book> getSortedByTotalValue(boolean ascending) {
         Comparator<Book> comp = Comparator.comparingDouble(Book::calculateTotalValue);
@@ -314,17 +211,10 @@ public class BookDAO implements IBookDAO {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * [LAMBDA & GIẢI THUẬT SELECTION SORT]:
-     * Cài đặt giải thuật Selection Sort thủ công kết hợp Lambda Comparator để tùy
-     * biến tiêu chí so sánh.
-     * Vừa đáp ứng tư duy giải thuật O(n^2) vừa áp dụng lập trình hàm hiện đại.
-     */
     @Override
     public List<Book> sortByPriceAlgorithm(boolean ascending) {
         List<Book> list = getBookList();
         int n = list.size();
-        // Áp dụng biểu thức Lambda định nghĩa chiến lược so sánh
         Comparator<Book> comp = ascending
                 ? Comparator.comparingDouble(Book::getPrice)
                 : Comparator.comparingDouble(Book::getPrice).reversed();
@@ -345,11 +235,6 @@ public class BookDAO implements IBookDAO {
         return list;
     }
 
-    /**
-     * [LAMBDA & GIẢI THUẬT INSERTION SORT]:
-     * Cài đặt giải thuật Insertion Sort thủ công kết hợp Lambda Comparator theo tên
-     * sách.
-     */
     @Override
     public List<Book> sortByTitleAlgorithm(boolean ascending) {
         List<Book> list = getBookList();
@@ -373,14 +258,6 @@ public class BookDAO implements IBookDAO {
         return list;
     }
 
-    // ========================================================
-    // 5. Milestone 4: Đọc / Ghi file Books.txt
-    // ========================================================
-
-    /**
-     * [LAMBDA & STREAM API]: Chuyển đổi đối tượng Book thành chuỗi định dạng lưu
-     * file.
-     */
     public static String toFileString(Book b) {
         if (b == null)
             return null;
@@ -407,11 +284,6 @@ public class BookDAO implements IBookDAO {
                 extraInfo);
     }
 
-    /**
-     * [LAMBDA & STREAM API]: Ghi toàn bộ dữ liệu sách ra file với FileManager và
-     * Stream map.
-     * Áp dụng Method Reference BookDAO::toFileString và filter loại bỏ null.
-     */
     @Override
     public boolean saveToFile(String filePath) {
         if (filePath == null || filePath.trim().isEmpty()) {
@@ -434,10 +306,6 @@ public class BookDAO implements IBookDAO {
         }
     }
 
-    /**
-     * [LAMBDA & STREAM API]: Parse một dòng văn bản từ file thành đối tượng Book
-     * (TextBook hoặc ReferenceBook).
-     */
     public static Book parseBookFromLine(String line) {
         if (line == null || line.trim().isEmpty() || line.trim().startsWith("#")) {
             return null;
@@ -481,11 +349,6 @@ public class BookDAO implements IBookDAO {
         }
     }
 
-    /**
-     * [LAMBDA & STREAM API]: Đọc và parse dữ liệu sách từ file Books.txt với Stream
-     * pipeline.
-     * Sử dụng FileManager.readLines và Stream.map(BookDAO::parseBookFromLine).
-     */
     @Override
     public boolean loadFromFile(String filePath) {
         if (filePath == null || filePath.trim().isEmpty()) {
@@ -512,13 +375,6 @@ public class BookDAO implements IBookDAO {
         }
     }
 
-    // ========================================================
-    // 6. Tính năng: Đặt trước sách khi hết hàng (Feature 7)
-    // ========================================================
-
-    /**
-     * Tính năng 7: Đặt trước sách khi sách hết hàng (hoặc đăng ký vào hàng đợi).
-     */
     @Override
     public boolean reserveBook(String bookId, String memberId) {
         Book book = findBookById(bookId);
@@ -528,11 +384,6 @@ public class BookDAO implements IBookDAO {
         return book.addReservation(memberId);
     }
 
-    /**
-     * [LAMBDA & STREAM API]: Lấy danh sách các cuốn sách đang có người chờ trong
-     * hàng đợi.
-     * Sử dụng filter kiểm tra !getReservationQueue().isEmpty() và thu thập kết quả.
-     */
     @Override
     public List<Book> getBooksWithReservations() {
         return bookList.stream()

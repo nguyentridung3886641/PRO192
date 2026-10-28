@@ -1,11 +1,11 @@
 package Utilities;
 
+// Milestone 4 - Nguyen Tri Dung - Data Validation Utilities
 import java.util.regex.Pattern;
 
 public final class DataValidation {
 
     private DataValidation() {
-        
     }
 
     public static boolean checkStringEmpty(String value) {
@@ -38,7 +38,6 @@ public final class DataValidation {
     public static boolean isValidPhone(String phone) {
         return checkStringWithFormat(phone, "0\\d{9}");
     }
-
 
     public static boolean isValidId(String id, String prefix) {
         return checkStringWithFormat(id, "^" + prefix + "\\d{3,}$");

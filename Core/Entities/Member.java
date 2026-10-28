@@ -1,17 +1,12 @@
 package Core.Entities;
 
+// Milestone 2 - Tran Ly Viet Tung - Member Entity
 import java.time.LocalDate;
 
-/**
- * Lớp Member đại diện cho Độc giả thư viện, kế thừa từ lớp trừu tượng User.
- * Bổ sung Tính năng 1: Hệ thống Điểm Uy Tín (Reputation Points) & Hạng Thẻ (SILVER, GOLD, VIP).
- * 
- * PRO192 - Phân hệ Độc giả & Người dùng (Member 1)
- */
 public class Member extends User {
     private LocalDate registrationDate;
     private boolean active;
-    private int reputationPoints; // Điểm uy tín (Mặc định: 50 điểm)
+    private int reputationPoints;
 
     public Member(String userId, String fullName, String phone,
                   LocalDate dateOfBirth, LocalDate registrationDate) {
@@ -60,16 +55,11 @@ public class Member extends User {
 
     public void setReputationPoints(int reputationPoints) {
         this.reputationPoints = reputationPoints;
-        // Tự động khóa thẻ nếu điểm uy tín tụt xuống dưới 0
         if (this.reputationPoints < 0) {
             this.active = false;
         }
     }
 
-    /**
-     * Cộng hoặc trừ điểm uy tín khi độc giả trả sách đúng hạn / trễ hạn / làm mất sách.
-     * Nếu điểm < 0 thì tự động khóa thẻ.
-     */
     public void addReputationPoints(int delta) {
         this.reputationPoints += delta;
         if (this.reputationPoints < 0) {
@@ -77,12 +67,6 @@ public class Member extends User {
         }
     }
 
-    /**
-     * Xác định Hạng thẻ dựa trên điểm uy tín (Viết bằng if-else truyền thống):
-     * - >= 100 điểm: VIP
-     * - 60 đến 99 điểm: GOLD
-     * - < 60 điểm: SILVER
-     */
     public String getMembershipTier() {
         if (reputationPoints >= 100) {
             return "VIP";
@@ -93,10 +77,6 @@ public class Member extends User {
         }
     }
 
-    /**
-     * Hạn mức số sách tối đa được mượn cùng lúc theo Hạng thẻ:
-     * - VIP: 10 cuốn | GOLD: 7 cuốn | SILVER: 5 cuốn
-     */
     public int getMaxBorrowLimit() {
         String tier = getMembershipTier();
         if (tier.equals("VIP")) {
@@ -108,10 +88,6 @@ public class Member extends User {
         }
     }
 
-    /**
-     * Tỉ lệ phần trăm giảm giá phí mượn sách theo Hạng thẻ:
-     * - VIP: giảm 25% (0.25) | GOLD: giảm 10% (0.10) | SILVER: 0% (0.0)
-     */
     public double getDiscountRate() {
         String tier = getMembershipTier();
         if (tier.equals("VIP")) {
