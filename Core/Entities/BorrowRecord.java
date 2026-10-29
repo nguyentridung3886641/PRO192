@@ -21,21 +21,9 @@ public class BorrowRecord {
     private int extensionCount;
     private double compensationFee;
 
-    public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    public static final DateTimeFormatter DATE_FORMAT = Utilities.DataInput.DATE_FORMATTER;
     public static final double FINE_PER_DAY = 5000.0;
     public static final int MAX_EXTENSIONS = 1;
-
-    public BorrowRecord(String recordId, Member member, LocalDate borrowDate, int borrowPeriodDays) {
-        setRecordId(recordId);
-        setMember(member);
-        this.borrowedBooks = new ArrayList<>();
-        setBorrowDate(borrowDate);
-        this.dueDate = this.borrowDate.plusDays(borrowPeriodDays > 0 ? borrowPeriodDays : 14);
-        this.returnDate = null;
-        this.returned = false;
-        this.extensionCount = 0;
-        this.compensationFee = 0.0;
-    }
 
     public BorrowRecord(String recordId, Member member, List<Book> books, LocalDate borrowDate, LocalDate dueDate) {
         setRecordId(recordId);
@@ -73,17 +61,6 @@ public class BorrowRecord {
 
     public List<Book> getBorrowedBooks() {
         return borrowedBooks;
-    }
-
-    public void addBook(Book book) {
-        if (book == null) {
-            throw new IllegalArgumentException("Error: Book to add is invalid!");
-        }
-        borrowedBooks.add(book);
-    }
-
-    public void removeBook(Book book) {
-        borrowedBooks.remove(book);
     }
 
     public LocalDate getBorrowDate() {
@@ -160,10 +137,7 @@ public class BorrowRecord {
     }
 
     public boolean isOverdue() {
-        if (returned) {
-            return returnDate != null && dueDate != null && returnDate.isAfter(dueDate);
-        }
-        return dueDate != null && LocalDate.now().isAfter(dueDate);
+        return getOverdueDays() > 0;
     }
 
     public long getOverdueDays() {
@@ -192,7 +166,7 @@ public class BorrowRecord {
 
     public double calculateDiscountedBorrowFee() {
         double rawFee = calculateTotalBorrowFee();
-        double discountRate = (member != null) ? member.getDiscountRate() : 0.0;
+        double discountRate = member.getDiscountRate();
         return rawFee * (1.0 - discountRate);
     }
 

@@ -91,7 +91,7 @@ public Book findBookById(String bookId) {
 ---
 
 ### 3.2. Sắp xếp đa tiêu chí (Sorting & Comparator Chaining)
-* **Vị trí**: `MemberDAO.sortByNameAscending`, `MemberDAO.sortByReputationDescending`, `BookDAO.getSortedByPrice`
+* **Vị trí**: `MemberDAO.sortByNameAscending`, `MemberDAO.sortByReputationDescending`, `BookDAO.getSortedByQuantity`
 
 * **Cách cũ (Lớp nội ẩn danh Anonymous Class)**:
 ```java

@@ -18,42 +18,7 @@ public class BookDAO implements IBookDAO {
     private final List<Book> bookList = new ArrayList<>();
 
     public BookDAO() {
-        File file = new File(DEFAULT_FILE_PATH);
-        if (file.exists() && file.length() > 0) {
-            boolean loaded = loadFromFile(DEFAULT_FILE_PATH);
-            if (!loaded || bookList.isEmpty()) {
-                initSampleData();
-                saveToFile(DEFAULT_FILE_PATH);
-            }
-        } else {
-            initSampleData();
-            saveToFile(DEFAULT_FILE_PATH);
-        }
-    }
-
-    public BookDAO(boolean loadSampleData) {
-        if (loadSampleData) {
-            initSampleData();
-        }
-    }
-
-    public void initSampleData() {
-        bookList.clear();
-        addBook(new TextBook("B001", "Object-Oriented Programming with Java", "Herbert Schildt", 125000, 30,
-                "Information Technology"));
-        addBook(new TextBook("B002", "Data Structures & Algorithms in Java", "Robert Lafore", 98000, 25,
-                "Computer Science"));
-        addBook(new TextBook("B003", "Database System Concepts (SQL)", "Abraham Silberschatz", 85000, 40,
-                "Information Systems"));
-        addBook(new TextBook("B004", "Computer Networks Principles", "Andrew S. Tanenbaum", 110000, 20,
-                "Telecommunications"));
-        addBook(new ReferenceBook("B005", "Clean Code: A Handbook of Agile Craftsmanship", "Robert C. Martin", 240000,
-                20, "O'Reilly Media"));
-        addBook(new ReferenceBook("B006", "Design Patterns: Gang of Four", "Erich Gamma", 320000, 15,
-                "Addison-Wesley"));
-        addBook(new ReferenceBook("B007", "Refactoring: Improving Code Design", "Martin Fowler", 280000, 18,
-                "Addison-Wesley"));
-        addBook(new ReferenceBook("B008", "Head First Design Patterns", "Eric Freeman", 210000, 22, "O'Reilly Media"));
+        loadFromFile(DEFAULT_FILE_PATH);
     }
 
     @Override
@@ -141,17 +106,6 @@ public class BookDAO implements IBookDAO {
     }
 
     @Override
-    public double calculateTotalBorrowFee(List<Book> books, int days) {
-        if (books == null || books.isEmpty()) {
-            return 0.0;
-        }
-        return books.stream()
-                .filter(Objects::nonNull)
-                .mapToDouble(b -> b.calculateBorrowFee(days))
-                .sum();
-    }
-
-    @Override
     public List<Book> findBookByAuthor(String author) {
         if (author == null || author.trim().isEmpty()) {
             return new ArrayList<>();
@@ -172,24 +126,8 @@ public class BookDAO implements IBookDAO {
     }
 
     @Override
-    public List<Book> getSortedByTitle(boolean ascending) {
-        Comparator<Book> comp = Comparator.comparing(Book::getTitle, String.CASE_INSENSITIVE_ORDER);
-        return bookList.stream()
-                .sorted(ascending ? comp : comp.reversed())
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public List<Book> getSortedByAuthor(boolean ascending) {
         Comparator<Book> comp = Comparator.comparing(Book::getAuthor, String.CASE_INSENSITIVE_ORDER);
-        return bookList.stream()
-                .sorted(ascending ? comp : comp.reversed())
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<Book> getSortedByPrice(boolean ascending) {
-        Comparator<Book> comp = Comparator.comparingDouble(Book::getPrice);
         return bookList.stream()
                 .sorted(ascending ? comp : comp.reversed())
                 .collect(Collectors.toList());

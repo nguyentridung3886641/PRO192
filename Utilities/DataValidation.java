@@ -12,14 +12,6 @@ public final class DataValidation {
         return value == null || value.trim().isEmpty();
     }
 
-    public static boolean checkStringLengthInRange(String value, int min, int max) {
-        if (checkStringEmpty(value)) {
-            return false;
-        }
-        int length = value.trim().length();
-        return length >= min && length <= max;
-    }
-
     public static boolean checkStringWithFormat(String value, String pattern) {
         if (value == null) {
             return false;
@@ -31,12 +23,8 @@ public final class DataValidation {
         return number >= min && number <= max;
     }
 
-    public static boolean checkDoubleInMinMax(double number, double min, double max) {
-        return number >= min && number <= max;
-    }
-
     public static boolean isValidPhone(String phone) {
-        return checkStringWithFormat(phone, "0\\d{9}");
+        return checkStringWithFormat(phone, "\\d{9,11}");
     }
 
     public static boolean isValidId(String id, String prefix) {

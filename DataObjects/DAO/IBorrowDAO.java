@@ -9,8 +9,6 @@ public interface IBorrowDAO {
 
     boolean createBorrowRecord(BorrowRecord record);
 
-    boolean returnBooks(String recordId, LocalDate actualReturnDate);
-
     boolean returnBooksWithDamageCheck(String recordId, LocalDate actualReturnDate, List<String> lostOrDamagedBookIds);
 
     boolean extendBorrowRecord(String recordId, int extraDays);

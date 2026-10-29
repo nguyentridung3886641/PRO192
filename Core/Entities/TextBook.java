@@ -9,10 +9,6 @@ public class TextBook extends Book {
         setGenre(genre);
     }
 
-    public TextBook(String bookId, String title, double price, int quantity, String genre) {
-        this(bookId, title, "Various Authors", price, quantity, genre);
-    }
-
     public String getGenre() {
         return genre;
     }

@@ -2,7 +2,6 @@ package DataObjects.DAO;
 
 // Milestone 2 - Tran Ly Viet Tung - Member DAO Implementation
 import Core.Entities.Member;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,37 +20,7 @@ public class MemberDAO implements IMemberDAO {
     private final List<Member> memberList = new ArrayList<>();
 
     public MemberDAO() {
-        File file = new File(DEFAULT_FILE_PATH);
-        if (file.exists() && file.length() > 0) {
-            boolean loaded = loadFromFile(DEFAULT_FILE_PATH);
-            if (!loaded || memberList.isEmpty()) {
-                initSampleData();
-                saveToFile(DEFAULT_FILE_PATH);
-            }
-        } else {
-            initSampleData();
-            saveToFile(DEFAULT_FILE_PATH);
-        }
-    }
-
-    public MemberDAO(boolean loadSampleData) {
-        if (loadSampleData) {
-            initSampleData();
-        }
-    }
-
-    public void initSampleData() {
-        memberList.clear();
-        add(new Member("M001", "Nguyen Tri Dung", "0901234567",
-                LocalDate.of(2005, 5, 15), LocalDate.of(2026, 1, 10), true, 120));
-        add(new Member("M002", "Nguyen Thien Tue", "0912345678",
-                LocalDate.of(2005, 8, 20), LocalDate.of(2026, 1, 12), true, 85));
-        add(new Member("M003", "Tran Minh Quan", "0987654321",
-                LocalDate.of(2005, 3, 25), LocalDate.of(2026, 2, 1), true, 65));
-        add(new Member("M004", "Le Hoang Nam", "0933445566",
-                LocalDate.of(2005, 11, 5), LocalDate.of(2026, 2, 15), true, 50));
-        add(new Member("M005", "Pham Thu Ha", "0977889900",
-                LocalDate.of(2006, 2, 18), LocalDate.of(2026, 3, 1), false, -5));
+        loadFromFile(DEFAULT_FILE_PATH);
     }
 
     @Override

@@ -18,10 +18,6 @@ public class BookManagement {
 
     private final IBookDAO bookDAO;
 
-    public BookManagement() {
-        this.bookDAO = new BookDAO();
-    }
-
     public BookManagement(IBookDAO bookDAO) {
         this.bookDAO = (bookDAO != null) ? bookDAO : new BookDAO();
     }
@@ -119,7 +115,7 @@ public class BookManagement {
         int totalWidth = sep.length();
 
         System.out.println();
-        System.out.println(makeLine('=', totalWidth));
+        System.out.println(Menu.repeat("=", totalWidth));
         System.out.println(centerText(tableTitle.toUpperCase(), totalWidth));
         System.out.println(sep);
         System.out.printf("| %-8s | %-32s | %-20s | %-15s | %-22s | %-3s | %-14s | %-14s | %-14s | %-14s |%n",
@@ -176,7 +172,7 @@ public class BookManagement {
         String summaryPart3 = String.format("Total inventory value: %,.2f VND", totalVal);
 
         System.out.printf("| %-45s | %-55s | %-62s |%n", summaryPart1, summaryPart2, summaryPart3);
-        System.out.println(makeLine('=', totalWidth));
+        System.out.println(Menu.repeat("=", totalWidth));
     }
 
     public void printAllBooks() {
@@ -552,10 +548,6 @@ public class BookManagement {
         System.out.println("==========================================================================================");
     }
 
-    private static String makeLine(char ch, int length) {
-        return Menu.repeat(String.valueOf(ch), Math.max(0, length));
-    }
-
     private static String centerText(String text, int width) {
         if (text == null) text = "";
         if (text.length() >= width) return text.substring(0, width);
@@ -620,11 +612,5 @@ public class BookManagement {
                 .collect(Collectors.toList());
 
         Menu.printAsciiBarChart("INVENTORY QUANTITY PER BOOK TITLE", labels, values, "copies");
-    }
-
-    public static void main(String[] args) {
-        IBookDAO bookDAO = new BookDAO();
-        BookManagement management = new BookManagement(bookDAO);
-        management.processMenuForBook();
     }
 }

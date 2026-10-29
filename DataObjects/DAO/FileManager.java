@@ -11,29 +11,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class FileManager {
-    private String fileName;
 
-    public FileManager() {
-    }
-
-    public FileManager(String fileName) {
-        this.fileName = fileName;
-    }
-
-    public String getFileName() {
-        return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
-
-    public List<String> readDataFromFile() throws IOException {
-        return readLines(this.fileName);
-    }
-
-    public void saveDataToFile(List<String> lines) throws IOException {
-        writeLines(this.fileName, lines);
+    private FileManager() {
     }
 
     public static List<String> readLines(String filePath) throws IOException {

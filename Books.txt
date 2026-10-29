@@ -1,17 +1,10 @@
-# Book Storage Repository (Library Management System - PRO192)
-# Format: BOOK_TYPE|BOOK_ID|TITLE|AUTHOR|PRICE|QUANTITY|GENRE_OR_PUBLISHER
-TEXTBOOK|B001|Object-Oriented Programming with Java|Herbert Schildt|125000.00|35|Information Technology
-TEXTBOOK|B002|Data Structures & Algorithms in Java|Robert Lafore|98000.00|25|Computer Science
-TEXTBOOK|B003|Database System Concepts (SQL)|Abraham Silberschatz|85000.00|40|Information Systems
-TEXTBOOK|B004|Computer Networks Principles|Andrew S. Tanenbaum|110000.00|20|Telecommunications
-TEXTBOOK|B005|C/C++ Programming Techniques|Pham Van At|90000.00|15|Software Engineering
-TEXTBOOK|B006|Discrete Mathematics for Computing|Kenneth Rosen|95000.00|18|Applied Mathematics
-TEXTBOOK|B007|Operating System Concepts|Abraham Silberschatz|130000.00|22|Computer Science
-REFERENCEBOOK|B008|Clean Code: A Handbook of Agile Craftsmanship|Robert C. Martin|240000.00|20|O'Reilly Media
-REFERENCEBOOK|B009|Design Patterns: Elements of Reusable OO Software|Erich Gamma|320000.00|15|Addison-Wesley
-REFERENCEBOOK|B010|Refactoring: Improving the Design of Existing Code|Martin Fowler|280000.00|18|Addison-Wesley
-REFERENCEBOOK|B011|The Pragmatic Programmer|Andrew Hunt|260000.00|12|Pragmatic Bookshelf
-REFERENCEBOOK|B012|Head First Design Patterns|Eric Freeman|210000.00|25|O'Reilly Media
-REFERENCEBOOK|B013|Effective Java (3rd Edition)|Joshua Bloch|290000.00|16|Addison-Wesley
-REFERENCEBOOK|B014|Introduction to Algorithms (CLRS)|Thomas H. Cormen|450000.00|8|MIT Press
-REFERENCEBOOK|B015|Artificial Intelligence: A Modern Approach|Stuart Russell|380000.00|10|Pearson Education
+# ==============================================================================
+# TESTCASE: Edge Cases for Books
+# Tests: Out-of-stock items (quantity = 0 to test reservation queue), low stock, high prices, boundary ratings
+# Format: BOOK_TYPE|BOOK_ID|TITLE|AUTHOR|PRICE|QUANTITY|GENRE_OR_PUBLISHER|RATING|RATING_COUNT
+# ==============================================================================
+TEXTBOOK|B101|Compiler Design & Construction|Alfred Aho|150000.00|0|Computer Science|4.90|5
+TEXTBOOK|B102|Quantum Computing Fundamentals|Nielsen & Chuang|220000.00|1|Quantum Physics|4.50|2
+REFERENCEBOOK|B103|Distributed Systems: Principles and Paradigms|Andrew S. Tanenbaum|350000.00|0|Pearson Education|5.00|8
+REFERENCEBOOK|B104|Cryptography and Network Security|William Stallings|280000.00|2|Prentice Hall|4.10|3
+TEXTBOOK|B105|Mobile Application Development with Flutter|Google Developers|80000.00|0|Software Engineering|4.00|1

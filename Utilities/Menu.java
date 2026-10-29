@@ -15,17 +15,7 @@ public class Menu {
         Arrays.stream(menuString.split("\\|"))
                 .map(String::trim)
                 .filter(item -> !item.isEmpty())
-                .forEach(item -> {
-                    if (item.endsWith(":") || item.endsWith("?")) {
-                        System.out.print(item + " ");
-                    } else {
-                        System.out.println(item);
-                    }
-                });
-    }
-
-    public static int getUserChoice() {
-        return DataInput.getIntegerNumber("");
+                .forEach(System.out::println);
     }
 
     public static String repeat(String str, int count) {
@@ -35,16 +25,6 @@ public class Menu {
             sb.append(str);
         }
         return sb.toString();
-    }
-
-    public static void printHeader(String title) {
-        int width = 60;
-        String border = repeat("=", width);
-
-        System.out.println("\n" + border);
-        int padding = Math.max(0, (width - title.length()) / 2);
-        System.out.println(repeat(" ", padding) + title.toUpperCase());
-        System.out.println(border);
     }
 
     public static void printAsciiBarChart(String chartTitle, List<String> labels, List<Integer> values, String unit) {
@@ -64,7 +44,7 @@ public class Menu {
         IntStream.range(0, labels.size()).forEach(i -> {
             String label = labels.get(i);
             if (label.length() > 26) {
-                label = label.substring(0, 23) + "...";
+                label = label.substring(0, 23) + "..."; //In nhãn sách -> độ dài lớn hơn 26 thì biểu thị ...
             }
             int val = values.get(i);
             int barLength = 0;

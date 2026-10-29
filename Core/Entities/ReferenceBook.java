@@ -9,10 +9,6 @@ public class ReferenceBook extends Book {
         setPublisher(publisher);
     }
 
-    public ReferenceBook(String bookId, String title, double price, int quantity, String publisher) {
-        this(bookId, title, "Various Authors", price, quantity, publisher);
-    }
-
     public String getPublisher() {
         return publisher;
     }

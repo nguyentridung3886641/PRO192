@@ -8,7 +8,7 @@ import java.util.Scanner;
 
 public class DataInput {
     private static final Scanner scanner = new Scanner(System.in);
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public static String getString(String prompt) {
         System.out.print(prompt);

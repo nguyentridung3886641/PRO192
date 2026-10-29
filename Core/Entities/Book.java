@@ -21,10 +21,6 @@ public abstract class Book {
         this.reservationQueue = new ArrayList<>();
     }
 
-    public Book(String bookId, String title, double price, int quantity) {
-        this(bookId, title, "Various Authors", price, quantity);
-    }
-
     public String getBookId() {
         return bookId;
     }
@@ -90,9 +86,7 @@ public abstract class Book {
             return false;
         }
         String cleanId = memberId.trim().toUpperCase();
-        boolean alreadyReserved = reservationQueue.stream()
-                .anyMatch(cleanId::equalsIgnoreCase);
-        if (alreadyReserved) {
+        if (reservationQueue.contains(cleanId)) {
             return false;
         }
         reservationQueue.add(cleanId);

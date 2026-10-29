@@ -13,16 +13,10 @@ public interface IBookDAO {
     Book findBookById(String bookId);
     List<Book> findBookByTitle(String title);
     List<Book> getBookList();
-
     double calculateTotalInventoryValue();
-    double calculateTotalBorrowFee(List<Book> books, int days);
-
     List<Book> findBookByAuthor(String author);
     List<Book> findBookByPriceRange(double minPrice, double maxPrice);
-
-    List<Book> getSortedByTitle(boolean ascending);
     List<Book> getSortedByAuthor(boolean ascending);
-    List<Book> getSortedByPrice(boolean ascending);
     List<Book> getSortedByQuantity(boolean ascending);
     List<Book> getSortedByTotalValue(boolean ascending);
 

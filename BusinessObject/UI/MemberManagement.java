@@ -16,10 +16,6 @@ public class MemberManagement {
 
     private final IMemberDAO memberDAO;
 
-    public MemberManagement() {
-        this.memberDAO = new MemberDAO();
-    }
-
     public MemberManagement(IMemberDAO memberDAO) {
         this.memberDAO = (memberDAO != null) ? memberDAO : new MemberDAO();
     }
@@ -142,7 +138,7 @@ public class MemberManagement {
         String phone;
         while (true) {
             phone = DataInput.getNonEmptyString("Enter phone number (9-11 digits): ");
-            if (phone.matches("\\d{9,11}")) {
+            if (DataValidation.isValidPhone(phone)) {
                 break;
             }
             System.out.println(">> Error: Phone number must contain 9 to 11 digits!");
@@ -185,7 +181,7 @@ public class MemberManagement {
 
         String newName = DataInput.getString("New full name [" + member.getFullName() + "]: ");
         String newPhone = DataInput.getString("New phone number [" + member.getPhone() + "]: ");
-        if (!newPhone.isEmpty() && !newPhone.matches("\\d{9,11}")) {
+        if (!newPhone.isEmpty() && !DataValidation.isValidPhone(newPhone)) {
             System.out.println(">> Invalid phone number, keeping existing one.");
             newPhone = "";
         }

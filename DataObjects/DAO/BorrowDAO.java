@@ -4,7 +4,6 @@ package DataObjects.DAO;
 import Core.Entities.Book;
 import Core.Entities.BorrowRecord;
 import Core.Entities.Member;
-import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,7 +15,6 @@ import java.util.stream.IntStream;
 public class BorrowDAO implements IBorrowDAO {
 
     public static final String DEFAULT_FILE_PATH = "BorrowRecords.txt";
-    public static final int MAX_BORROW_LIMIT = 5;
 
     private final List<BorrowRecord> recordList = new ArrayList<>();
     private final IMemberDAO memberDAO;
@@ -25,56 +23,7 @@ public class BorrowDAO implements IBorrowDAO {
     public BorrowDAO(IMemberDAO memberDAO, IBookDAO bookDAO) {
         this.memberDAO = (memberDAO != null) ? memberDAO : new MemberDAO();
         this.bookDAO = (bookDAO != null) ? bookDAO : new BookDAO();
-
-        File file = new File(DEFAULT_FILE_PATH);
-        if (file.exists() && file.length() > 0) {
-            boolean loaded = loadFromFile(DEFAULT_FILE_PATH);
-            if (!loaded || recordList.isEmpty()) {
-                initSampleData();
-                saveToFile(DEFAULT_FILE_PATH);
-            }
-        } else {
-            initSampleData();
-            saveToFile(DEFAULT_FILE_PATH);
-        }
-    }
-
-    public void initSampleData() {
-        recordList.clear();
-        Member m1 = memberDAO.findById("M001");
-        Member m2 = memberDAO.findById("M002");
-        Member m3 = memberDAO.findById("M003");
-
-        Book b1 = bookDAO.findBookById("B001");
-        Book b2 = bookDAO.findBookById("B002");
-        Book b5 = bookDAO.findBookById("B005");
-        Book b6 = bookDAO.findBookById("B006");
-
-        if (m1 != null && b1 != null && b5 != null) {
-            List<Book> list1 = new ArrayList<>();
-            list1.add(b1);
-            list1.add(b5);
-            BorrowRecord r1 = new BorrowRecord("BR001", m1, list1,
-                    LocalDate.now().minusDays(10), LocalDate.now().plusDays(4));
-            recordList.add(r1);
-        }
-
-        if (m2 != null && b2 != null) {
-            List<Book> list2 = new ArrayList<>();
-            list2.add(b2);
-            BorrowRecord r2 = new BorrowRecord("BR002", m2, list2,
-                    LocalDate.now().minusDays(20), LocalDate.now().minusDays(6));
-            recordList.add(r2);
-        }
-
-        if (m3 != null && b6 != null) {
-            List<Book> list3 = new ArrayList<>();
-            list3.add(b6);
-            BorrowRecord r3 = new BorrowRecord("BR003", m3, list3,
-                    LocalDate.now().minusDays(25), LocalDate.now().minusDays(11));
-            r3.markAsReturned(LocalDate.now().minusDays(8));
-            recordList.add(r3);
-        }
+        loadFromFile(DEFAULT_FILE_PATH);
     }
 
     @Override
@@ -126,11 +75,6 @@ public class BorrowDAO implements IBorrowDAO {
 
         recordList.add(record);
         return true;
-    }
-
-    @Override
-    public boolean returnBooks(String recordId, LocalDate actualReturnDate) {
-        return returnBooksWithDamageCheck(recordId, actualReturnDate, new ArrayList<String>());
     }
 
     @Override

@@ -9,28 +9,11 @@ public class Member extends User {
     private int reputationPoints;
 
     public Member(String userId, String fullName, String phone,
-                  LocalDate dateOfBirth, LocalDate registrationDate) {
-        super(userId, fullName, phone, dateOfBirth);
-        setRegistrationDate(registrationDate);
-        this.active = true;
-        this.reputationPoints = 50;
-    }
-
-    public Member(String userId, String fullName, String phone,
-                  LocalDate dateOfBirth, LocalDate registrationDate, boolean active) {
-        this(userId, fullName, phone, dateOfBirth, registrationDate, active, 50);
-    }
-
-    public Member(String userId, String fullName, String phone,
                   LocalDate dateOfBirth, LocalDate registrationDate, boolean active, int reputationPoints) {
         super(userId, fullName, phone, dateOfBirth);
         setRegistrationDate(registrationDate);
         this.active = active;
         setReputationPoints(reputationPoints);
-    }
-
-    public LocalDate getRegistrationDate() {
-        return registrationDate;
     }
 
     public void setRegistrationDate(LocalDate registrationDate) {
@@ -61,10 +44,7 @@ public class Member extends User {
     }
 
     public void addReputationPoints(int delta) {
-        this.reputationPoints += delta;
-        if (this.reputationPoints < 0) {
-            this.active = false;
-        }
+        setReputationPoints(this.reputationPoints + delta);
     }
 
     public String getMembershipTier() {

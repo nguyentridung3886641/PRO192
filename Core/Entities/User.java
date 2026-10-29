@@ -9,7 +9,7 @@ public abstract class User {
     protected String fullName;
     protected String phone;
     protected LocalDate dateOfBirth;
-    public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    public static final DateTimeFormatter DATE_FORMAT = Utilities.DataInput.DATE_FORMATTER;
 
     public User(String userId, String fullName, String phone, LocalDate dateOfBirth) {
         setUserId(userId);
